@@ -5,10 +5,13 @@ import java.util.Optional;
 
 import com.medicare.entity.Doctor;
 
+import jakarta.persistence.LockModeType;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,6 +23,15 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     /** Loads a doctor together with the user and department (avoids lazy-loading round trips). */
     @EntityGraph(attributePaths = {"user", "department"})
     Optional<Doctor> findWithDetailsById(Long id);
+
+    /**
+     * Locks the doctor row (SELECT ... FOR UPDATE) for the rest of the transaction. Booking and
+     * rescheduling take this lock first, so all reservations for one doctor are serialised and
+     * overlap checks can't race each other.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Doctor d WHERE d.id = :id")
+    Optional<Doctor> lockById(@Param("id") Long id);
 
     boolean existsByLicenseNumberIgnoreCase(String licenseNumber);
 

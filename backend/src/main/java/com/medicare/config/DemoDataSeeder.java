@@ -2,9 +2,11 @@ package com.medicare.config;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 
 import com.medicare.entity.Department;
+import com.medicare.entity.DoctorAvailability;
 import com.medicare.entity.Doctor;
 import com.medicare.entity.LabTechnician;
 import com.medicare.entity.Patient;
@@ -15,6 +17,7 @@ import com.medicare.enums.BloodGroup;
 import com.medicare.enums.Gender;
 import com.medicare.enums.Role;
 import com.medicare.repository.DepartmentRepository;
+import com.medicare.repository.DoctorAvailabilityRepository;
 import com.medicare.repository.DoctorRepository;
 import com.medicare.repository.LabTechnicianRepository;
 import com.medicare.repository.PatientRepository;
@@ -55,6 +58,7 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final LabTechnicianRepository labTechnicianRepository;
     private final PharmacistRepository pharmacistRepository;
     private final DepartmentRepository departmentRepository;
+    private final DoctorAvailabilityRepository availabilityRepository;
     private final SequenceService sequenceService;
     private final PasswordEncoder passwordEncoder;
     private final Environment environment;
@@ -63,7 +67,8 @@ public class DemoDataSeeder implements ApplicationRunner {
     public DemoDataSeeder(UserRepository userRepository, PatientRepository patientRepository,
                           DoctorRepository doctorRepository, ReceptionistRepository receptionistRepository,
                           LabTechnicianRepository labTechnicianRepository, PharmacistRepository pharmacistRepository,
-                          DepartmentRepository departmentRepository, SequenceService sequenceService,
+                          DepartmentRepository departmentRepository,
+                          DoctorAvailabilityRepository availabilityRepository, SequenceService sequenceService,
                           PasswordEncoder passwordEncoder, Environment environment,
                           @Value("${medicare.demo.password:}") String demoPassword) {
         this.userRepository = userRepository;
@@ -73,6 +78,7 @@ public class DemoDataSeeder implements ApplicationRunner {
         this.labTechnicianRepository = labTechnicianRepository;
         this.pharmacistRepository = pharmacistRepository;
         this.departmentRepository = departmentRepository;
+        this.availabilityRepository = availabilityRepository;
         this.sequenceService = sequenceService;
         this.passwordEncoder = passwordEncoder;
         this.environment = environment;
@@ -129,7 +135,28 @@ public class DemoDataSeeder implements ApplicationRunner {
                 LocalDate.of(1995, 9, 30), Gender.FEMALE, BloodGroup.O_POS, "22 Demo Street, Sample City",
                 "Raj Sharma", "+91 90000 10012", hash);
 
-        log.info("Demo data: {} account(s) created (existing accounts were left unchanged)", created);
+        int schedules = seedSchedules();
+        log.info("Demo data: {} account(s) created, {} doctor schedule(s) added (existing data left unchanged)",
+                created, schedules);
+    }
+
+    /** Mon–Sat 09:00–17:00 with a 13:00–14:00 break for every demo doctor that has no schedule yet. */
+    private int seedSchedules() {
+        int count = 0;
+        for (String email : new String[]{"dr.mehta@medicare.example", "dr.rao@medicare.example", "dr.khan@medicare.example",
+                "dr.iyer@medicare.example", "dr.nair@medicare.example"}) {
+            var doctor = userRepository.findByEmailIgnoreCase(email).flatMap(u -> doctorRepository.findByUserId(u.getId())).orElse(null);
+            if (doctor == null || !availabilityRepository.findByDoctorIdOrderByDayOfWeek(doctor.getId()).isEmpty()) {
+                continue;
+            }
+            for (int day = 1; day <= 6; day++) {
+                DoctorAvailability a = new DoctorAvailability(doctor.getId(), day);
+                a.update(LocalTime.of(9, 0), LocalTime.of(17, 0), LocalTime.of(13, 0), LocalTime.of(14, 0), true);
+                availabilityRepository.save(a);
+            }
+            count++;
+        }
+        return count;
     }
 
     private User createUser(String email, String name, String phone, Role role, String hash) {

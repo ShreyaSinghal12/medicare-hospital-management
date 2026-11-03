@@ -16,10 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Writes the security/audit trail.
  *
- * <p>Each entry is written in its own transaction ({@code REQUIRES_NEW}) so that a
- * failed operation (e.g. a rejected login) is still recorded even when the
- * surrounding business transaction rolls back. Callers must never pass passwords,
- * tokens or clinical free text in {@code details}.</p>
+ * <p>{@link #record} and {@link #recordFor} join the caller's transaction: the entry is committed
+ * together with the business change, and disappears if that change rolls back (it didn't happen).
+ * Using one connection per request also keeps the connection pool from being exhausted under
+ * concurrent load.</p>
+ *
+ * <p>{@link #recordIndependently} uses its own transaction ({@code REQUIRES_NEW}) and is used only
+ * for events that must be kept although the request fails, such as denied access.</p>
+ *
+ * <p>Callers must never pass passwords, tokens or clinical free text in {@code details}.</p>
  */
 @Service
 public class AuditService {
@@ -63,15 +68,23 @@ public class AuditService {
     }
 
     /** Records an action performed by the currently logged-in user (or anonymous). */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void record(String action, String entityType, Object entityId, AuditOutcome outcome, String details) {
         AppUserPrincipal actor = CurrentUser.find().orElse(null);
         write(actor == null ? null : actor.id(), actor == null ? null : actor.email(),
                 actor == null ? null : actor.role().name(), action, entityType, entityId, outcome, details);
     }
 
-    /** Records an action for an explicitly given actor (e.g. during login, before a session exists). */
+    /** Same as {@link #record} but committed even if the caller's transaction rolls back. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void recordIndependently(String action, String entityType, Object entityId, AuditOutcome outcome, String details) {
+        AppUserPrincipal actor = CurrentUser.find().orElse(null);
+        write(actor == null ? null : actor.id(), actor == null ? null : actor.email(),
+                actor == null ? null : actor.role().name(), action, entityType, entityId, outcome, details);
+    }
+
+    /** Records an action for an explicitly given actor (e.g. during login, before a session exists). */
+    @Transactional
     public void recordFor(Long actorUserId, String actorEmail, String actorRole, String action, String entityType,
                           Object entityId, AuditOutcome outcome, String details) {
         write(actorUserId, actorEmail, actorRole, action, entityType, entityId, outcome, details);

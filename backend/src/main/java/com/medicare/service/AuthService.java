@@ -289,7 +289,7 @@ public class AuthService {
         boolean currentTooLong = req.currentPassword().getBytes(StandardCharsets.UTF_8).length
                 > StrongPasswordValidator.MAX_BCRYPT_BYTES;
         if (currentTooLong || !passwordEncoder.matches(req.currentPassword(), user.getPasswordHash())) {
-            auditService.record(AuditService.Actions.PASSWORD_CHANGED, "User", userId, AuditOutcome.FAILURE,
+            auditService.recordIndependently(AuditService.Actions.PASSWORD_CHANGED, "User", userId, AuditOutcome.FAILURE,
                     "Wrong current password");
             throw new BusinessRuleException("CURRENT_PASSWORD_INCORRECT", "Your current password is incorrect");
         }
