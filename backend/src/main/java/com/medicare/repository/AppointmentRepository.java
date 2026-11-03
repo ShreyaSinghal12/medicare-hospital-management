@@ -115,4 +115,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                           @Param("toDate") LocalDate toDate);
 
     boolean existsByDoctorIdAndPatientIdAndStatusNot(Long doctorId, Long patientId, AppointmentStatus status);
+
+    @EntityGraph(attributePaths = {"doctor", "doctor.user", "doctor.department"})
+    List<Appointment> findByPatientIdOrderByAppointmentDateDescStartTimeDesc(Long patientId);
 }

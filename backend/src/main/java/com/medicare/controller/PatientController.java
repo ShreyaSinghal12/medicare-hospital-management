@@ -2,10 +2,12 @@ package com.medicare.controller;
 
 import jakarta.validation.Valid;
 
+import com.medicare.dto.clinical.MedicalHistoryResponse;
 import com.medicare.dto.patient.PatientProfileResponse;
 import com.medicare.dto.patient.UpdatePatientProfileRequest;
 import com.medicare.security.CurrentUser;
 import com.medicare.service.PatientProfileService;
+import com.medicare.service.PatientRecordService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class PatientController {
 
     private final PatientProfileService profileService;
+    private final PatientRecordService recordService;
 
-    public PatientController(PatientProfileService profileService) {
+    public PatientController(PatientProfileService profileService, PatientRecordService recordService) {
         this.profileService = profileService;
+        this.recordService = recordService;
+    }
+
+    @GetMapping("/medical-history")
+    @Operation(summary = "Own allergies, conditions and finalized consultations (timeline)")
+    public MedicalHistoryResponse medicalHistory() {
+        return recordService.myHistory(CurrentUser.get());
     }
 
     @GetMapping

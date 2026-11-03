@@ -40,6 +40,18 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             """)
     Page<Patient> search(@Param("search") String search, @Param("active") Boolean active, Pageable pageable);
 
+    /** Patients the doctor has (or had) a treatment relationship with: any non-cancelled appointment. */
+    @EntityGraph(attributePaths = "user")
+    @Query("""
+            SELECT p FROM Patient p JOIN p.user u
+            WHERE EXISTS (SELECT 1 FROM Appointment a WHERE a.patient = p AND a.doctor.id = :doctorId
+                          AND a.status <> com.medicare.enums.AppointmentStatus.CANCELLED)
+              AND (:search IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(p.patientCode) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<Patient> findPatientsOfDoctor(@Param("doctorId") Long doctorId, @Param("search") String search,
+                                       Pageable pageable);
+
     /** Lightweight rows used for duplicate detection. */
     interface DuplicateCandidate {
         Long getId();
