@@ -10,7 +10,11 @@ import PatientsAdminPage from '../pages/admin/PatientsAdminPage.jsx';
 import StaffAdminPage from '../pages/admin/StaffAdminPage.jsx';
 import UserManagementPage from '../pages/admin/UserManagementPage.jsx';
 import AvailabilityPage from '../pages/doctor/AvailabilityPage.jsx';
+import ConsultationPage from '../pages/doctor/ConsultationPage.jsx';
 import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage.jsx';
+import MyPatientsPage from '../pages/doctor/MyPatientsPage.jsx';
+import PatientRecordPage from '../pages/doctor/PatientRecordPage.jsx';
+import MedicalHistoryPage from '../pages/patient/MedicalHistoryPage.jsx';
 import DoctorDashboard from '../pages/doctor/DoctorDashboard.jsx';
 import DoctorOwnProfilePage from '../pages/doctor/DoctorOwnProfilePage.jsx';
 import AppointmentDetailPage from '../pages/patient/AppointmentDetailPage.jsx';
@@ -79,6 +83,7 @@ export default function AppRoutes() {
           <Route path="patient/doctors/:id" element={<PatientDoctorProfilePage />} />
           <Route path="patient/book/:doctorId" element={<BookAppointmentPage />} />
           <Route path="patient/appointments" element={<MyAppointmentsPage />} />
+          <Route path="patient/history" element={<MedicalHistoryPage />} />
           <Route path="patient/appointments/:id" element={<AppointmentDetailPage />} />
           <Route path="patient/appointments/:id/reschedule" element={<ReschedulePage />} />
         </Route>
@@ -89,6 +94,9 @@ export default function AppRoutes() {
           <Route path="doctor" element={<DoctorDashboard />} />
           <Route path="doctor/appointments" element={<DoctorAppointmentsPage />} />
           <Route path="doctor/availability" element={<AvailabilityPage />} />
+          <Route path="doctor/patients" element={<MyPatientsPage />} />
+          <Route path="doctor/patients/:patientId" element={<PatientRecordPage />} />
+          <Route path="doctor/consultations/:id" element={<ConsultationPage />} />
           <Route path="doctor/profile" element={<DoctorOwnProfilePage />} />
         </Route>
       </Route>

@@ -11,6 +11,7 @@ import StatCard from '../../components/ui/StatCard.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import useApi from '../../hooks/useApi.js';
 import { getMyAppointmentSummary } from '../../services/appointmentService.js';
+import { getMyMedicalHistory } from '../../services/clinicalService.js';
 import { getMyProfile } from '../../services/patientService.js';
 import { formatDateLong, hhmm } from '../../utils/dates.js';
 
@@ -19,6 +20,8 @@ export default function PatientDashboard() {
   const { user } = useAuth();
   const { data: profile, loading, error, reload } = useApi(getMyProfile);
   const summary = useApi(getMyAppointmentSummary);
+  const history = useApi(getMyMedicalHistory);
+  const recent = (history.data?.timeline || []).slice(0, 3);
   const s = summary.data;
   const firstName = user.fullName.split(' ')[0];
 
@@ -59,6 +62,18 @@ export default function PatientDashboard() {
                 </p>
               </Link>
             )}
+          </Card>
+          <Card title="Recent consultations" actions={<Link to="/patient/history" className="text-sm font-medium text-brand-700 hover:underline">Full history</Link>}>
+            {history.loading && <Spinner />}
+            {history.data && recent.length === 0 && <p className="text-sm text-slate-500">No consultation records yet.</p>}
+            <ul className="divide-y divide-slate-100">
+              {recent.map((e) => (
+                <li key={e.consultationId} className="py-2 text-sm">
+                  <p className="font-medium text-slate-900">{formatDateLong(e.date)} · {e.doctorName}</p>
+                  <p className="text-slate-600">{e.diagnosis}</p>
+                </li>
+              ))}
+            </ul>
           </Card>
           <RecentNotifications />
         </div>

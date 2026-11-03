@@ -1,6 +1,7 @@
 import { CalendarDays, CalendarRange, ClipboardCheck, Hourglass } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AppointmentRow from '../../components/appointments/AppointmentRow.jsx';
+import StartConsultationButton from '../../components/clinical/StartConsultationButton.jsx';
 import RecentNotifications from '../../components/RecentNotifications.jsx';
 import Card from '../../components/ui/Card.jsx';
 import EmptyState from '../../components/ui/EmptyState.jsx';
@@ -13,7 +14,7 @@ import useApi from '../../hooks/useApi.js';
 import { getDoctorDashboard } from '../../services/scheduleService.js';
 import { formatDateLong, todayIsoLocal } from '../../utils/dates.js';
 
-/** Doctor home: today's list and workload counters (live data). Consultations are added in Phase 5. */
+/** Doctor home: today's list with consultation actions and workload counters (live data). */
 export default function DoctorDashboard() {
   const { user } = useAuth();
   const { data, loading, error, reload } = useApi(getDoctorDashboard);
@@ -35,7 +36,7 @@ export default function DoctorDashboard() {
             {error && <ErrorState error={error} onRetry={reload} />}
             {data && data.today.length === 0 && <EmptyState icon={CalendarDays} title="No appointments today" />}
             {data && data.today.length > 0 && (
-              <ul className="divide-y divide-slate-100">{data.today.map((a) => <AppointmentRow key={a.id} a={a} />)}</ul>
+              <ul className="divide-y divide-slate-100">{data.today.map((a) => <AppointmentRow key={a.id} a={a} actions={<StartConsultationButton appointment={a} />} />)}</ul>
             )}
           </Card>
         </div>

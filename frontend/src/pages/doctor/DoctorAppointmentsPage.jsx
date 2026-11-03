@@ -3,6 +3,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, List } from 'lucide-react';
 import { toast } from 'sonner';
 import AppointmentRow from '../../components/appointments/AppointmentRow.jsx';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge.jsx';
+import StartConsultationButton from '../../components/clinical/StartConsultationButton.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
 import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx';
@@ -128,8 +129,11 @@ export default function DoctorAppointmentsPage() {
         {data && view === 'list' && rows.length > 0 && (
           <ul className="divide-y divide-slate-100">
             {rows.map((a) => (
-              <AppointmentRow key={a.id} a={a} showDate actions={canMarkNoShow(a) && (
-                <Button size="sm" variant="ghost" onClick={() => setNoShow(a)}>Mark no-show</Button>
+              <AppointmentRow key={a.id} a={a} showDate actions={(
+                <>
+                  <StartConsultationButton appointment={a} />
+                  {canMarkNoShow(a) && <Button size="sm" variant="ghost" onClick={() => setNoShow(a)}>Mark no-show</Button>}
+                </>
               )} />
             ))}
           </ul>

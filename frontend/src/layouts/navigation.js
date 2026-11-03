@@ -1,6 +1,6 @@
 import {
   Bell, Building2, CalendarCheck, CalendarClock, CalendarOff, ClipboardList, FlaskConical, IdCard, LayoutDashboard,
-  Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
+  NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
 /**
@@ -11,6 +11,7 @@ export const NAVIGATION = {
   PATIENT: [
     { to: '/patient', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/patient/appointments', label: 'My appointments', icon: CalendarCheck },
+    { to: '/patient/history', label: 'Medical history', icon: NotebookText },
     { to: '/patient/doctors', label: 'Find a doctor', icon: Search },
     { to: '/patient/profile', label: 'My profile', icon: UserRound },
     { to: '/notifications', label: 'Notifications', icon: Bell },
@@ -19,6 +20,7 @@ export const NAVIGATION = {
   DOCTOR: [
     { to: '/doctor', label: 'Dashboard', icon: Stethoscope, end: true },
     { to: '/doctor/appointments', label: 'Appointments', icon: CalendarCheck },
+    { to: '/doctor/patients', label: 'My patients', icon: Users },
     { to: '/doctor/availability', label: 'Availability', icon: CalendarClock },
     { to: '/doctor/profile', label: 'My profile', icon: IdCard },
     { to: '/notifications', label: 'Notifications', icon: Bell },

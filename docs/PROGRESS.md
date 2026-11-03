@@ -8,7 +8,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 2 | Authentication: register, login, logout, password reset, RBAC routing, account settings, patient profile, notifications API/UI, admin user activation, lockout + rate limiting, session revocation, audit logging, demo users | ✅ | 40 backend tests (25 integration on MySQL + 15 unit), 20 Vitest tests, 11-step Playwright run on the real stack |
 | 3 | Doctor directory (search/filter/profile), admin doctor CRUD, departments, staff accounts with set-password links, admin patient search/corrections/duplicate review, doctor self-profile | ✅ | 53 backend tests (36 integration on MySQL + 17 unit), 29 Vitest tests, 11-step Playwright run on the real stack |
 | 4 | Weekly schedules, leave approvals, rule-based slot generation, next-available, concurrency-safe booking, cancel (window), atomic reschedule, no-show, status history, patient booking flow, doctor week calendar, admin leave/schedule pages | ✅ | 86 backend tests (incl. 10-thread simultaneous booking, repeated 5×), 36 Vitest tests, 8-step Playwright run incl. two browsers racing for one slot |
-| 5 | Doctor consultations & patient history access | ⬜ | |
+| 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist, admin and lab |
 | 6 | Prescriptions (draft/finalise/version, PDF) | ⬜ | |
 | 7 | Reception: walk-ins, check-in, queue tokens | ⬜ | |
 | 8 | Laboratory module | ⬜ | |
@@ -40,8 +40,8 @@ A feature is ticked only when **all** of these hold:
 | 1–2 | Patient registers and logs in | 2 | ✅ |
 | 3–4 | Search cardiologist, view profile | 3 | ✅ |
 | 5–8 | Select slot, book, concurrent booking rejected, dashboard shows booking | 4 | ✅ |
-| 9 | Receptionist checks patient in | 7 | ⬜ |
-| 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ⬜ |
+| 9 | Receptionist checks patient in | 7 | ⬜ (doctor-side implicit check-in exists) |
+| 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ⬜ |
 | 16–18 | Lab order, report upload, patient download | 8 | ⬜ |
 | 19 | Pharmacist dispenses | 9 | ⬜ |
@@ -82,3 +82,13 @@ A feature is ticked only when **all** of these hold:
   rules for those transitions are already enforced and tested.
 * Doctors edit their weekly hours directly (the change applies immediately and flags affected bookings). Leave
   needs admin approval; admins can also record leave that is approved immediately.
+
+## Phase 5 notes
+
+* No schema change was needed; the tables come from `V3`.
+* Clinical access is centralised in `ClinicalAccessService`. Drafts are visible only to their author; other
+  treating doctors see finalized notes.
+* Concurrent edits are protected with the entity `@Version`: the client sends the version it loaded, and a
+  stale version gets 409 CONCURRENT_MODIFICATION.
+* The browser test ran in the evening (hospital time), so the admin temporarily extended a demo doctor's hours
+  through the schedule API and restored them afterwards.

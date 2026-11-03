@@ -207,6 +207,14 @@ medical-management-system/
 | GET / PUT | `/api/admin/doctors/{id}/availability` | ADMIN | Manage a doctor's hours |
 | POST | `/api/admin/doctors/{id}/leave` | ADMIN | Record leave (approved immediately) |
 | GET | `/api/admin/leave`, PATCH `/api/admin/leave/{id}/decision` | ADMIN | Leave approvals |
+| POST | `/api/consultations` | DOCTOR | Start/re-open the consultation of your appointment (on its day) |
+| GET | `/api/consultations/{id}`, `/by-appointment/{apptId}` | treating DOCTOR; own PATIENT (finalized) | Read (patients don't see observations/internal notes) |
+| PATCH | `/api/consultations/{id}` | author DOCTOR | Save draft (send `version`; 409 if stale) |
+| POST | `/api/consultations/{id}/finalize` | author DOCTOR | Finalize (diagnosis required); completes the appointment |
+| POST / GET | `/api/consultations/{id}/amendments` | author / treating DOCTOR | Amend finalized notes with a reason; list previous versions |
+| GET | `/api/doctor/patients`, `/api/doctor/patients/{id}/record` | DOCTOR (treatment relationship) | Own patients; full record (audited) |
+| POST / PATCH | `/api/doctor/patients/{id}/allergies[/{aid}]`, `/conditions[/{cid}]` | treating DOCTOR | Record allergies and conditions |
+| GET | `/api/patients/me/medical-history` | PATIENT | Allergies, conditions, finalized consultation timeline |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -242,6 +250,20 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 * Schedule changes and approved leave never cancel bookings. Affected appointments are flagged
   *needs rescheduling* and the patient is notified.
 * The demo profile gives every demo doctor Mon–Sat 09:00–17:00 hours with a 13:00–14:00 break.
+
+### Clinical records and privacy
+
+* A doctor can see a patient's clinical record only with a **treatment relationship**, meaning at least one
+  non-cancelled appointment together. Every record view and every denied attempt goes into `audit_logs`.
+* Receptionists, administrators, lab technicians and pharmacists have no access to diagnoses or notes,
+  enforced on the server.
+* All clinical content is typed by the doctor. MediCare never suggests diagnoses, treatments or doses.
+* A consultation can be started on the appointment day (until reception check-in arrives in Phase 7, starting
+  it records an implicit check-in). Finalizing requires a diagnosis and completes the appointment.
+* Finalized notes are never overwritten. An amendment needs a reason, and the previous values are stored as
+  a JSON snapshot (`consultation_amendments`).
+* Patients see their finalized consultations, active allergies and conditions in *Medical history*, without the
+  doctor's internal observations and notes, and can book a recommended follow-up directly.
 
 ## 9. Common errors and fixes
 
