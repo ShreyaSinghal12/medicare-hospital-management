@@ -41,9 +41,26 @@ export function toApiError(error) {
   };
 }
 
+let unauthorizedHandler = null;
+
+/**
+ * Registers a callback invoked when an authenticated request returns 401
+ * (session expired, revoked or logged out elsewhere). Used by AuthContext.
+ */
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler;
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(toApiError(error)),
+  (error) => {
+    const apiError = toApiError(error);
+    const url = error?.config?.url || '';
+    if (apiError.status === 401 && !url.startsWith('/auth/') && unauthorizedHandler) {
+      unauthorizedHandler(apiError);
+    }
+    return Promise.reject(apiError);
+  },
 );
 
 export default apiClient;

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Menu, Plus, X } from 'lucide-react';
+import Button from '../components/ui/Button.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { homeFor } from '../utils/roles.js';
 
 const NAV = [
   { to: '/', label: 'Home', end: true },
@@ -28,6 +31,20 @@ export function Logo() {
   );
 }
 
+function AuthButtons({ onNavigate }) {
+  const { user, initializing } = useAuth();
+  if (initializing) return null;
+  if (user) {
+    return <Button to={homeFor(user)} size="sm" onClick={onNavigate}>Go to dashboard</Button>;
+  }
+  return (
+    <>
+      <Button to="/login" variant="secondary" size="sm" onClick={onNavigate}>Log in</Button>
+      <Button to="/register" size="sm" onClick={onNavigate}>Register</Button>
+    </>
+  );
+}
+
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
 
@@ -45,6 +62,9 @@ export default function PublicLayout() {
                 {item.label}
               </NavLink>
             ))}
+            <div className="ml-3 flex items-center gap-2 border-l border-slate-200 pl-4">
+              <AuthButtons />
+            </div>
           </nav>
           <button
             type="button"
@@ -70,6 +90,9 @@ export default function PublicLayout() {
                 {item.label}
               </NavLink>
             ))}
+            <div className="mt-2 flex gap-2 border-t border-slate-100 pt-3">
+              <AuthButtons onNavigate={() => setOpen(false)} />
+            </div>
           </nav>
         )}
       </header>

@@ -33,8 +33,12 @@ public class JsonSecurityErrorHandler implements AuthenticationEntryPoint, Acces
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-        write(response, ApiError.of(401, "Unauthorized", "AUTHENTICATION_REQUIRED",
-                "Please log in to continue", request.getRequestURI()));
+        boolean revoked = Boolean.TRUE.equals(request.getAttribute(SessionValidationFilter.REVOKED_ATTRIBUTE));
+        write(response, ApiError.of(401, "Unauthorized",
+                revoked ? "SESSION_REVOKED" : "AUTHENTICATION_REQUIRED",
+                revoked ? "Your session has ended because your account changed. Please log in again."
+                        : "Please log in to continue",
+                request.getRequestURI()));
     }
 
     @Override

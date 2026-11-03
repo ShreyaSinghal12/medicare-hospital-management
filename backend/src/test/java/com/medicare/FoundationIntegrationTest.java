@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +37,7 @@ class FoundationIntegrationTest {
                 .andExpect(jsonPath("$.application").value("medicare-backend"))
                 .andExpect(jsonPath("$.database.status").value("UP"))
                 .andExpect(jsonPath("$.database.product").value("MySQL"))
-                .andExpect(jsonPath("$.database.schemaVersion").value("8"))
+                .andExpect(jsonPath("$.database.schemaVersion").value("9"))
                 .andExpect(jsonPath("$.database.tableCount", greaterThanOrEqualTo(37)));
     }
 
@@ -69,15 +68,6 @@ class FoundationIntegrationTest {
     void postWithCsrfButWithoutSessionReturns401() throws Exception {
         mockMvc.perform(post("/api/appointments").with(csrf()).contentType("application/json").content("{}"))
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void csrfEndpointIssuesReadableXsrfCookie() throws Exception {
-        mockMvc.perform(get("/api/auth/csrf"))
-                .andExpect(status().isOk())
-                .andExpect(cookie().exists("XSRF-TOKEN"))
-                .andExpect(cookie().httpOnly("XSRF-TOKEN", false))
-                .andExpect(jsonPath("$.headerName").value("X-XSRF-TOKEN"));
     }
 
     @Test

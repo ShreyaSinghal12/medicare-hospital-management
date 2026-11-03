@@ -5,7 +5,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | Phase | Scope | Status | Verified by |
 |---|---|---|---|
 | 1 | Foundation: project structure, Maven/Vite/Tailwind, full Flyway schema (V1–V8), security skeleton (session + CSRF + CORS + JSON errors), health API, public pages | ✅ | 8 backend integration tests (MySQL), 6 Vitest tests, Playwright smoke run desktop + mobile |
-| 2 | Authentication: register, login, logout, password reset, RBAC routing, profile, rate limiting, demo users | ⬜ | |
+| 2 | Authentication: register, login, logout, password reset, RBAC routing, account settings, patient profile, notifications API/UI, admin user activation, lockout + rate limiting, session revocation, audit logging, demo users | ✅ | 40 backend tests (25 integration on MySQL + 15 unit), 20 Vitest tests, 11-step Playwright run on the real stack |
 | 3 | Doctor & patient management, departments, doctor search | ⬜ | |
 | 4 | Appointments: schedules, slot generation, concurrency-safe booking, cancel, reschedule, calendar | ⬜ | |
 | 5 | Doctor consultations & patient history access | ⬜ | |
@@ -37,7 +37,7 @@ A feature is ticked only when **all** of these hold:
 
 | # | Step | Phase | Status |
 |---|---|---|---|
-| 1–2 | Patient registers and logs in | 2 | ⬜ |
+| 1–2 | Patient registers and logs in | 2 | ✅ |
 | 3–4 | Search cardiologist, view profile | 3 | ⬜ |
 | 5–8 | Select slot, book, concurrent booking rejected, dashboard shows booking | 4 | ⬜ |
 | 9 | Receptionist checks patient in | 7 | ⬜ |
@@ -46,6 +46,15 @@ A feature is ticked only when **all** of these hold:
 | 16–18 | Lab order, report upload, patient download | 8 | ⬜ |
 | 19 | Pharmacist dispenses | 9 | ⬜ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
-| 23 | Notifications received | 11 | ⬜ |
+| 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
 | 24–25 | Admin views statistics and reports | 12 | ⬜ |
-| 26 | Unauthorized access blocked | 2–12 | ⬜ |
+| 26 | Unauthorized access blocked | 2–12 | 🟡 role + own-record checks done for Phase 2 endpoints |
+
+## Phase 2 notes
+
+* `V9__auth_session_revocation.sql` adds `users.password_changed_at` (needed to revoke sessions after a password change or reset).
+* The notification table, service and API (originally Phase 11) were built now because registration and password
+  events need them. Phase 11 adds the appointment and reminder events, the scheduler and the e-mail preferences UI.
+* Doctor/staff home pages show real account and notification data; each module phase replaces them with that
+  role's operational dashboard.
+* Admin *Users & access* covers account activation, deactivation and unlocking. Creating doctors and receptionists comes in Phase 3.

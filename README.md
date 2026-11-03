@@ -49,6 +49,8 @@ cp .env.example .env        # Windows: copy .env.example .env
 ```
 
 Edit `backend/.env` and set `DB_PASSWORD` and `TEST_DB_PASSWORD` to the password you chose above.
+To use the demo accounts (section 4b), also set `DEMO_PASSWORD` to a strong password of your choice
+(8+ characters with upper-case, lower-case, a digit and a special character, e.g. `Demo@2026`).
 `backend/.env` is git-ignored. Spring Boot loads it automatically via `spring.config.import` in `application.yml`.
 
 ## 4. Run the backend
@@ -63,6 +65,38 @@ On first start Flyway logs `Successfully applied 8 migrations`. The API listens 
 * Health check: http://localhost:8080/api/health
 * Swagger UI: http://localhost:8080/swagger-ui.html
 * OpenAPI JSON: http://localhost:8080/v3/api-docs
+
+### 4b. Optional: fictional demo accounts
+
+Start the backend with the extra `demo` profile instead:
+
+```bash
+cd backend
+SPRING_PROFILES_ACTIVE=dev,demo mvn spring-boot:run
+```
+
+On Windows PowerShell: `$env:SPRING_PROFILES_ACTIVE="dev,demo"; mvn spring-boot:run`
+
+This creates the accounts below once. It is idempotent and never runs together with the `prod` profile.
+All of them use the password you put in `DEMO_PASSWORD`.
+
+| Role | E-mail |
+|---|---|
+| Administrator | admin@medicare.example |
+| Receptionist | reception@medicare.example |
+| Lab technician | lab@medicare.example |
+| Pharmacist | pharmacy@medicare.example |
+| Doctor (Cardiology) | dr.mehta@medicare.example, dr.nair@medicare.example |
+| Doctor (General Medicine) | dr.rao@medicare.example |
+| Doctor (Dermatology) | dr.khan@medicare.example |
+| Doctor (Orthopedics) | dr.iyer@medicare.example |
+| Patient | ravi.patient@medicare.example, anita.patient@medicare.example |
+
+### 4c. E-mail without an SMTP server (development)
+
+With `MAIL_ENABLED=false` (the default), the `dev` profile writes every outgoing e-mail as a text file to
+`backend/mail-outbox/`. To test **Forgot password**, request a reset, open the newest file in that folder and
+paste the link into the browser. Set `MAIL_ENABLED=true` and the `MAIL_*` SMTP variables to send real e-mails.
 
 ## 5. Run the frontend
 
@@ -128,8 +162,35 @@ medical-management-system/
 | GET | `/api/health` | public | Backend + MySQL status, Flyway schema version, table count |
 | GET | `/api/public/hospital-info` | public | Hospital name, contact, active departments |
 | GET | `/api/auth/csrf` | public | Sets the `XSRF-TOKEN` cookie |
+| POST | `/api/auth/register` | public | Patient self-registration (201 + patient profile) |
+| POST | `/api/auth/login` | public | Starts a session; returns the current user |
+| POST | `/api/auth/logout` | public | Ends the session (204) |
+| GET | `/api/auth/me` | public | Current user (200), or 204 when not logged in |
+| POST | `/api/auth/forgot-password` | public | Sends a reset link (always 202, same message) |
+| POST | `/api/auth/reset-password` | public | Sets a new password with a single-use token |
+| GET / PUT | `/api/account` | any role | Own name, phone, e-mail notification preference |
+| PUT | `/api/account/password` | any role | Change own password (other sessions are signed out) |
+| GET / PUT | `/api/patients/me` | PATIENT | Own demographic profile |
+| GET | `/api/notifications` | any role | Own notifications (`unreadOnly`, `page`, `size`) |
+| GET | `/api/notifications/unread-count` | any role | Badge count |
+| PATCH | `/api/notifications/{id}/read`, `/api/notifications/read-all` | any role | Mark as read |
+| GET | `/api/admin/users` | ADMIN | Search accounts (`search`, `role`, `active`, `page`, `size`) |
+| PATCH | `/api/admin/users/{id}/status` | ADMIN | Activate / deactivate (`{"active":false,"reason":"…"}`) |
+| PATCH | `/api/admin/users/{id}/unlock` | ADMIN | Clear a temporary login lock |
 
-All other `/api/**` paths require login (they return JSON `401` until Phase 2 adds authentication).
+All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
+To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
+`X-XSRF-TOKEN` header. Postman keeps the session cookie for later requests.
+
+### Authentication & security behaviour
+
+* Passwords: BCrypt (cost 12); policy is 8–64 characters with upper-case, lower-case, a digit and a special character.
+* Five wrong passwords lock the account for 15 minutes; an admin can unlock it earlier.
+* Login and reset requests are rate-limited per IP address (HTTP 429 with `Retry-After`).
+* Error messages never reveal whether an e-mail address is registered.
+* Reset links: 256-bit random token, only its SHA-256 hash is stored, valid 30 minutes, single use.
+* Deactivating a user, or changing or resetting a password, ends that user's other sessions on their next request.
+* Every login, failure, lockout, logout, password change and account change is written to `audit_logs`.
 
 ## 9. Common errors and fixes
 
@@ -143,6 +204,10 @@ All other `/api/**` paths require login (they return JSON `401` until Phase 2 ad
 | Port 8080 / 5173 already in use | Stop the other process or set `SERVER_PORT` (backend) / change `server.port` in `vite.config.js`. |
 | Status card says *Backend unreachable* | The backend is not running, or `VITE_BACKEND_URL` points to the wrong port. |
 | `403 CSRF_TOKEN_INVALID` on POST | The page was opened before the backend started. Reload so the app fetches `/api/auth/csrf`. |
+| `DEMO_PASSWORD must be set…` on start-up | You enabled the `demo` profile without setting a strong `DEMO_PASSWORD` in `backend/.env`. |
+| `ACCOUNT_LOCKED` when logging in | Five wrong passwords. Wait 15 minutes, or ask an admin to unlock it in *Users & access*. |
+| `429 Too Many Requests` | Login/reset rate limit hit. Wait for the time in the `Retry-After` header (or raise `LOGIN_RATE_LIMIT` in dev). |
+| Reset e-mail never arrives | With `MAIL_ENABLED=false` it is written to `backend/mail-outbox/` (dev profile) instead of being sent. |
 
 ## 10. Security limitations (academic prototype)
 

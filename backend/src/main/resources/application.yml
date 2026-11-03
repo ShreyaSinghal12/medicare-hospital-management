@@ -85,6 +85,14 @@ medicare:
   mail:
     enabled: ${MAIL_ENABLED:false}       # false = in-app notifications only
     from: ${MAIL_FROM:no-reply@medicare.example}
+    outbox-dir: ${MAIL_OUTBOX_DIR:}      # dev only: write e-mails to files when SMTP is disabled
+  security:
+    max-failed-logins: ${MAX_FAILED_LOGINS:5}
+    lockout-minutes: ${LOCKOUT_MINUTES:15}
+    login-requests-per-window: ${LOGIN_RATE_LIMIT:20}
+    reset-requests-per-window: ${RESET_RATE_LIMIT:5}
+    rate-limit-window-minutes: ${RATE_LIMIT_WINDOW_MINUTES:15}
+    reset-token-minutes: ${RESET_TOKEN_MINUTES:30}
 
 logging:
   level:
@@ -96,7 +104,30 @@ logging:
 spring:
   config:
     activate:
+      on-profile: dev
+medicare:
+  mail:
+    outbox-dir: ${MAIL_OUTBOX_DIR:./mail-outbox}
+
+---
+# Optional fictional demo accounts: run with SPRING_PROFILES_ACTIVE=dev,demo
+spring:
+  config:
+    activate:
+      on-profile: demo
+medicare:
+  demo:
+    password: ${DEMO_PASSWORD:}
+
+---
+spring:
+  config:
+    activate:
       on-profile: prod
+medicare:
+  mail:
+    outbox-dir: ""
+
 springdoc:
   api-docs:
     enabled: false

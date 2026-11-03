@@ -36,8 +36,8 @@ export default function LandingPage() {
               into one secure web application for patients, doctors and hospital staff.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button to="/departments" size="lg">Explore departments</Button>
-              <Button to="/status" size="lg" variant="secondary">Check system status</Button>
+              <Button to="/register" size="lg">Register as a patient</Button>
+              <Button to="/departments" size="lg" variant="secondary">Explore departments</Button>
             </div>
           </div>
           <div className="rounded-2xl border border-brand-100 bg-white p-6 shadow-sm">

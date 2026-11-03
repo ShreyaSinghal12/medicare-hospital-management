@@ -11,6 +11,14 @@ spring:
 medicare:
   mail:
     enabled: false
+    outbox-dir: ./target/test-mail-outbox
+  security:
+    max-failed-logins: 5
+    lockout-minutes: 15
+    login-requests-per-window: 1000
+    reset-requests-per-window: 1000
+    rate-limit-window-minutes: 15
+    reset-token-minutes: 30
   upload-dir: ./target/test-uploads
 
 logging:

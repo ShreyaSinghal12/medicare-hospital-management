@@ -54,6 +54,19 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNPROCESSABLE_CONTENT, ex.getCode(), ex.getMessage(), req);
     }
 
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<ApiError> handleAuthFailed(AuthenticationFailedException ex, HttpServletRequest req) {
+        return build(HttpStatus.UNAUTHORIZED, ex.getCode(), ex.getMessage(), req);
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ApiError> handleTooMany(TooManyRequestsException ex, HttpServletRequest req) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                .body(ApiError.of(429, HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), "TOO_MANY_REQUESTS",
+                        ex.getMessage(), req.getRequestURI()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
         List<ApiError.FieldError> fields = ex.getBindingResult().getFieldErrors().stream()

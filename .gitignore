@@ -22,3 +22,4 @@ frontend/playwright-report/
 .vscode/
 .DS_Store
 Thumbs.db
+backend/mail-outbox/
