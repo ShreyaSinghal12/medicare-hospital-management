@@ -6,6 +6,12 @@ import { getDoctor, searchDoctors } from '../../services/doctorService.js';
 import DoctorDirectory from './DoctorDirectory.jsx';
 import DoctorProfile from './DoctorProfile.jsx';
 
+vi.mock('../../context/AuthContext.jsx', () => ({ useAuth: () => ({ user: null }) }));
+vi.mock('../../services/appointmentService.js', () => ({
+  getDoctorSchedule: vi.fn().mockResolvedValue({ days: [] }),
+  getSlots: vi.fn().mockResolvedValue({ slots: [], message: 'The doctor does not work on this day.' }),
+  getNextAvailable: vi.fn().mockResolvedValue(null),
+}));
 vi.mock('../../services/doctorService.js', () => ({
   searchDoctors: vi.fn(),
   getDoctor: vi.fn(),

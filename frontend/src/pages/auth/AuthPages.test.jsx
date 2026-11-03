@@ -23,6 +23,14 @@ vi.mock('../../services/notificationService.js', () => ({
   getUnreadCount: vi.fn().mockResolvedValue(0),
   listNotifications: vi.fn().mockResolvedValue({ content: [], page: 0, totalPages: 0, totalElements: 0 }),
 }));
+vi.mock('../../services/scheduleService.js', () => ({
+  getDoctorDashboard: vi.fn().mockResolvedValue({
+    todayTotal: 0, todayPending: 0, todayCompleted: 0, weekTotal: 0, upcomingScheduled: 0, today: [],
+  }),
+}));
+vi.mock('../../services/appointmentService.js', () => ({
+  getMyAppointmentSummary: vi.fn().mockResolvedValue({ total: 0, upcoming: 0, completed: 0, cancelled: 0, noShow: 0, next: null }),
+}));
 vi.mock('../../services/patientService.js', () => ({
   getMyProfile: vi.fn().mockResolvedValue({ patientCode: 'PAT-000001', age: 30 }),
 }));
@@ -56,7 +64,8 @@ describe('Login page', () => {
     await userEvent.type(await screen.findByLabelText(/E-mail address/), 'doc@test.example');
     await userEvent.type(screen.getByLabelText(/^Password/, { selector: 'input' }), 'Secure@123');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
-    expect(await screen.findByRole('heading', { name: 'Doctor dashboard' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Good day, Dr. Test' })).toBeInTheDocument();
+    expect(await screen.findByText('No appointments today')).toBeInTheDocument();
     expect(login).toHaveBeenCalledWith('doc@test.example', 'Secure@123');
   });
 

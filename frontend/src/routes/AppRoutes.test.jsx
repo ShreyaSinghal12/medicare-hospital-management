@@ -25,6 +25,9 @@ vi.mock('../services/notificationService.js', () => ({
   getUnreadCount: vi.fn().mockResolvedValue(3),
   listNotifications: vi.fn().mockResolvedValue({ content: [], page: 0, totalPages: 0, totalElements: 0 }),
 }));
+vi.mock('../services/appointmentService.js', () => ({
+  getMyAppointmentSummary: vi.fn().mockResolvedValue({ total: 4, upcoming: 1, completed: 2, cancelled: 1, noShow: 0, next: null }),
+}));
 vi.mock('../services/patientService.js', () => ({
   getMyProfile: vi.fn().mockResolvedValue({ patientCode: 'PAT-000001', age: 30, bloodGroup: 'O+' }),
 }));

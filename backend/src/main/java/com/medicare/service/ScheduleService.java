@@ -177,8 +177,17 @@ public class ScheduleService {
                 .map(a -> new SlotCalculator.Interval(a.getStartTime(), a.getEndTime())).toList();
         List<SlotResponse> slots = SlotCalculator.slots(day, duration, date, leave, taken, clock.now());
         long available = slots.stream().filter(SlotResponse::isAvailable).count();
-        String message = slots.isEmpty() ? "No consultation slots on this day."
-                : available == 0 ? "All slots on this day are taken." : null;
+        String message = null;
+        if (slots.isEmpty()) {
+            message = "No consultation slots on this day.";
+        } else if (available == 0) {
+            boolean anyBooked = slots.stream().anyMatch(s -> SlotCalculator.BOOKED.equals(s.status()));
+            boolean allPastOrBooked = slots.stream().allMatch(s -> SlotCalculator.PAST.equals(s.status())
+                    || SlotCalculator.BOOKED.equals(s.status()));
+            message = !anyBooked && allPastOrBooked ? "No more slots are available today."
+                    : anyBooked ? "All remaining slots on this day are taken."
+                    : "The doctor is unavailable for the rest of this day.";
+        }
         return new DaySlotsResponse(doctor.getId(), date, duration, true, message, available, slots);
     }
 

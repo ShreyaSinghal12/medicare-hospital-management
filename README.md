@@ -191,6 +191,22 @@ medical-management-system/
 | GET | `/api/admin/patients` | ADMIN | Patient search (demographics only) |
 | GET | `/api/admin/patients/duplicates` | ADMIN | Possible duplicate registrations |
 | PUT | `/api/admin/patients/{id}` | ADMIN | Non-clinical correction with mandatory, audited reason |
+| GET | `/api/doctors/{id}/schedule` | public | Weekly working hours |
+| GET | `/api/doctors/{id}/slots?date=` | public | Generated slots: AVAILABLE / BOOKED / PAST / UNAVAILABLE |
+| GET | `/api/doctors/{id}/next-available` | public | Earliest free slot (204 if none in the booking window) |
+| POST | `/api/appointments` | PATIENT, RECEPTIONIST, ADMIN | Book (409 `SLOT_ALREADY_BOOKED` if taken) |
+| GET | `/api/appointments/me?scope=UPCOMING\|PAST\|CANCELLED` | PATIENT | Own appointments |
+| GET | `/api/appointments/me/summary` | PATIENT | Dashboard counts + next appointment |
+| GET | `/api/appointments/{id}`, `/{id}/history` | owner / own doctor / front desk | Details and status history |
+| PATCH | `/api/appointments/{id}/cancel` | owner, own doctor, front desk | Cancel with reason; releases the slot |
+| PATCH | `/api/appointments/{id}/reschedule` | owner, front desk | Atomic move to another slot |
+| PATCH | `/api/appointments/{id}/no-show` | own doctor, front desk | After the start time only |
+| GET / PUT | `/api/doctor/availability` | DOCTOR | Weekly hours (affected bookings flagged, never cancelled) |
+| GET / POST | `/api/doctor/leave`, PATCH `/api/doctor/leave/{id}/cancel` | DOCTOR | Leave / unavailability requests |
+| GET | `/api/doctor/appointments`, `/api/doctor/dashboard` | DOCTOR | Calendar data and dashboard |
+| GET / PUT | `/api/admin/doctors/{id}/availability` | ADMIN | Manage a doctor's hours |
+| POST | `/api/admin/doctors/{id}/leave` | ADMIN | Record leave (approved immediately) |
+| GET | `/api/admin/leave`, PATCH `/api/admin/leave/{id}/decision` | ADMIN | Leave approvals |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -210,6 +226,22 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   In development the link is in `backend/mail-outbox/`.
 * Doctors are never deleted (deactivate them in *Doctors* or *Users & access*); departments with active
   doctors can't be deactivated.
+
+### Appointment scheduling rules
+
+* Slots are generated from the doctor's weekly hours in steps of their consultation length, skipping the break.
+  Approved leave or unavailability, existing bookings, past times, and dates beyond the booking window
+  (`hospital_settings.booking_window_days`) are not bookable. All times are in the hospital time zone.
+* **No double booking**: each booking locks the doctor's row, re-checks the slot, and reserves it in
+  `appointment_slots` (unique key). `appointments` also has its own unique key on doctor, date and start
+  time, ignoring cancelled rows. An automated test fires 10 simultaneous bookings and checks that exactly one wins.
+* Patients can cancel or reschedule online up to `cancellation_window_hours` before the start (default 2 h),
+  and reschedule at most 3 times. Reception can always help.
+* Status changes follow SCHEDULED → CHECKED_IN → IN_PROGRESS → COMPLETED, plus CANCELLED / NO_SHOW. Every change
+  is stored in `appointment_status_history`.
+* Schedule changes and approved leave never cancel bookings. Affected appointments are flagged
+  *needs rescheduling* and the patient is notified.
+* The demo profile gives every demo doctor Mon–Sat 09:00–17:00 hours with a 13:00–14:00 break.
 
 ## 9. Common errors and fixes
 

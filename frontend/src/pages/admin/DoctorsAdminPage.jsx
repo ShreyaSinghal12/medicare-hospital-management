@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Pencil, Plus, Search, Stethoscope } from 'lucide-react';
+import { CalendarClock, Pencil, Plus, Search, Stethoscope } from 'lucide-react';
 import { toast } from 'sonner';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
@@ -106,6 +106,10 @@ export default function DoctorsAdminPage() {
                           <Link to={`/admin/doctors/${d.id}/edit`} aria-label={`Edit ${d.fullName}`}
                             className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
                             <Pencil className="h-4 w-4" aria-hidden="true" /> Edit
+                          </Link>
+                          <Link to={`/admin/doctors/${d.id}/schedule`} aria-label={`Schedule of ${d.fullName}`}
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                            <CalendarClock className="h-4 w-4" aria-hidden="true" /> Schedule
                           </Link>
                           <Button variant={d.active ? 'secondary' : 'primary'} size="sm" onClick={() => setPending(d)}>
                             {d.active ? 'Deactivate' : 'Activate'}

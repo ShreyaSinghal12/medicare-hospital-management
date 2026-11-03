@@ -1,16 +1,31 @@
-import { Link, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Award, Building2, Clock, GraduationCap } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
 import useApi from '../../hooks/useApi.js';
+import { getDoctorSchedule } from '../../services/appointmentService.js';
+import SlotPicker from '../scheduling/SlotPicker.jsx';
+import WeeklyScheduleView from '../scheduling/WeeklyScheduleView.jsx';
+import Button from '../ui/Button.jsx';
 import { getDoctor } from '../../services/doctorService.js';
 import { formatCurrency } from '../../utils/format.js';
 import Card from '../ui/Card.jsx';
 import ErrorState from '../ui/ErrorState.jsx';
 import Spinner from '../ui/Spinner.jsx';
 
-/** Public doctor profile. Working days and bookable slots are added in Phase 4 (scheduling). */
+/** Doctor profile with weekly hours and a live slot picker that leads into booking. */
 export default function DoctorProfile({ backTo, backLabel = 'Back to doctors' }) {
   const { id } = useParams();
   const { data: doctor, loading, error, reload } = useApi(() => getDoctor(id), [id]);
+  const { data: schedule } = useApi(() => getDoctorSchedule(id), [id]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [selected, setSelected] = useState(null);
+
+  function continueToBook() {
+    const target = `/patient/book/${id}?date=${selected.date}&time=${selected.startTime}`;
+    navigate(user ? target : `/login?redirect=${encodeURIComponent(target)}`);
+  }
 
   return (
     <div>
@@ -53,12 +68,38 @@ export default function DoctorProfile({ backTo, backLabel = 'Back to doctors' })
                 )}
               </Card>
             </div>
-            <Card title="Consultation fee">
-              <p className="text-3xl font-bold text-slate-900">{formatCurrency(doctor.consultationFee)}</p>
-              <p className="mt-2 text-sm text-slate-500">
-                Payable at the hospital. Taxes, if any, are shown on the invoice.
-              </p>
-            </Card>
+            <div className="space-y-6">
+              <Card title="Consultation fee">
+                <p className="text-3xl font-bold text-slate-900">{formatCurrency(doctor.consultationFee)}</p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Payable at the hospital. Taxes, if any, are shown on the invoice.
+                </p>
+              </Card>
+              <Card title="Working hours"><WeeklyScheduleView schedule={schedule} /></Card>
+            </div>
+            <div className="lg:col-span-3">
+              <Card title="Book an appointment" subtitle="Pick a date and a free time slot.">
+                <SlotPicker doctorId={id} value={selected} onChange={setSelected} />
+                <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+                  {user && user.role !== 'PATIENT' ? (
+                    <p className="text-sm text-slate-500">
+                      Online booking is for patients. Reception books appointments for walk-in patients from the reception desk.
+                    </p>
+                  ) : (
+                    <>
+                      <Button onClick={continueToBook} disabled={!selected}>
+                        {user ? 'Continue to book' : 'Log in to book'}
+                      </Button>
+                      {selected ? (
+                        <span className="text-sm text-slate-600">Selected: {selected.date} at {selected.startTime}</span>
+                      ) : (
+                        <span className="text-sm text-slate-500">Select a time slot to continue.</span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </Card>
+            </div>
           </div>
         )}
       </div>

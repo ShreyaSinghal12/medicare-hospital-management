@@ -3,11 +3,20 @@ import DashboardLayout from '../layouts/DashboardLayout.jsx';
 import PublicLayout from '../layouts/PublicLayout.jsx';
 import DepartmentsAdminPage from '../pages/admin/DepartmentsAdminPage.jsx';
 import DoctorFormPage from '../pages/admin/DoctorFormPage.jsx';
+import DoctorSchedulePage from '../pages/admin/DoctorSchedulePage.jsx';
+import LeaveApprovalsPage from '../pages/admin/LeaveApprovalsPage.jsx';
 import DoctorsAdminPage from '../pages/admin/DoctorsAdminPage.jsx';
 import PatientsAdminPage from '../pages/admin/PatientsAdminPage.jsx';
 import StaffAdminPage from '../pages/admin/StaffAdminPage.jsx';
 import UserManagementPage from '../pages/admin/UserManagementPage.jsx';
+import AvailabilityPage from '../pages/doctor/AvailabilityPage.jsx';
+import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage.jsx';
+import DoctorDashboard from '../pages/doctor/DoctorDashboard.jsx';
 import DoctorOwnProfilePage from '../pages/doctor/DoctorOwnProfilePage.jsx';
+import AppointmentDetailPage from '../pages/patient/AppointmentDetailPage.jsx';
+import BookAppointmentPage from '../pages/patient/BookAppointmentPage.jsx';
+import MyAppointmentsPage from '../pages/patient/MyAppointmentsPage.jsx';
+import ReschedulePage from '../pages/patient/ReschedulePage.jsx';
 import { FindDoctorPage, PatientDoctorProfilePage } from '../pages/patient/FindDoctorPage.jsx';
 import DoctorProfilePage from '../pages/public/DoctorProfilePage.jsx';
 import DoctorsPage from '../pages/public/DoctorsPage.jsx';
@@ -68,12 +77,18 @@ export default function AppRoutes() {
           <Route path="patient/profile" element={<PatientProfilePage />} />
           <Route path="patient/doctors" element={<FindDoctorPage />} />
           <Route path="patient/doctors/:id" element={<PatientDoctorProfilePage />} />
+          <Route path="patient/book/:doctorId" element={<BookAppointmentPage />} />
+          <Route path="patient/appointments" element={<MyAppointmentsPage />} />
+          <Route path="patient/appointments/:id" element={<AppointmentDetailPage />} />
+          <Route path="patient/appointments/:id/reschedule" element={<ReschedulePage />} />
         </Route>
       </Route>
 
       <Route element={<ProtectedRoute roles={['DOCTOR']} />}>
         <Route element={<DashboardLayout />}>
-          <Route path="doctor" element={<StaffHomePage title="Doctor dashboard" />} />
+          <Route path="doctor" element={<DoctorDashboard />} />
+          <Route path="doctor/appointments" element={<DoctorAppointmentsPage />} />
+          <Route path="doctor/availability" element={<AvailabilityPage />} />
           <Route path="doctor/profile" element={<DoctorOwnProfilePage />} />
         </Route>
       </Route>
@@ -91,6 +106,8 @@ export default function AppRoutes() {
           <Route path="admin/doctors" element={<DoctorsAdminPage />} />
           <Route path="admin/doctors/new" element={<DoctorFormPage />} />
           <Route path="admin/doctors/:id/edit" element={<DoctorFormPage />} />
+          <Route path="admin/doctors/:id/schedule" element={<DoctorSchedulePage />} />
+          <Route path="admin/leave" element={<LeaveApprovalsPage />} />
           <Route path="admin/departments" element={<DepartmentsAdminPage />} />
           <Route path="admin/staff" element={<StaffAdminPage />} />
           <Route path="admin/patients" element={<PatientsAdminPage />} />
