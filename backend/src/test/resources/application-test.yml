@@ -19,6 +19,7 @@ medicare:
     reset-requests-per-window: 1000
     rate-limit-window-minutes: 15
     reset-token-minutes: 30
+    account-setup-hours: 72
   upload-dir: ./target/test-uploads
 
 logging:

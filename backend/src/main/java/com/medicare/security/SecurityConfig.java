@@ -76,7 +76,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // --- Public ---
                         .requestMatchers(HttpMethod.GET, "/api/health", "/api/public/**",
-                                "/api/auth/csrf", "/api/auth/me").permitAll()
+                                "/api/auth/csrf", "/api/auth/me", "/api/doctors", "/api/doctors/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
                                 "/api/auth/logout", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
@@ -84,6 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         // --- Role areas (coarse); services add record-level checks ---
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/api/patients/me/**", "/api/patients/me").hasRole("PATIENT")
                         // --- Everything else under /api requires a logged-in session ---
                         .requestMatchers("/api/**").authenticated()

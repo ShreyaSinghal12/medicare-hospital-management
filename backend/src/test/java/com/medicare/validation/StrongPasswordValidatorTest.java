@@ -35,6 +35,12 @@ class StrongPasswordValidatorTest {
     }
 
     @org.junit.jupiter.api.Test
+    void rejectsPasswordsOverBcryptByteLimit() {
+        // 30 three-byte characters = 90 bytes although only ~34 characters long
+        assertThat(StrongPasswordValidator.isStrong("Aa1!" + "€".repeat(30))).isFalse();
+    }
+
+    @org.junit.jupiter.api.Test
     void rejectsPasswordsLongerThan64() {
         assertThat(StrongPasswordValidator.isStrong("Aa1!" + "x".repeat(61))).isFalse();
         assertThat(StrongPasswordValidator.isStrong("Aa1!" + "x".repeat(60))).isTrue();

@@ -37,7 +37,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button to="/register" size="lg">Register as a patient</Button>
-              <Button to="/departments" size="lg" variant="secondary">Explore departments</Button>
+              <Button to="/doctors" size="lg" variant="secondary">Find a doctor</Button>
             </div>
           </div>
           <div className="rounded-2xl border border-brand-100 bg-white p-6 shadow-sm">

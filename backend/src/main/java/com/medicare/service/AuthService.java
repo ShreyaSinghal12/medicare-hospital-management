@@ -43,6 +43,7 @@ import com.medicare.repository.ReceptionistRepository;
 import com.medicare.repository.UserRepository;
 import com.medicare.security.AppUserPrincipal;
 import com.medicare.security.RateLimiter;
+import com.medicare.validation.StrongPasswordValidator;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -155,11 +156,14 @@ public class AuthService {
         String email = normalizeEmail(req.email());
         Instant now = clock.instant();
         User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        // No valid password can exceed BCrypt's 72-byte input limit (see StrongPasswordValidator).
+        boolean tooLong = req.password().getBytes(StandardCharsets.UTF_8).length > StrongPasswordValidator.MAX_BCRYPT_BYTES;
 
-        if (user == null) {
-            passwordEncoder.matches(req.password(), dummyHash);
-            auditService.recordFor(null, email, null, AuditService.Actions.LOGIN_FAILED, "User", null,
-                    AuditOutcome.FAILURE, "Unknown account");
+        if (user == null || tooLong) {
+            passwordEncoder.matches("timing-equaliser", dummyHash);
+            auditService.recordFor(user == null ? null : user.getId(), email, user == null ? null : user.getRole().name(),
+                    AuditService.Actions.LOGIN_FAILED, "User", user == null ? null : user.getId(),
+                    AuditOutcome.FAILURE, user == null ? "Unknown account" : "Password longer than allowed");
             throw invalidCredentials();
         }
         if (user.isLocked(now)) {
@@ -213,16 +217,7 @@ public class AuthService {
                     AuditOutcome.FAILURE, "Unknown or inactive account");
             return;
         }
-        Instant now = clock.instant();
-        resetTokenRepository.invalidateAllForUser(user.getId(), now);
-
-        byte[] bytes = new byte[32];
-        RANDOM.nextBytes(bytes);
-        String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-        Instant expires = now.plus(Duration.ofMinutes(cfg.resetTokenMinutes()));
-        resetTokenRepository.save(new PasswordResetToken(user, sha256(rawToken), expires));
-
-        String link = appProperties.frontendBaseUrl() + "/reset-password?token=" + rawToken;
+        String link = createResetLink(user, Duration.ofMinutes(cfg.resetTokenMinutes()));
         emailService.send(user.getEmail(), "MediCare: reset your password",
                 "Hello " + user.getFullName() + ",\n\n"
                         + "We received a request to reset your MediCare password. Open the link below to choose a new one.\n"
@@ -231,6 +226,34 @@ public class AuthService {
                         + "If you did not request this, you can ignore this e-mail; your password will not change.");
         auditService.recordFor(user.getId(), user.getEmail(), user.getRole().name(),
                 AuditService.Actions.PASSWORD_RESET_REQUESTED, "User", user.getId(), AuditOutcome.SUCCESS, null);
+    }
+
+    /**
+     * Sends a newly created staff account its "set your password" e-mail. Staff accounts are
+     * created with a random unknown password, so administrators never see or choose passwords.
+     * The link uses the same single-use token mechanism as password reset, with a longer validity.
+     */
+    @Transactional
+    public void sendAccountSetupLink(User user) {
+        int hours = appProperties.security().accountSetupHours();
+        String link = createResetLink(user, Duration.ofHours(hours));
+        emailService.send(user.getEmail(), "MediCare: your staff account is ready",
+                "Hello " + user.getFullName() + ",\n\n"
+                        + "An administrator has created a MediCare account for you (" + user.getRole().name().replace('_', ' ').toLowerCase(Locale.ROOT) + ").\n"
+                        + "Open the link below to choose your password. It is valid for " + hours
+                        + " hours and can be used once.\n\n" + link + "\n\n"
+                        + "If the link has expired, use \"Forgot password\" on the login page.");
+    }
+
+    /** Creates a single-use reset token (only its hash is stored) and returns the frontend link. */
+    private String createResetLink(User user, Duration validity) {
+        Instant now = clock.instant();
+        resetTokenRepository.invalidateAllForUser(user.getId(), now);
+        byte[] bytes = new byte[32];
+        RANDOM.nextBytes(bytes);
+        String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        resetTokenRepository.save(new PasswordResetToken(user, sha256(rawToken), now.plus(validity)));
+        return appProperties.frontendBaseUrl() + "/reset-password?token=" + rawToken;
     }
 
     @Transactional
@@ -263,7 +286,9 @@ public class AuthService {
     @Transactional
     public AppUserPrincipal changePassword(Long userId, ChangePasswordRequest req) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
-        if (!passwordEncoder.matches(req.currentPassword(), user.getPasswordHash())) {
+        boolean currentTooLong = req.currentPassword().getBytes(StandardCharsets.UTF_8).length
+                > StrongPasswordValidator.MAX_BCRYPT_BYTES;
+        if (currentTooLong || !passwordEncoder.matches(req.currentPassword(), user.getPasswordHash())) {
             auditService.record(AuditService.Actions.PASSWORD_CHANGED, "User", userId, AuditOutcome.FAILURE,
                     "Wrong current password");
             throw new BusinessRuleException("CURRENT_PASSWORD_INCORRECT", "Your current password is incorrect");

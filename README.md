@@ -177,6 +177,20 @@ medical-management-system/
 | GET | `/api/admin/users` | ADMIN | Search accounts (`search`, `role`, `active`, `page`, `size`) |
 | PATCH | `/api/admin/users/{id}/status` | ADMIN | Activate / deactivate (`{"active":false,"reason":"…"}`) |
 | PATCH | `/api/admin/users/{id}/unlock` | ADMIN | Clear a temporary login lock |
+| GET | `/api/doctors` | public | Doctor directory (`search`, `departmentId`, `specialization`, `page`, `size`) |
+| GET | `/api/doctors/{id}` | public | Doctor profile (404 if inactive) |
+| GET | `/api/doctors/specializations` | public | Specializations for the filter |
+| GET | `/api/public/departments` | public | Active departments with doctor counts |
+| GET / PUT | `/api/doctor/profile` | DOCTOR | Own phone, qualifications, bio |
+| GET / POST | `/api/admin/doctors` | ADMIN | Search / create doctors (creation e-mails a set-password link) |
+| GET / PUT | `/api/admin/doctors/{id}` | ADMIN | View / update doctor, department, fee, consultation length |
+| GET / POST | `/api/admin/departments` | ADMIN | All departments / create |
+| PUT | `/api/admin/departments/{id}` | ADMIN | Rename / describe |
+| PATCH | `/api/admin/departments/{id}/status` | ADMIN | Activate / deactivate (refused while active doctors remain) |
+| GET / POST | `/api/admin/staff` | ADMIN | Receptionists, lab technicians, pharmacists, admins |
+| GET | `/api/admin/patients` | ADMIN | Patient search (demographics only) |
+| GET | `/api/admin/patients/duplicates` | ADMIN | Possible duplicate registrations |
+| PUT | `/api/admin/patients/{id}` | ADMIN | Non-clinical correction with mandatory, audited reason |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -191,6 +205,11 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 * Reset links: 256-bit random token, only its SHA-256 hash is stored, valid 30 minutes, single use.
 * Deactivating a user, or changing or resetting a password, ends that user's other sessions on their next request.
 * Every login, failure, lockout, logout, password change and account change is written to `audit_logs`.
+* Staff accounts (doctors, receptionists, lab, pharmacy, admins) are created with a random, never-disclosed
+  password; the new user receives a single-use *set your password* link (valid 72 h, `ACCOUNT_SETUP_HOURS`).
+  In development the link is in `backend/mail-outbox/`.
+* Doctors are never deleted (deactivate them in *Doctors* or *Users & access*); departments with active
+  doctors can't be deactivated.
 
 ## 9. Common errors and fixes
 

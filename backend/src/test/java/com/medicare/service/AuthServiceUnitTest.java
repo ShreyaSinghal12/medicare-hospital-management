@@ -49,7 +49,7 @@ class AuthServiceUnitTest {
         when(encoder.encode(anyString())).thenReturn("$2a$hash");
         AppProperties props = new AppProperties("http://localhost:5173", List.of("http://localhost:5173"), "./uploads",
                 new AppProperties.Mail(false, "no-reply@test", ""),
-                new AppProperties.Security(3, 15, 100, 100, 15, 30));
+                new AppProperties.Security(3, 15, 100, 100, 15, 30, 72));
         service = new AuthService(userRepository, mock(PatientRepository.class), mock(DoctorRepository.class),
                 mock(ReceptionistRepository.class), mock(LabTechnicianRepository.class), mock(PharmacistRepository.class),
                 tokenRepository, encoder, mock(SequenceService.class), auditService, mock(NotificationService.class),

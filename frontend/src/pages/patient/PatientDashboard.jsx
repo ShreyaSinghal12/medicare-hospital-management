@@ -20,7 +20,8 @@ export default function PatientDashboard() {
 
   return (
     <>
-      <PageHeader title={`Welcome, ${firstName}`} description="Your health information in one place." />
+      <PageHeader title={`Welcome, ${firstName}`} description="Your health information in one place."
+        actions={<Button to="/patient/doctors">Find a doctor</Button>} />
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <Card title="Profile summary" actions={<Button to="/patient/profile" variant="secondary" size="sm">View profile</Button>}>

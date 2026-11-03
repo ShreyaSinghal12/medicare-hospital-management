@@ -203,6 +203,16 @@ class AuthIntegrationTest {
     }
 
     @Test
+    void overlongPasswordIsRejectedAsInvalidCredentialsNotServerError() throws Exception {
+        String email = uniqueEmail("long");
+        register(email);
+        mockMvc.perform(post("/api/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, "Aa1!" + "€".repeat(40))))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
     void loginRequiresCsrfToken() throws Exception {
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"a@b.example\",\"password\":\"x\"}"))

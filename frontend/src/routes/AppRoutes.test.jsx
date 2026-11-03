@@ -11,6 +11,11 @@ vi.mock('../services/systemService.js', () => ({
     departments: [{ id: 1, name: 'Cardiology', description: 'Heart care' }],
   }),
 }));
+vi.mock('../services/doctorService.js', () => ({
+  getPublicDepartments: vi.fn().mockResolvedValue([
+    { id: 1, name: 'Cardiology', description: 'Heart care', active: true, activeDoctorCount: 2 },
+  ]),
+}));
 vi.mock('../services/authService.js', () => ({
   fetchCurrentUser: vi.fn(),
   login: vi.fn(),
@@ -42,6 +47,7 @@ describe('AppRoutes', () => {
   it('lists departments from the API', async () => {
     renderApp('/departments');
     expect(await screen.findByRole('heading', { name: 'Cardiology' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View doctors in Cardiology' })).toHaveAttribute('href', '/doctors?departmentId=1');
   });
 
   it('redirects anonymous users from a protected page to the login page', async () => {

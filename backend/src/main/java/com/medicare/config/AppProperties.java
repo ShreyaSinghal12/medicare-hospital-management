@@ -46,6 +46,7 @@ public record AppProperties(
      * @param resetRequestsPerWindow max forgot/reset-password requests per client IP per window
      * @param rateLimitWindowMinutes sliding window length
      * @param resetTokenMinutes      validity of a password reset link
+     * @param accountSetupHours      validity of the "set your password" link e-mailed to new staff accounts
      */
     public record Security(
             @Min(1) int maxFailedLogins,
@@ -53,6 +54,7 @@ public record AppProperties(
             @Min(1) int loginRequestsPerWindow,
             @Min(1) int resetRequestsPerWindow,
             @Min(1) int rateLimitWindowMinutes,
-            @Min(5) int resetTokenMinutes) {
+            @Min(5) int resetTokenMinutes,
+            @Min(1) int accountSetupHours) {
     }
 }

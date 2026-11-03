@@ -17,8 +17,12 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
         return isStrong(value);
     }
 
+    /** BCrypt only uses the first 72 bytes of its input, and Spring Security rejects longer input. */
+    public static final int MAX_BCRYPT_BYTES = 72;
+
     public static boolean isStrong(String value) {
-        if (value.length() < MIN_LENGTH || value.length() > MAX_LENGTH) {
+        if (value.length() < MIN_LENGTH || value.length() > MAX_LENGTH
+                || value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > MAX_BCRYPT_BYTES) {
             return false;
         }
         boolean upper = false;

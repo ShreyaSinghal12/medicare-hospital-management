@@ -39,6 +39,15 @@ public class AuditService {
         public static final String USER_ACTIVATED = "USER_ACTIVATED";
         public static final String USER_DEACTIVATED = "USER_DEACTIVATED";
         public static final String USER_UNLOCKED = "USER_UNLOCKED";
+        public static final String STAFF_CREATED = "STAFF_ACCOUNT_CREATED";
+        public static final String DOCTOR_CREATED = "DOCTOR_CREATED";
+        public static final String DOCTOR_UPDATED = "DOCTOR_UPDATED";
+        public static final String DOCTOR_PROFILE_UPDATED = "DOCTOR_SELF_PROFILE_UPDATED";
+        public static final String DEPARTMENT_CREATED = "DEPARTMENT_CREATED";
+        public static final String DEPARTMENT_UPDATED = "DEPARTMENT_UPDATED";
+        public static final String DEPARTMENT_ACTIVATED = "DEPARTMENT_ACTIVATED";
+        public static final String DEPARTMENT_DEACTIVATED = "DEPARTMENT_DEACTIVATED";
+        public static final String PATIENT_RECORD_CORRECTED = "PATIENT_RECORD_CORRECTED_BY_ADMIN";
 
         private Actions() {
         }

@@ -6,7 +6,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 |---|---|---|---|
 | 1 | Foundation: project structure, Maven/Vite/Tailwind, full Flyway schema (V1–V8), security skeleton (session + CSRF + CORS + JSON errors), health API, public pages | ✅ | 8 backend integration tests (MySQL), 6 Vitest tests, Playwright smoke run desktop + mobile |
 | 2 | Authentication: register, login, logout, password reset, RBAC routing, account settings, patient profile, notifications API/UI, admin user activation, lockout + rate limiting, session revocation, audit logging, demo users | ✅ | 40 backend tests (25 integration on MySQL + 15 unit), 20 Vitest tests, 11-step Playwright run on the real stack |
-| 3 | Doctor & patient management, departments, doctor search | ⬜ | |
+| 3 | Doctor directory (search/filter/profile), admin doctor CRUD, departments, staff accounts with set-password links, admin patient search/corrections/duplicate review, doctor self-profile | ✅ | 53 backend tests (36 integration on MySQL + 17 unit), 29 Vitest tests, 11-step Playwright run on the real stack |
 | 4 | Appointments: schedules, slot generation, concurrency-safe booking, cancel, reschedule, calendar | ⬜ | |
 | 5 | Doctor consultations & patient history access | ⬜ | |
 | 6 | Prescriptions (draft/finalise/version, PDF) | ⬜ | |
@@ -38,7 +38,7 @@ A feature is ticked only when **all** of these hold:
 | # | Step | Phase | Status |
 |---|---|---|---|
 | 1–2 | Patient registers and logs in | 2 | ✅ |
-| 3–4 | Search cardiologist, view profile | 3 | ⬜ |
+| 3–4 | Search cardiologist, view profile | 3 | ✅ |
 | 5–8 | Select slot, book, concurrent booking rejected, dashboard shows booking | 4 | ⬜ |
 | 9 | Receptionist checks patient in | 7 | ⬜ |
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ⬜ |
@@ -58,3 +58,13 @@ A feature is ticked only when **all** of these hold:
 * Doctor/staff home pages show real account and notification data; each module phase replaces them with that
   role's operational dashboard.
 * Admin *Users & access* covers account activation, deactivation and unlocking. Creating doctors and receptionists comes in Phase 3.
+
+## Phase 3 notes
+
+* No schema change was needed; the tables come from `V1`.
+* Security fix found while testing: BCrypt accepts at most 72 bytes. The password policy now also limits the
+  UTF-8 byte length, and over-long login or current-password input is treated as invalid credentials
+  instead of causing a server error. Regression tests were added.
+* Doctor working days and bookable slots on the profile page come with scheduling in Phase 4.
+* Receptionist patient directory and walk-in registration come in Phase 7.
+* The production JS bundle is about 500 kB (Vite warns). Route-level code splitting is planned for Phase 13.

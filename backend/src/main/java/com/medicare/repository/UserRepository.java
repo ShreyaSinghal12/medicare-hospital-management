@@ -1,5 +1,6 @@
 package com.medicare.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import com.medicare.entity.User;
@@ -30,4 +31,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Page<User> search(@Param("search") String search, @Param("role") Role role,
                       @Param("active") Boolean active, Pageable pageable);
+
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.role IN :roles
+              AND (:search IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR u.phone LIKE CONCAT('%', :search, '%'))
+              AND (:active IS NULL OR u.active = :active)
+            """)
+    Page<User> searchInRoles(@Param("search") String search, @Param("roles") Collection<Role> roles,
+                             @Param("active") Boolean active, Pageable pageable);
 }

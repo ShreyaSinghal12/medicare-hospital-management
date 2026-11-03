@@ -93,6 +93,7 @@ medicare:
     reset-requests-per-window: ${RESET_RATE_LIMIT:5}
     rate-limit-window-minutes: ${RATE_LIMIT_WINDOW_MINUTES:15}
     reset-token-minutes: ${RESET_TOKEN_MINUTES:30}
+    account-setup-hours: ${ACCOUNT_SETUP_HOURS:72}
 
 logging:
   level:
