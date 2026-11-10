@@ -157,14 +157,14 @@ medical-management-system/
 │       │   └── validation/ notification/ reporting/
 │       ├── main/resources/
 │       │   ├── application.yml
-│       │   └── db/migration/        Flyway V1..V8
+│       │   └── db/migration/        Flyway V1..V9
 │       └── test/                    JUnit 5 + Spring Boot Test
 ├── frontend/                        React + Vite
 │   ├── package.json  vite.config.js  index.html
 │   └── src/
 │       ├── api/ services/ hooks/ context/ utils/
 │       ├── components/ layouts/ routes/
-│       └── pages/ public/ auth/ patient/ doctor/ receptionist/ admin/ laboratory/ pharmacy/
+│       └── pages/ public/ auth/ patient/ doctor/ reception/ admin/ prescriptions/ common/
 └── docs/
     ├── architecture/ARCHITECTURE.md
     └── PROGRESS.md
@@ -239,6 +239,16 @@ medical-management-system/
 | GET | `/api/consultations/{id}/prescriptions` | DOCTOR | Prescriptions of a consultation |
 | GET | `/api/patients/me/prescriptions` | PATIENT | Search (medicine, doctor, RX no.), `doctorId`, `from`, `to`, `includeSuperseded` |
 | GET | `/api/doctor/prescriptions` | DOCTOR | Prescriptions you issued (`status`, search, dates) |
+| GET | `/api/reception/dashboard` | RECEPTIONIST, ADMIN | Today's counts per status, waiting queue, walk-ins |
+| GET / POST | `/api/reception/patients` | RECEPTIONIST, ADMIN | Search patients (name, phone, e-mail, patient ID) / register a walk-in (no password; activation e-mail) |
+| GET | `/api/reception/patients/{id}`, `/{id}/appointments` | RECEPTIONIST, ADMIN | Demographics and appointments (no clinical data, no visit reason) |
+| PATCH | `/api/reception/patients/{id}/contact` | RECEPTIONIST, ADMIN | Update phone, address, emergency contact |
+| GET | `/api/reception/appointments` | RECEPTIONIST, ADMIN | Day list (`date`, `doctorId`, `status`) with queue tokens |
+| POST | `/api/appointments` (with `patientId`, `walkIn`) | RECEPTIONIST, ADMIN | Book for a patient (same concurrency-safe booking) |
+| PATCH | `/api/appointments/{id}/check-in` | RECEPTIONIST, ADMIN | Check in (today only) and issue the next token for that doctor |
+| GET | `/api/reception/queue` | RECEPTIONIST, ADMIN | Today's queue board (`date`, `doctorId`) |
+| PATCH | `/api/reception/queue/{id}/skip`, `/{id}/requeue` | RECEPTIONIST, ADMIN | Skip a waiting patient / put them back |
+| GET | `/api/doctor/queue` | DOCTOR | Your queue for today |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -282,8 +292,8 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 * Receptionists and administrators have no access to diagnoses or notes,
   enforced on the server.
 * All clinical content is typed by the doctor. MediCare never suggests diagnoses, treatments or doses.
-* A consultation can be started on the appointment day (until reception check-in arrives in Phase 7, starting
-  it records an implicit check-in). Finalizing requires a diagnosis and completes the appointment.
+* A consultation can be started on the appointment day. If reception has not checked the patient in, starting it
+  records an implicit check-in and issues a token. Finalizing requires a diagnosis and completes the appointment.
 * Finalized notes are never overwritten. An amendment needs a reason, and the previous values are stored as
   a JSON snapshot (`consultation_amendments`).
 * Patients see their finalized consultations, active allergies and conditions in *Medical history*, without the
@@ -300,6 +310,22 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 * Receptionists and administrators cannot read prescriptions.
 
 ![Sample prescription PDF](docs/sample-prescription.png)
+
+### Reception and queue
+
+* Receptionists register walk-in patients without choosing a password. The patient gets a single-use
+  *set your password* link (valid 72 h). Duplicate e-mails are rejected.
+* Reception books through the same locked, double-booking-safe API as patients, and may mark today's
+  bookings as walk-ins. The reason for the visit goes only to the doctor; reception lists, the patient page
+  and the printable confirmation never show it.
+* **Check-in** is allowed only on the appointment day for SCHEDULED appointments. Each check-in gets the next
+  token number for that doctor and day (1, 2, 3 …). Tokens are unique even under simultaneous check-ins (doctor
+  row lock plus the `uk_queue_doctor_date_token` unique key; tested with parallel requests).
+* The queue status follows the appointment automatically: WAITING → IN_CONSULTATION (doctor starts) →
+  COMPLETED (doctor finalizes). Cancelling or recording a no-show marks the entry SKIPPED, and it cannot be put back.
+  Reception can **skip** a waiting patient and **put them back** (same token).
+* The doctor is notified when a patient checks in. Reception can update contact details but never sees
+  diagnoses, notes, allergies or prescriptions.
 
 ## 9. Common errors and fixes
 

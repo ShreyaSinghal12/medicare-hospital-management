@@ -12,12 +12,16 @@ import StatCard from '../../components/ui/StatCard.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import useApi from '../../hooks/useApi.js';
 import { getDoctorDashboard } from '../../services/scheduleService.js';
+import { getDoctorQueue } from '../../services/receptionService.js';
+import QueueStatusBadge, { TokenChip } from '../../components/reception/QueueStatusBadge.jsx';
 import { formatDateLong, todayIsoLocal } from '../../utils/dates.js';
 
 /** Doctor home: today's list with consultation actions and workload counters (live data). */
 export default function DoctorDashboard() {
   const { user } = useAuth();
   const { data, loading, error, reload } = useApi(getDoctorDashboard);
+  const queue = useApi(getDoctorQueue);
+  const waiting = (queue.data || []).filter((q) => q.status === 'WAITING' || q.status === 'IN_CONSULTATION');
 
   return (
     <>
@@ -40,7 +44,21 @@ export default function DoctorDashboard() {
             )}
           </Card>
         </div>
-        <RecentNotifications />
+        <div className="space-y-6">
+          <Card title="Queue" subtitle={queue.data ? `${(queue.data || []).filter((q) => q.status === 'WAITING').length} waiting` : undefined}>
+            {queue.loading && <Spinner />}
+            {queue.data && waiting.length === 0 && <p className="text-sm text-slate-500">No one waiting.</p>}
+            <ul className="space-y-2">
+              {waiting.map((q) => (
+                <li key={q.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-2"><TokenChip token={q.tokenNumber} status={q.status} /> {q.patientName}</span>
+                  <QueueStatusBadge status={q.status} />
+                </li>
+              ))}
+            </ul>
+          </Card>
+          <RecentNotifications />
+        </div>
       </div>
     </>
   );

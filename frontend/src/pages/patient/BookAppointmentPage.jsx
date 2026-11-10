@@ -87,7 +87,7 @@ export default function BookAppointmentPage() {
           </dl>
           <div className="mt-4">
             <TextAreaField label="Reason for visit" required rows={3} maxLength={500} value={reason} error={reasonError}
-              hint="Shared only with your doctor and the clinic staff handling your booking."
+              hint="Shared only with your doctor."
               onChange={(e) => { setReason(e.target.value); setReasonError(null); }} />
           </div>
           <Button className="mt-4 w-full" onClick={submit} loading={submitting} disabled={!selected}>

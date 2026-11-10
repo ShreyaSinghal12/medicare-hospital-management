@@ -12,8 +12,11 @@ export default function AppointmentRow({ a, showDate = false, actions }) {
         </span>
         <div className="min-w-0">
           <p className="font-medium text-slate-900">{a.patientName} <span className="text-sm font-normal text-slate-500">· {a.patientCode}</span></p>
-          <p className="truncate text-sm text-slate-500">{a.reason}</p>
-          <p className="text-xs text-slate-400">{a.referenceNo}{a.type === 'FOLLOW_UP' ? ' · Follow-up' : ''}</p>
+          {a.reason && <p className="truncate text-sm text-slate-500">{a.reason}</p>}
+          <p className="text-xs text-slate-400">
+            {a.referenceNo}{a.type === 'FOLLOW_UP' ? ' · Follow-up' : ''}{a.type === 'WALK_IN' ? ' · Walk-in' : ''}
+            {a.queueToken ? ` · Token ${a.queueToken}` : ''}
+          </p>
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">

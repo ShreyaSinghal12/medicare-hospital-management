@@ -8,9 +8,9 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 2 | Authentication: register, login, logout, password reset, RBAC routing, account settings, patient profile, notifications API/UI, admin user activation, lockout + rate limiting, session revocation, audit logging, demo users | ✅ | 40 backend tests (25 integration on MySQL + 15 unit), 20 Vitest tests, 11-step Playwright run on the real stack |
 | 3 | Doctor directory (search/filter/profile), admin doctor CRUD, departments, staff accounts with set-password links, admin patient search/corrections/duplicate review, doctor self-profile | ✅ | 53 backend tests (36 integration on MySQL + 17 unit), 29 Vitest tests, 11-step Playwright run on the real stack |
 | 4 | Weekly schedules, leave approvals, rule-based slot generation, next-available, concurrency-safe booking, cancel (window), atomic reschedule, no-show, status history, patient booking flow, doctor week calendar, admin leave/schedule pages | ✅ | 86 backend tests (incl. 10-thread simultaneous booking, repeated 5×), 36 Vitest tests, 8-step Playwright run incl. two browsers racing for one slot |
-| 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist, admin and lab |
+| 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist and admin |
 | 6 | Prescriptions: multi-line drafts, finalize (immutable), revisions superseding earlier versions, discard, patient search/filters, version history, PDF with superseded watermark, notifications, timeline/dashboard integration | ✅ | 102 backend tests, 48 Vitest tests, 7-step Playwright run incl. PDF download and 403 for receptionist/admin |
-| 7 | Reception: walk-ins, check-in, queue tokens | ⬜ | |
+| 7 | Reception: walk-in registration with activation e-mail, patient directory and contact updates, front-desk booking, day list, check-in with per-doctor tokens, queue board with skip/put back, automatic queue status, printable confirmation, doctor queue card | ✅ | 111 backend tests (incl. parallel check-ins), 55 Vitest tests, 10-step Playwright run on the real stack |
 | 8 | Laboratory (four-role model): admin test catalog; doctors order tests, update order status, upload PDF reports and finalize them; patients download finalized reports; secure file handling | ⬜ | |
 | 9 | Medicine inventory (admin): catalog, batches, expiry, stock-in/out ledger, low-stock and expiry alerts, dispensing records against finalized prescriptions (no negative stock, no expired batches) | ⬜ | |
 | 10 | Billing & payments | ⬜ | |
@@ -40,7 +40,7 @@ A feature is ticked only when **all** of these hold:
 | 1–2 | Patient registers and logs in | 2 | ✅ |
 | 3–4 | Search cardiologist, view profile | 3 | ✅ |
 | 5–8 | Select slot, book, concurrent booking rejected, dashboard shows booking | 4 | ✅ |
-| 9 | Receptionist checks patient in | 7 | ⬜ (doctor-side implicit check-in exists) |
+| 9 | Receptionist checks patient in | 7 | ✅ |
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ✅ |
 | 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ⬜ |
@@ -115,3 +115,16 @@ A feature is ticked only when **all** of these hold:
   placeholder text. It was replaced by an empty form that creates nothing until the doctor saves, because the system
   must not pre-fill clinical content.
 * `prescription_items.medicine_id` stays empty until Phase 9 links dispensing to the inventory catalog.
+
+## Phase 7 notes
+
+* No new migration was needed; `queue_entries` comes from `V2`.
+* **Fix found by the concurrency test:** under REPEATABLE READ two parallel check-ins could read the same highest
+  token. The token is now read with a locking `SELECT MAX(...) FOR UPDATE` under the doctor lock in a
+  READ_COMMITTED transaction, and a unique key backs it up.
+* The visit reason is removed from appointment responses for reception and admin (server-side), not just hidden in the UI.
+* The browser test widened a demo doctor's hours through the admin schedule API because it ran after the
+  normal demo hours. Repeated runs also triggered the login rate limiter (HTTP 429), as designed.
+* Known limitation: the frontend works out "today" and shows check-in times in the browser's time zone. This is
+  right when the desk computer is in the hospital's zone (Asia/Kolkata). Phase 13 will use the hospital
+  time zone from `/api/public/hospital-info` everywhere.

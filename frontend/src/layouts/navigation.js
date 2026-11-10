@@ -1,5 +1,5 @@
 import {
-  Bell, Building2, CalendarCheck, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  Bell, Building2, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
   NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
@@ -30,6 +30,11 @@ export const NAVIGATION = {
   ],
   RECEPTIONIST: [
     { to: '/reception', label: 'Reception desk', icon: ClipboardList, end: true },
+    { to: '/reception/appointments', label: 'Appointments', icon: CalendarCheck },
+    { to: '/reception/queue', label: 'Queue', icon: ListOrdered },
+    { to: '/reception/book', label: 'Book appointment', icon: CalendarPlus },
+    { to: '/reception/patients', label: 'Patients', icon: Users, end: true },
+    { to: '/reception/patients/new', label: 'Register walk-in', icon: UserPlus },
     { to: '/notifications', label: 'Notifications', icon: Bell },
     { to: '/account', label: 'Account settings', icon: Settings },
   ],

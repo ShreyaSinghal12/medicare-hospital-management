@@ -11,6 +11,14 @@ import StaffAdminPage from '../pages/admin/StaffAdminPage.jsx';
 import UserManagementPage from '../pages/admin/UserManagementPage.jsx';
 import AvailabilityPage from '../pages/doctor/AvailabilityPage.jsx';
 import ConsultationPage from '../pages/doctor/ConsultationPage.jsx';
+import DayAppointmentsPage from '../pages/reception/DayAppointmentsPage.jsx';
+import PatientDirectoryPage from '../pages/reception/PatientDirectoryPage.jsx';
+import PrintConfirmationPage from '../pages/reception/PrintConfirmationPage.jsx';
+import QueuePage from '../pages/reception/QueuePage.jsx';
+import ReceptionBookPage from '../pages/reception/ReceptionBookPage.jsx';
+import ReceptionDashboard from '../pages/reception/ReceptionDashboard.jsx';
+import ReceptionPatientPage from '../pages/reception/ReceptionPatientPage.jsx';
+import RegisterWalkInPage from '../pages/reception/RegisterWalkInPage.jsx';
 import NewPrescriptionPage from '../pages/doctor/NewPrescriptionPage.jsx';
 import PrescriptionWorkspacePage from '../pages/doctor/PrescriptionWorkspacePage.jsx';
 import PatientPrescriptionPage from '../pages/prescriptions/PatientPrescriptionPage.jsx';
@@ -112,7 +120,14 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute roles={['RECEPTIONIST']} />}>
         <Route element={<DashboardLayout />}>
-          <Route path="reception" element={<StaffHomePage title="Reception desk" />} />
+          <Route path="reception" element={<ReceptionDashboard />} />
+          <Route path="reception/appointments" element={<DayAppointmentsPage />} />
+          <Route path="reception/appointments/:id/print" element={<PrintConfirmationPage />} />
+          <Route path="reception/queue" element={<QueuePage />} />
+          <Route path="reception/book" element={<ReceptionBookPage />} />
+          <Route path="reception/patients" element={<PatientDirectoryPage />} />
+          <Route path="reception/patients/new" element={<RegisterWalkInPage />} />
+          <Route path="reception/patients/:id" element={<ReceptionPatientPage />} />
         </Route>
       </Route>
 
