@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/staff")
 @PreAuthorize("hasRole('ADMIN')")
-@Tag(name = "Admin: staff", description = "Receptionists, lab technicians, pharmacists and administrators")
+@Tag(name = "Admin: staff", description = "Receptionists and administrators")
 public class AdminStaffController {
 
     private final StaffService staffService;

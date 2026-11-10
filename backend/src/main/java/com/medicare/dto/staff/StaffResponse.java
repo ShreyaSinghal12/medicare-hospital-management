@@ -5,6 +5,7 @@ import java.time.Instant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.medicare.enums.Role;
 
+/** Receptionist or administrator account. {@code employeeCode} is set for receptionists. */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record StaffResponse(
         Long userId,
@@ -14,8 +15,6 @@ public record StaffResponse(
         String phone,
         boolean active,
         String employeeCode,
-        String qualification,
-        String licenseNumber,
         Instant lastLoginAt,
         Instant createdAt) {
 }

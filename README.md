@@ -12,6 +12,23 @@ A college final-year project: a secure, database-driven hospital/clinic manageme
 
 ---
 
+## User roles
+
+MediCare has exactly **four** roles:
+
+| Role | Responsibilities |
+|---|---|
+| **PATIENT** | Registers, books appointments, sees own records, prescriptions, lab reports and invoices |
+| **DOCTOR** | Consultations, prescriptions, **orders lab tests, uploads lab reports and reviews results** |
+| **RECEPTIONIST** | Walk-in registration, scheduling, check-in and queue, **billing and payments** |
+| **ADMIN** | Users, departments, doctors, settings, analytics, **lab test catalog, medicine inventory (stock, batches, expiry, low-stock alerts) and dispensing records** |
+
+There are no separate laboratory or pharmacy logins.
+
+> **Upgrading an older checkout:** the first migration (`V1`) was changed when the role model was reduced to these
+> four roles. If you already ran an earlier version, drop and recreate `medicare_db` and `medicare_test`
+> (section 2) before starting the backend; otherwise Flyway reports a checksum mismatch.
+
 ## 1. Prerequisites
 
 | Software | Version | Check with |
@@ -84,8 +101,6 @@ All of them use the password you put in `DEMO_PASSWORD`.
 |---|---|
 | Administrator | admin@medicare.example |
 | Receptionist | reception@medicare.example |
-| Lab technician | lab@medicare.example |
-| Pharmacist | pharmacy@medicare.example |
 | Doctor (Cardiology) | dr.mehta@medicare.example, dr.nair@medicare.example |
 | Doctor (General Medicine) | dr.rao@medicare.example |
 | Doctor (Dermatology) | dr.khan@medicare.example |
@@ -109,7 +124,7 @@ npm run dev
 ```
 
 Open **http://localhost:5173**. The *System status* card should show **Java backend UP** and
-**MySQL database UP – Schema version V8 – Tables 38**, which proves React → Spring Boot → MySQL is connected.
+**MySQL database UP – Schema version V9 – Tables 36**, which proves React → Spring Boot → MySQL is connected.
 
 ## 6. Run the tests
 
@@ -187,7 +202,7 @@ medical-management-system/
 | GET / POST | `/api/admin/departments` | ADMIN | All departments / create |
 | PUT | `/api/admin/departments/{id}` | ADMIN | Rename / describe |
 | PATCH | `/api/admin/departments/{id}/status` | ADMIN | Activate / deactivate (refused while active doctors remain) |
-| GET / POST | `/api/admin/staff` | ADMIN | Receptionists, lab technicians, pharmacists, admins |
+| GET / POST | `/api/admin/staff` | ADMIN | Receptionist and administrator accounts |
 | GET | `/api/admin/patients` | ADMIN | Patient search (demographics only) |
 | GET | `/api/admin/patients/duplicates` | ADMIN | Possible duplicate registrations |
 | PUT | `/api/admin/patients/{id}` | ADMIN | Non-clinical correction with mandatory, audited reason |
@@ -229,7 +244,7 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 * Reset links: 256-bit random token, only its SHA-256 hash is stored, valid 30 minutes, single use.
 * Deactivating a user, or changing or resetting a password, ends that user's other sessions on their next request.
 * Every login, failure, lockout, logout, password change and account change is written to `audit_logs`.
-* Staff accounts (doctors, receptionists, lab, pharmacy, admins) are created with a random, never-disclosed
+* Staff accounts (doctors, receptionists, admins) are created with a random, never-disclosed
   password; the new user receives a single-use *set your password* link (valid 72 h, `ACCOUNT_SETUP_HOURS`).
   In development the link is in `backend/mail-outbox/`.
 * Doctors are never deleted (deactivate them in *Doctors* or *Users & access*); departments with active
@@ -255,7 +270,7 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 
 * A doctor can see a patient's clinical record only with a **treatment relationship**, meaning at least one
   non-cancelled appointment together. Every record view and every denied attempt goes into `audit_logs`.
-* Receptionists, administrators, lab technicians and pharmacists have no access to diagnoses or notes,
+* Receptionists and administrators have no access to diagnoses or notes,
   enforced on the server.
 * All clinical content is typed by the doctor. MediCare never suggests diagnoses, treatments or doses.
 * A consultation can be started on the appointment day (until reception check-in arrives in Phase 7, starting

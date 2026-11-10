@@ -21,13 +21,13 @@ import { formatDateTime } from '../../utils/format.js';
 import { ROLE_LABEL } from '../../utils/roles.js';
 import { EMAIL_PATTERN, NAME_PATTERN, PHONE_PATTERN } from '../../utils/validation.js';
 
-const STAFF_ROLES = ['RECEPTIONIST', 'LAB_TECHNICIAN', 'PHARMACIST', 'ADMIN'];
+const STAFF_ROLES = ['RECEPTIONIST', 'ADMIN'];
 
 function StaffForm({ defaultRole, onSaved, onCancel }) {
   const {
     register, handleSubmit, watch, setError,
     formState: { errors, isSubmitting },
-  } = useForm({ defaultValues: { role: defaultRole, fullName: '', email: '', phone: '', qualification: '', licenseNumber: '' } });
+  } = useForm({ defaultValues: { role: defaultRole, fullName: '', email: '', phone: '' } });
   const role = watch('role');
 
   async function onSubmit(values) {
@@ -50,14 +50,6 @@ function StaffForm({ defaultRole, onSaved, onCancel }) {
         {...register('email', { required: 'E-mail is required', pattern: { value: EMAIL_PATTERN, message: 'Enter a valid e-mail address' } })} />
       <TextField label="Phone" type="tel" required error={errors.phone?.message}
         {...register('phone', { required: 'Phone is required', pattern: { value: PHONE_PATTERN, message: 'Enter a valid phone number' } })} />
-      {role === 'LAB_TECHNICIAN' && (
-        <TextField label="Qualification" placeholder="e.g. B.Sc. MLT" error={errors.qualification?.message}
-          {...register('qualification', { maxLength: { value: 150, message: 'Max 150 characters' } })} />
-      )}
-      {role === 'PHARMACIST' && (
-        <TextField label="Pharmacist licence number" error={errors.licenseNumber?.message}
-          {...register('licenseNumber', { maxLength: { value: 50, message: 'Max 50 characters' } })} />
-      )}
       {role === 'ADMIN' && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 sm:col-span-2">
           Administrators can manage all accounts and settings. Grant this role only when necessary.
@@ -71,7 +63,7 @@ function StaffForm({ defaultRole, onSaved, onCancel }) {
   );
 }
 
-/** Admin: receptionists, lab technicians, pharmacists and administrators. */
+/** Admin: receptionist and administrator accounts. */
 export default function StaffAdminPage() {
   const [role, setRole] = useState('RECEPTIONIST');
   const [searchInput, setSearchInput] = useState('');
@@ -83,7 +75,7 @@ export default function StaffAdminPage() {
 
   return (
     <>
-      <PageHeader title="Staff accounts" description="Create front-desk, laboratory, pharmacy and administrator accounts. Use Users & access to deactivate or unlock accounts."
+      <PageHeader title="Staff accounts" description="Create receptionist and administrator accounts. Doctors are added under Doctors. Use Users & access to deactivate or unlock accounts."
         actions={<Button onClick={() => setCreating(true)}><Plus className="h-4 w-4" aria-hidden="true" /> Add staff member</Button>} />
       <Card>
         <Tabs label="Staff role" value={role} onChange={(r) => { setRole(r); setPage(0); }}
@@ -105,7 +97,7 @@ export default function StaffAdminPage() {
                     <p className="font-medium text-slate-900">{s.fullName}</p>
                     <p className="text-sm text-slate-500">{s.email} · {s.phone}</p>
                     <p className="text-xs text-slate-400">
-                      {[s.employeeCode, s.qualification, s.licenseNumber && `Licence ${s.licenseNumber}`].filter(Boolean).join(' · ') || ROLE_LABEL[s.role]}
+                      {s.employeeCode || ROLE_LABEL[s.role]}
                       {' · '}Last login {formatDateTime(s.lastLoginAt)}
                     </p>
                   </div>

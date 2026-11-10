@@ -10,8 +10,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * Creates a receptionist, lab technician, pharmacist or another administrator.
- * Doctors have their own endpoint because they need professional details.
+ * Creates a receptionist or another administrator. Doctors have their own endpoint
+ * because they need professional details.
  */
 public record CreateStaffRequest(
         @NotNull Role role,
@@ -24,11 +24,5 @@ public record CreateStaffRequest(
         String email,
 
         @NotBlank @Pattern(regexp = ValidationPatterns.PHONE, message = ValidationPatterns.PHONE_MESSAGE)
-        String phone,
-
-        @Size(max = 150)
-        String qualification,
-
-        @Size(max = 50)
-        String licenseNumber) {
+        String phone) {
 }

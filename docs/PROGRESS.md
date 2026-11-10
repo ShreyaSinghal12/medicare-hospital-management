@@ -11,8 +11,8 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist, admin and lab |
 | 6 | Prescriptions (draft/finalise/version, PDF) | ⬜ | |
 | 7 | Reception: walk-ins, check-in, queue tokens | ⬜ | |
-| 8 | Laboratory module | ⬜ | |
-| 9 | Pharmacy & inventory | ⬜ | |
+| 8 | Laboratory (four-role model): admin test catalog; doctors order tests, update order status, upload PDF reports and finalize them; patients download finalized reports; secure file handling | ⬜ | |
+| 9 | Medicine inventory (admin): catalog, batches, expiry, stock-in/out ledger, low-stock and expiry alerts, dispensing records against finalized prescriptions (no negative stock, no expired batches) | ⬜ | |
 | 10 | Billing & payments | ⬜ | |
 | 11 | Notifications, e-mail, reminders, next-slot suggestions | ⬜ | |
 | 12 | Analytics, admin, settings, reports, audit viewer, exports | ⬜ | |
@@ -43,8 +43,8 @@ A feature is ticked only when **all** of these hold:
 | 9 | Receptionist checks patient in | 7 | ⬜ (doctor-side implicit check-in exists) |
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ⬜ |
-| 16–18 | Lab order, report upload, patient download | 8 | ⬜ |
-| 19 | Pharmacist dispenses | 9 | ⬜ |
+| 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ⬜ |
+| 19 | Administrator records dispensing against the finalized prescription | 9 | ⬜ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
 | 24–25 | Admin views statistics and reports | 12 | ⬜ |
@@ -92,3 +92,15 @@ A feature is ticked only when **all** of these hold:
   stale version gets 409 CONCURRENT_MODIFICATION.
 * The browser test ran in the evening (hospital time), so the admin temporarily extended a demo doctor's hours
   through the schedule API and restored them afterwards.
+
+## Role model change (four roles)
+
+* The project now has exactly four roles: PATIENT, DOCTOR, RECEPTIONIST and ADMIN.
+* `V1` was edited (unreleased project) so the `users.role` CHECK lists only these roles and the two former
+  staff-profile tables are gone (35 application tables). Existing local databases must be recreated.
+* Admin *Staff accounts* manages receptionists and administrators only. The demo seeder creates admin,
+  receptionist, five doctors and two patients.
+* Phase 8 (laboratory) is done by doctors (orders, status updates, report uploads) and admins (test catalog).
+  Phase 9 (inventory) is admin-managed, including dispensing records.
+* Tests verify that only the four roles exist, that unknown roles are rejected by the API, and that no
+  laboratory or pharmacy routes exist in the frontend.

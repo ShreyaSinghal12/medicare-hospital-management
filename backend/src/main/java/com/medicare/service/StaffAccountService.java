@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Creates login identities for staff (doctors, receptionists, lab technicians,
- * pharmacists, administrators). The initial password is random and never shown to anyone;
- * the new user receives a single-use "set your password" link instead.
+ * Creates login identities for staff (doctors, receptionists, administrators). The initial
+ * password is random and never shown to anyone; the new user receives a single-use
+ * "set your password" link instead.
  */
 @Service
 public class StaffAccountService {

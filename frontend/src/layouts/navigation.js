@@ -1,6 +1,6 @@
 import {
-  Bell, Building2, CalendarCheck, CalendarClock, CalendarOff, ClipboardList, FlaskConical, IdCard, LayoutDashboard,
-  NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
+  Bell, Building2, CalendarCheck, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  NotebookText, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
 /**
@@ -39,16 +39,6 @@ export const NAVIGATION = {
     { to: '/admin/staff', label: 'Staff accounts', icon: UserCog },
     { to: '/admin/patients', label: 'Patients', icon: UserRound },
     { to: '/admin/users', label: 'Users & access', icon: Users },
-    { to: '/notifications', label: 'Notifications', icon: Bell },
-    { to: '/account', label: 'Account settings', icon: Settings },
-  ],
-  LAB_TECHNICIAN: [
-    { to: '/lab', label: 'Laboratory', icon: FlaskConical, end: true },
-    { to: '/notifications', label: 'Notifications', icon: Bell },
-    { to: '/account', label: 'Account settings', icon: Settings },
-  ],
-  PHARMACIST: [
-    { to: '/pharmacy', label: 'Pharmacy', icon: Pill, end: true },
     { to: '/notifications', label: 'Notifications', icon: Bell },
     { to: '/account', label: 'Account settings', icon: Settings },
   ],

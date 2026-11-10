@@ -8,9 +8,7 @@ import java.util.Arrays;
 import com.medicare.entity.Department;
 import com.medicare.entity.DoctorAvailability;
 import com.medicare.entity.Doctor;
-import com.medicare.entity.LabTechnician;
 import com.medicare.entity.Patient;
-import com.medicare.entity.Pharmacist;
 import com.medicare.entity.Receptionist;
 import com.medicare.entity.User;
 import com.medicare.enums.BloodGroup;
@@ -19,9 +17,7 @@ import com.medicare.enums.Role;
 import com.medicare.repository.DepartmentRepository;
 import com.medicare.repository.DoctorAvailabilityRepository;
 import com.medicare.repository.DoctorRepository;
-import com.medicare.repository.LabTechnicianRepository;
 import com.medicare.repository.PatientRepository;
-import com.medicare.repository.PharmacistRepository;
 import com.medicare.repository.ReceptionistRepository;
 import com.medicare.repository.UserRepository;
 import com.medicare.service.SequenceService;
@@ -39,7 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Creates FICTIONAL demo accounts for every role. Runs only with the {@code demo}
+ * Creates FICTIONAL demo accounts for every role (admin, receptionist, doctors, patients). Runs only with the {@code demo}
  * Spring profile, refuses to run together with {@code prod}, and is idempotent
  * (existing e-mails are skipped), so it is safe to restart.
  *
@@ -55,8 +51,6 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final ReceptionistRepository receptionistRepository;
-    private final LabTechnicianRepository labTechnicianRepository;
-    private final PharmacistRepository pharmacistRepository;
     private final DepartmentRepository departmentRepository;
     private final DoctorAvailabilityRepository availabilityRepository;
     private final SequenceService sequenceService;
@@ -66,7 +60,6 @@ public class DemoDataSeeder implements ApplicationRunner {
 
     public DemoDataSeeder(UserRepository userRepository, PatientRepository patientRepository,
                           DoctorRepository doctorRepository, ReceptionistRepository receptionistRepository,
-                          LabTechnicianRepository labTechnicianRepository, PharmacistRepository pharmacistRepository,
                           DepartmentRepository departmentRepository,
                           DoctorAvailabilityRepository availabilityRepository, SequenceService sequenceService,
                           PasswordEncoder passwordEncoder, Environment environment,
@@ -75,8 +68,6 @@ public class DemoDataSeeder implements ApplicationRunner {
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.receptionistRepository = receptionistRepository;
-        this.labTechnicianRepository = labTechnicianRepository;
-        this.pharmacistRepository = pharmacistRepository;
         this.departmentRepository = departmentRepository;
         this.availabilityRepository = availabilityRepository;
         this.sequenceService = sequenceService;
@@ -104,16 +95,6 @@ public class DemoDataSeeder implements ApplicationRunner {
         User rec = createUser("reception@medicare.example", "Rohan Desk", "+91 90000 00002", Role.RECEPTIONIST, hash);
         if (rec != null) {
             receptionistRepository.save(new Receptionist(rec, sequenceService.nextEmployeeCode()));
-            created++;
-        }
-        User lab = createUser("lab@medicare.example", "Lata Labwell", "+91 90000 00003", Role.LAB_TECHNICIAN, hash);
-        if (lab != null) {
-            labTechnicianRepository.save(new LabTechnician(lab, sequenceService.nextEmployeeCode(), "B.Sc. MLT"));
-            created++;
-        }
-        User ph = createUser("pharmacy@medicare.example", "Paresh Pillbox", "+91 90000 00004", Role.PHARMACIST, hash);
-        if (ph != null) {
-            pharmacistRepository.save(new Pharmacist(ph, sequenceService.nextEmployeeCode(), "PH-DEMO-001"));
             created++;
         }
 

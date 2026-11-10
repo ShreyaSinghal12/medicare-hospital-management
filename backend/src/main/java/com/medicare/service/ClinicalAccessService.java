@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * record. Rule: the doctor must have a <b>treatment relationship</b> with the patient,
  * i.e. at least one non-cancelled appointment together (past, current or upcoming).
  *
- * <p>Receptionists, administrators, lab and pharmacy staff never get clinical record
- * access through this service. Every granted access and every denial is audit-logged.</p>
+ * <p>Receptionists and administrators never get clinical record access through this service. Every granted access and every denial is audit-logged.</p>
  */
 @Service
 public class ClinicalAccessService {

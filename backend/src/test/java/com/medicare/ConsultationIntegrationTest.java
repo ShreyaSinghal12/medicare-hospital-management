@@ -164,7 +164,7 @@ class ConsultationIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(patch("/api/consultations/{id}", id).with(csrf()).session(otherSession)
                 .contentType(MediaType.APPLICATION_JSON).content(content("Hack", 0, null))).andExpect(status().isForbidden());
 
-        for (Role role : new Role[]{Role.RECEPTIONIST, Role.ADMIN, Role.LAB_TECHNICIAN, Role.PHARMACIST}) {
+        for (Role role : new Role[]{Role.RECEPTIONIST, Role.ADMIN}) {
             MockHttpSession s = loginAs(role);
             mockMvc.perform(get("/api/consultations/{id}", id).session(s)).andExpect(status().isForbidden());
             mockMvc.perform(get("/api/doctor/patients/{pid}/record", patient.getId()).session(s)).andExpect(status().isForbidden());

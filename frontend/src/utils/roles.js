@@ -4,8 +4,6 @@ export const ROLE_HOME = {
   DOCTOR: '/doctor',
   RECEPTIONIST: '/reception',
   ADMIN: '/admin',
-  LAB_TECHNICIAN: '/lab',
-  PHARMACIST: '/pharmacy',
 };
 
 export const ROLE_LABEL = {
@@ -13,8 +11,6 @@ export const ROLE_LABEL = {
   DOCTOR: 'Doctor',
   RECEPTIONIST: 'Receptionist',
   ADMIN: 'Administrator',
-  LAB_TECHNICIAN: 'Lab technician',
-  PHARMACIST: 'Pharmacist',
 };
 
 export const ALL_ROLES = Object.keys(ROLE_HOME);

@@ -45,6 +45,14 @@ describe('AppRoutes', () => {
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
   });
 
+  it('has no laboratory or pharmacy role areas', async () => {
+    for (const path of ['/lab', '/pharmacy']) {
+      const { unmount } = renderApp(path);
+      expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it('renders the 403 page', async () => {
     renderApp('/unauthorized');
     expect(await screen.findByRole('heading', { name: 'Access denied' })).toBeInTheDocument();

@@ -33,7 +33,7 @@ CREATE TABLE users (
     version                     BIGINT       NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     CONSTRAINT uk_users_email UNIQUE (email),
-    CONSTRAINT ck_users_role CHECK (role IN ('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN', 'LAB_TECHNICIAN', 'PHARMACIST')),
+    CONSTRAINT ck_users_role CHECK (role IN ('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')),
     INDEX idx_users_role_active (role, active),
     INDEX idx_users_full_name (full_name)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
@@ -95,30 +95,6 @@ CREATE TABLE receptionists (
     CONSTRAINT uk_receptionists_user UNIQUE (user_id),
     CONSTRAINT uk_receptionists_code UNIQUE (employee_code),
     CONSTRAINT fk_receptionists_user FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE lab_technicians (
-    id             BIGINT       NOT NULL AUTO_INCREMENT,
-    user_id        BIGINT       NOT NULL,
-    employee_code  VARCHAR(20)  NOT NULL,
-    qualification  VARCHAR(150),
-    created_at     DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (id),
-    CONSTRAINT uk_lab_technicians_user UNIQUE (user_id),
-    CONSTRAINT uk_lab_technicians_code UNIQUE (employee_code),
-    CONSTRAINT fk_lab_technicians_user FOREIGN KEY (user_id) REFERENCES users (id)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE pharmacists (
-    id              BIGINT      NOT NULL AUTO_INCREMENT,
-    user_id         BIGINT      NOT NULL,
-    employee_code   VARCHAR(20) NOT NULL,
-    license_number  VARCHAR(50),
-    created_at      DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (id),
-    CONSTRAINT uk_pharmacists_user UNIQUE (user_id),
-    CONSTRAINT uk_pharmacists_code UNIQUE (employee_code),
-    CONSTRAINT fk_pharmacists_user FOREIGN KEY (user_id) REFERENCES users (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- Single-row configuration table (id is always 1).

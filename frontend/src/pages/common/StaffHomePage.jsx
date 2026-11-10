@@ -9,8 +9,6 @@ import { ROLE_LABEL } from '../../utils/roles.js';
 const ROLE_INTRO = {
   DOCTOR: 'Your consultations, schedule and patient records will appear here.',
   RECEPTIONIST: 'Front-desk tools for registration, scheduling, check-in and billing.',
-  LAB_TECHNICIAN: 'Laboratory test orders and report uploads.',
-  PHARMACIST: 'Medicine inventory and prescription dispensing.',
   ADMIN: 'Hospital administration, users, configuration and analytics.',
 };
 

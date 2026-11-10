@@ -228,20 +228,30 @@ class DirectoryAndAdminIntegrationTest extends IntegrationTestBase {
     @Test
     void newStaffMemberCanSetPasswordFromSetupLinkAndLogIn() throws Exception {
         MockHttpSession admin = loginAs(Role.ADMIN);
-        String email = uniqueEmail("labnew");
+        String email = uniqueEmail("desknew");
         mockMvc.perform(post("/api/admin/staff").with(csrf()).session(admin).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"role\":\"LAB_TECHNICIAN\",\"fullName\":\"Lab New\",\"email\":\"%s\",\"phone\":\"+91 97777 55555\",\"qualification\":\"DMLT\"}".formatted(email)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.qualification").value("DMLT"));
+                        .content("{\"role\":\"RECEPTIONIST\",\"fullName\":\"Desk New\",\"email\":\"%s\",\"phone\":\"+91 97777 55555\"}".formatted(email)))
+                .andExpect(status().isCreated());
 
         String token = readToken(email);
         mockMvc.perform(post("/api/auth/reset-password").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"token\":\"%s\",\"newPassword\":\"%s\",\"confirmPassword\":\"%s\"}".formatted(token, PASSWORD, PASSWORD)))
                 .andExpect(status().isOk());
-        MockHttpSession lab = login(email);
-        mockMvc.perform(get("/api/auth/me").session(lab))
-                .andExpect(jsonPath("$.role").value("LAB_TECHNICIAN"))
+        MockHttpSession desk = login(email);
+        mockMvc.perform(get("/api/auth/me").session(desk))
+                .andExpect(jsonPath("$.role").value("RECEPTIONIST"))
                 .andExpect(jsonPath("$.employeeCode").exists());
+    }
+
+    @Test
+    void onlyTheFourRolesExistAndUnknownRolesAreRejected() throws Exception {
+        MockHttpSession admin = loginAs(Role.ADMIN);
+        assertThat(Role.values()).containsExactly(Role.PATIENT, Role.DOCTOR, Role.RECEPTIONIST, Role.ADMIN);
+        mockMvc.perform(post("/api/admin/staff").with(csrf()).session(admin).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"role\":\"NURSE\",\"fullName\":\"No Role\",\"email\":\"%s\",\"phone\":\"+91 97777 55555\"}".formatted(uniqueEmail("x"))))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/admin/staff").param("role", "DOCTOR").session(admin))
+                .andExpect(status().isUnprocessableContent());
     }
 
     // ------------------------------------------------------------- admin: patients

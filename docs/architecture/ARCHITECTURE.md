@@ -97,12 +97,13 @@ com.medicare
 
 ## 4. Database design
 
-37 application tables (+ `flyway_schema_history`), created by migrations `V1`–`V8`.
+35 application tables (+ `flyway_schema_history`), created by migrations `V1`–`V9`.
 
 ### Changes vs. the 33 tables in the brief (with reasons)
 
 | Change | Reason |
 |---|---|
+| **− two staff-profile tables** (laboratory staff, pharmacy staff) | The system has exactly four roles. Doctors handle lab orders and report uploads; administrators manage the test catalog, medicine inventory and dispensing records. |
 | **+ `number_sequences`** | Concurrency-safe readable numbers (patient code, appointment reference, invoice no.) via `SELECT … FOR UPDATE`. Avoids `MAX(id)+1` races. |
 | **+ `appointment_status_history`** | Appointments are updated in place (cancel / reschedule / status change); this table keeps the full, auditable history of each transition. |
 | **+ `consultation_amendments`** | Finalised clinical notes are never silently overwritten: every amendment stores a JSON snapshot of the previous values, the doctor and a reason. |
@@ -129,8 +130,6 @@ erDiagram
     users ||--o| patients : "has profile"
     users ||--o| doctors : "has profile"
     users ||--o| receptionists : "has profile"
-    users ||--o| lab_technicians : "has profile"
-    users ||--o| pharmacists : "has profile"
     users ||--o{ password_reset_tokens : requests
     users ||--o{ notifications : receives
     users ||--o{ audit_logs : performs
@@ -182,11 +181,11 @@ erDiagram
 
 ## 5. Role & access model
 
+Exactly four roles exist: PATIENT, DOCTOR, RECEPTIONIST and ADMIN.
+
 | Role | Can access | Can never access |
 |---|---|---|
 | PATIENT | Own profile, appointments, finalised prescriptions, finalised lab reports, own invoices, own notifications | Other patients' data |
-| DOCTOR | Own schedule; clinical records of patients with a treatment relationship (non-cancelled appointment with this doctor). Every access is audit-logged. | Patients they don't treat |
+| DOCTOR | Own schedule; clinical records of patients with a treatment relationship (non-cancelled appointment with this doctor), including ordering lab tests, uploading lab reports and reviewing results. Every access is audit-logged. | Patients they don't treat |
 | RECEPTIONIST | Patient demographics, scheduling, check-in, queue, invoices, payments | Diagnoses, clinical notes, prescriptions, lab results |
-| ADMIN | Users, departments, schedules, settings, catalog, aggregate analytics, audit logs | Clinical notes, diagnoses, prescriptions (only aggregate counts) |
-| LAB_TECHNICIAN | Lab orders (test names, status), upload of report files | Consultation notes, prescriptions, billing |
-| PHARMACIST | Medicine inventory; finalised prescriptions' medicine lines for dispensing | Diagnoses, clinical notes, lab results |
+| ADMIN | Users, departments, schedules, settings, lab test catalog, medicine inventory (batches, stock, expiry, low-stock alerts), dispensing records against finalised prescriptions, aggregate analytics, audit logs | Clinical notes, diagnoses, lab results (only aggregate counts); dispensing shows medicine lines only |

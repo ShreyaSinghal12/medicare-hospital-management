@@ -35,10 +35,8 @@ import com.medicare.mapper.PatientMapper;
 import com.medicare.notification.EmailService;
 import com.medicare.notification.NotificationService;
 import com.medicare.repository.DoctorRepository;
-import com.medicare.repository.LabTechnicianRepository;
 import com.medicare.repository.PasswordResetTokenRepository;
 import com.medicare.repository.PatientRepository;
-import com.medicare.repository.PharmacistRepository;
 import com.medicare.repository.ReceptionistRepository;
 import com.medicare.repository.UserRepository;
 import com.medicare.security.AppUserPrincipal;
@@ -74,8 +72,6 @@ public class AuthService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final ReceptionistRepository receptionistRepository;
-    private final LabTechnicianRepository labTechnicianRepository;
-    private final PharmacistRepository pharmacistRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final SequenceService sequenceService;
@@ -89,7 +85,6 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository, PatientRepository patientRepository,
                        DoctorRepository doctorRepository, ReceptionistRepository receptionistRepository,
-                       LabTechnicianRepository labTechnicianRepository, PharmacistRepository pharmacistRepository,
                        PasswordResetTokenRepository resetTokenRepository, PasswordEncoder passwordEncoder,
                        SequenceService sequenceService, AuditService auditService,
                        NotificationService notificationService, EmailService emailService,
@@ -98,8 +93,6 @@ public class AuthService {
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.receptionistRepository = receptionistRepository;
-        this.labTechnicianRepository = labTechnicianRepository;
-        this.pharmacistRepository = pharmacistRepository;
         this.resetTokenRepository = resetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.sequenceService = sequenceService;
@@ -329,10 +322,6 @@ public class AuthService {
                 }
             }
             case RECEPTIONIST -> employeeCode = receptionistRepository.findByUserId(u.getId())
-                    .map(r -> r.getEmployeeCode()).orElse(null);
-            case LAB_TECHNICIAN -> employeeCode = labTechnicianRepository.findByUserId(u.getId())
-                    .map(r -> r.getEmployeeCode()).orElse(null);
-            case PHARMACIST -> employeeCode = pharmacistRepository.findByUserId(u.getId())
                     .map(r -> r.getEmployeeCode()).orElse(null);
             case ADMIN -> { /* no extra profile */ }
         }

@@ -122,17 +122,7 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      <Route element={<ProtectedRoute roles={['LAB_TECHNICIAN']} />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="lab" element={<StaffHomePage title="Laboratory" />} />
-        </Route>
-      </Route>
 
-      <Route element={<ProtectedRoute roles={['PHARMACIST']} />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="pharmacy" element={<StaffHomePage title="Pharmacy" />} />
-        </Route>
-      </Route>
     </Routes>
   );
 }

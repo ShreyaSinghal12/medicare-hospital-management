@@ -22,10 +22,8 @@ import com.medicare.exception.AuthenticationFailedException;
 import com.medicare.notification.EmailService;
 import com.medicare.notification.NotificationService;
 import com.medicare.repository.DoctorRepository;
-import com.medicare.repository.LabTechnicianRepository;
 import com.medicare.repository.PasswordResetTokenRepository;
 import com.medicare.repository.PatientRepository;
-import com.medicare.repository.PharmacistRepository;
 import com.medicare.repository.ReceptionistRepository;
 import com.medicare.repository.UserRepository;
 import com.medicare.security.RateLimiter;
@@ -51,7 +49,7 @@ class AuthServiceUnitTest {
                 new AppProperties.Mail(false, "no-reply@test", ""),
                 new AppProperties.Security(3, 15, 100, 100, 15, 30, 72));
         service = new AuthService(userRepository, mock(PatientRepository.class), mock(DoctorRepository.class),
-                mock(ReceptionistRepository.class), mock(LabTechnicianRepository.class), mock(PharmacistRepository.class),
+                mock(ReceptionistRepository.class),
                 tokenRepository, encoder, mock(SequenceService.class), auditService, mock(NotificationService.class),
                 emailService, new RateLimiter(), props);
     }
