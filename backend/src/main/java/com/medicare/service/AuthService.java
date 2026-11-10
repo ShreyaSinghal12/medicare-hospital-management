@@ -238,6 +238,19 @@ public class AuthService {
                         + "If the link has expired, use \"Forgot password\" on the login page.");
     }
 
+    /** Welcome e-mail for a patient registered at reception, with a link to choose their own password. */
+    @Transactional
+    public void sendPatientInvitation(User user, String patientCode) {
+        int hours = appProperties.security().accountSetupHours();
+        String link = createResetLink(user, Duration.ofHours(hours));
+        emailService.send(user.getEmail(), "MediCare: activate your patient account",
+                "Hello " + user.getFullName() + ",\n\n"
+                        + "You have been registered at our hospital reception. Your patient ID is " + patientCode + ".\n"
+                        + "To use MediCare online (appointments, prescriptions, reports, bills), choose a password here. "
+                        + "The link is valid for " + hours + " hours and can be used once.\n\n" + link + "\n\n"
+                        + "If the link has expired, use \"Forgot password\" on the login page.");
+    }
+
     /** Creates a single-use reset token (only its hash is stored) and returns the frontend link. */
     private String createResetLink(User user, Duration validity) {
         Instant now = clock.instant();

@@ -24,6 +24,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findByPatientCode(String patientCode);
 
+    long countByCreatedAtBetween(java.time.Instant from, java.time.Instant to);
+
     @EntityGraph(attributePaths = "user")
     List<Patient> findWithUserByIdIn(Collection<Long> ids);
 

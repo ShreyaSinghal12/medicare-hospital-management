@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Book an appointment. Patients book for themselves ({@code patientId} must be empty);
- * receptionists and administrators must give {@code patientId}.
+ * receptionists and administrators must give {@code patientId} and may mark the booking as a walk-in.
  */
 public record BookAppointmentRequest(
         @NotNull Long doctorId,
@@ -19,5 +19,6 @@ public record BookAppointmentRequest(
         @NotNull LocalDate date,
         @NotNull @JsonFormat(pattern = "HH:mm") LocalTime startTime,
         @NotBlank @Size(min = 3, max = 500) String reason,
-        Long followUpOfId) {
+        Long followUpOfId,
+        Boolean walkIn) {
 }

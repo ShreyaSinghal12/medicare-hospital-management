@@ -39,6 +39,8 @@ import com.medicare.repository.AppointmentSlotRepository;
 import com.medicare.repository.AppointmentStatusHistoryRepository;
 import com.medicare.repository.DoctorRepository;
 import com.medicare.repository.PatientRepository;
+import com.medicare.repository.QueueEntryRepository;
+import com.medicare.entity.QueueEntry;
 import com.medicare.security.AppUserPrincipal;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -46,6 +48,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -82,12 +85,15 @@ public class AppointmentService {
     private final HospitalClock clock;
     private final AppointmentNotifier notifier;
     private final AuditService auditService;
+    private final QueueService queueService;
+    private final QueueEntryRepository queueRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository, AppointmentSlotRepository slotRepository,
                               AppointmentStatusHistoryRepository historyRepository, DoctorRepository doctorRepository,
                               PatientRepository patientRepository, ScheduleService scheduleService,
                               SequenceService sequenceService, HospitalSettingsService settingsService,
-                              HospitalClock clock, AppointmentNotifier notifier, AuditService auditService) {
+                              HospitalClock clock, AppointmentNotifier notifier, AuditService auditService,
+                              QueueService queueService, QueueEntryRepository queueRepository) {
         this.appointmentRepository = appointmentRepository;
         this.slotRepository = slotRepository;
         this.historyRepository = historyRepository;
@@ -99,11 +105,18 @@ public class AppointmentService {
         this.clock = clock;
         this.notifier = notifier;
         this.auditService = auditService;
+        this.queueService = queueService;
+        this.queueRepository = queueRepository;
     }
 
     // ================================================================ booking
 
-    @Transactional
+    /**
+     * READ COMMITTED: after the doctor-row lock is acquired, the availability and overlap checks must see
+     * bookings committed by transactions that held the lock before us (REPEATABLE READ would reuse an older
+     * snapshot). The unique keys remain the final guard either way.
+     */
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public AppointmentResponse book(AppUserPrincipal actor, BookAppointmentRequest req) {
         Patient patient = resolvePatientForBooking(actor, req.patientId());
         // (1) serialise all reservations for this doctor
@@ -117,7 +130,8 @@ public class AppointmentService {
         if (appointmentRepository.patientHasOverlap(patient.getId(), req.date(), slot.startTime(), slot.endTime(), null)) {
             throw new ConflictException("PATIENT_TIME_CONFLICT", "The patient already has another appointment at this time");
         }
-        AppointmentType type = AppointmentType.NEW;
+        AppointmentType type = Boolean.TRUE.equals(req.walkIn()) && FRONT_DESK.contains(actor.role())
+                ? AppointmentType.WALK_IN : AppointmentType.NEW;
         if (req.followUpOfId() != null) {
             Appointment original = appointmentRepository.findById(req.followUpOfId())
                     .filter(o -> o.getPatient().getId().equals(patient.getId()))
@@ -158,6 +172,7 @@ public class AppointmentService {
         AppointmentStatus from = a.getStatus();
         a.cancel(actor.id(), req.reason().trim());
         releaseSlot(a);
+        queueService.sync(a);
         history(a, from, AppointmentStatus.CANCELLED, "CANCELLED", "Reason: " + req.reason().trim(), actor);
         notifier.cancelled(a, actor.role() == Role.PATIENT);
         auditService.record("APPOINTMENT_CANCELLED", "Appointment", id, AuditOutcome.SUCCESS, a.getReferenceNo());
@@ -168,7 +183,7 @@ public class AppointmentService {
      * Moves an appointment to another slot of the same doctor. The new slot is reserved and the
      * old one released in the same transaction: if anything fails, nothing changes.
      */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public AppointmentResponse reschedule(AppUserPrincipal actor, Long id, RescheduleAppointmentRequest req) {
         Appointment a = findForChange(id);
         if (!canReschedule(actor, a)) {
@@ -212,8 +227,39 @@ public class AppointmentService {
         }
         AppointmentStatus from = a.transitionTo(AppointmentStatus.NO_SHOW);
         history(a, from, AppointmentStatus.NO_SHOW, "NO_SHOW", null, actor);
+        queueService.sync(a);
         auditService.record("APPOINTMENT_NO_SHOW", "Appointment", id, AuditOutcome.SUCCESS, a.getReferenceNo());
         return toResponse(a, actor);
+    }
+
+    /** Reception check-in (PATCH /api/appointments/{id}/check-in): issues the queue token. */
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public AppointmentResponse checkIn(AppUserPrincipal actor, Long id) {
+        if (!FRONT_DESK.contains(actor.role())) {
+            throw new AccessDeniedException("Only reception can check patients in");
+        }
+        queueService.checkIn(actor, id);
+        return toResponse(appointmentRepository.findWithDetailsById(id).orElseThrow(), actor);
+    }
+
+    /** Front desk: every appointment of a day (optionally one doctor / status), ordered by time. */
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> dayList(AppUserPrincipal actor, LocalDate date, Long doctorId, AppointmentStatus status) {
+        if (!FRONT_DESK.contains(actor.role())) {
+            throw new AccessDeniedException("Reception only");
+        }
+        LocalDate day = date == null ? clock.today() : date;
+        Set<AppointmentStatus> statuses = status == null ? EnumSet.allOf(AppointmentStatus.class) : EnumSet.of(status);
+        return responses(appointmentRepository.findForDay(day, doctorId, statuses), actor);
+    }
+
+    /** Front desk: all appointments of one patient, newest first. */
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> forPatient(AppUserPrincipal actor, Long patientId) {
+        if (!FRONT_DESK.contains(actor.role())) {
+            throw new AccessDeniedException("Reception only");
+        }
+        return responses(appointmentRepository.findByPatientIdOrderByAppointmentDateDescStartTimeDesc(patientId), actor);
     }
 
     // ================================================================ queries
@@ -253,7 +299,7 @@ public class AppointmentService {
             default -> appointmentRepository.findForPatient(patient.getId(), AppointmentStatus.open(), today, null,
                     pageable.withSort(Sort.by("appointmentDate", "startTime")));
         };
-        return PageResponse.from(result, a -> toResponse(a, actor));
+        return pageResponses(result, actor);
     }
 
     @Transactional(readOnly = true)
@@ -279,8 +325,7 @@ public class AppointmentService {
         Doctor doctor = ownDoctor(actor);
         Set<AppointmentStatus> statuses = status == null ? EnumSet.allOf(AppointmentStatus.class) : EnumSet.of(status);
         var pageable = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, 200), Sort.by("appointmentDate", "startTime"));
-        return PageResponse.from(appointmentRepository.findForDoctor(doctor.getId(), statuses, from, to, pageable),
-                a -> toResponse(a, actor));
+        return pageResponses(appointmentRepository.findForDoctor(doctor.getId(), statuses, from, to, pageable), actor);
     }
 
     @Transactional(readOnly = true)
@@ -302,7 +347,7 @@ public class AppointmentService {
                 today.plusDays(1), null, PageRequest.of(0, 1)).getTotalElements();
         long todayActive = todays.stream().filter(a -> a.getStatus() != AppointmentStatus.CANCELLED).count();
         return new DoctorDashboardSummary(todayActive, pending, completed, week, upcoming,
-                todays.stream().map(a -> toResponse(a, actor)).toList());
+                responses(todays, actor));
     }
 
     // ================================================================ authorisation rules
@@ -471,7 +516,30 @@ public class AppointmentService {
     }
 
     private AppointmentResponse toResponse(Appointment a, AppUserPrincipal actor) {
-        return AppointmentMapper.toResponse(a, canCancel(actor, a), canReschedule(actor, a));
+        return toResponse(a, actor, queueRepository.findByAppointmentId(a.getId()).orElse(null));
+    }
+
+    private AppointmentResponse toResponse(Appointment a, AppUserPrincipal actor, QueueEntry queue) {
+        boolean showReason = !FRONT_DESK.contains(actor.role());
+        return AppointmentMapper.toResponse(a, showReason, queue, canCancel(actor, a), canReschedule(actor, a));
+    }
+
+    /** Maps a list with one query for all queue entries instead of one per appointment. */
+    private List<AppointmentResponse> responses(List<Appointment> list, AppUserPrincipal actor) {
+        if (list.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, QueueEntry> queue = new HashMap<>();
+        queueRepository.findByAppointmentIdIn(list.stream().map(Appointment::getId).toList())
+                .forEach(q -> queue.put(q.getAppointment().getId(), q));
+        return list.stream().map(a -> toResponse(a, actor, queue.get(a.getId()))).toList();
+    }
+
+    private PageResponse<AppointmentResponse> pageResponses(org.springframework.data.domain.Page<Appointment> page,
+                                                            AppUserPrincipal actor) {
+        List<AppointmentResponse> content = responses(page.getContent(), actor);
+        return new PageResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements(),
+                page.getTotalPages(), page.isFirst(), page.isLast());
     }
 
     private static ConflictException slotTaken() {

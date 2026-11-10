@@ -8,9 +8,11 @@ import java.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.medicare.enums.AppointmentStatus;
 import com.medicare.enums.AppointmentType;
+import com.medicare.enums.QueueStatus;
 
 /**
- * Appointment as seen by an authorised viewer. {@code canCancel}/{@code canReschedule}
+ * Appointment as seen by an authorised viewer. {@code reason} (free text from the patient) is
+ * withheld from receptionists and administrators. {@code canCancel}/{@code canReschedule}
  * tell the UI which actions the current user may perform right now.
  */
 public record AppointmentResponse(
@@ -36,6 +38,8 @@ public record AppointmentResponse(
         String cancellationReason,
         Instant cancelledAt,
         Instant createdAt,
+        Integer queueToken,
+        QueueStatus queueStatus,
         boolean canCancel,
         boolean canReschedule) {
 }

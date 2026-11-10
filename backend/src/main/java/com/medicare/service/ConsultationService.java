@@ -55,13 +55,14 @@ public class ConsultationService {
     private final HospitalClock clock;
     private final AuditService auditService;
     private final JsonMapper jsonMapper;
+    private final QueueService queueService;
 
     public ConsultationService(ConsultationRepository consultationRepository,
                                ConsultationAmendmentRepository amendmentRepository,
                                AppointmentRepository appointmentRepository,
                                AppointmentStatusHistoryRepository historyRepository, DoctorRepository doctorRepository,
                                ClinicalAccessService accessService, HospitalClock clock, AuditService auditService,
-                               JsonMapper jsonMapper) {
+                               JsonMapper jsonMapper, QueueService queueService) {
         this.consultationRepository = consultationRepository;
         this.amendmentRepository = amendmentRepository;
         this.appointmentRepository = appointmentRepository;
@@ -71,14 +72,15 @@ public class ConsultationService {
         this.clock = clock;
         this.auditService = auditService;
         this.jsonMapper = jsonMapper;
+        this.queueService = queueService;
     }
 
     // ================================================================ start
 
     /**
-     * Starts (or re-opens) the consultation of the doctor's own appointment. A SCHEDULED
-     * appointment for today is implicitly checked in first (until reception check-in exists),
-     * so the status rules SCHEDULED → CHECKED_IN → IN_PROGRESS are always respected.
+     * Starts (or re-opens) the consultation of the doctor's own appointment. If reception has not
+     * checked the patient in, a SCHEDULED appointment for today is checked in implicitly (and gets a
+     * queue token), so the status rules SCHEDULED → CHECKED_IN → IN_PROGRESS are always respected.
      */
     @Transactional
     public ConsultationResponse start(AppUserPrincipal actor, Long appointmentId) {
@@ -102,6 +104,7 @@ public class ConsultationService {
             }
             appt.transitionTo(AppointmentStatus.IN_PROGRESS);
             history(appt, AppointmentStatus.CHECKED_IN, AppointmentStatus.IN_PROGRESS, "CONSULTATION_STARTED", null, actor);
+            queueService.sync(appt);
         } else if (appt.getStatus() != AppointmentStatus.IN_PROGRESS) {
             throw new BusinessRuleException("INVALID_STATUS_TRANSITION",
                     "A consultation cannot be started for a " + appt.getStatus().name().toLowerCase().replace('_', ' ') + " appointment");
@@ -181,6 +184,7 @@ public class ConsultationService {
         if (appt.getStatus() == AppointmentStatus.IN_PROGRESS) {
             appt.transitionTo(AppointmentStatus.COMPLETED);
             history(appt, AppointmentStatus.IN_PROGRESS, AppointmentStatus.COMPLETED, "CONSULTATION_COMPLETED", null, actor);
+            queueService.sync(appt);
         }
         consultationRepository.saveAndFlush(c);
         auditService.record("CONSULTATION_FINALIZED", "Consultation", id, AuditOutcome.SUCCESS, appt.getReferenceNo());

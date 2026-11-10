@@ -118,4 +118,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @EntityGraph(attributePaths = {"doctor", "doctor.user", "doctor.department"})
     List<Appointment> findByPatientIdOrderByAppointmentDateDescStartTimeDesc(Long patientId);
+
+    @EntityGraph(attributePaths = {"doctor", "doctor.user", "doctor.department", "patient", "patient.user"})
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.appointmentDate = :date AND (:doctorId IS NULL OR a.doctor.id = :doctorId) AND a.status IN :statuses
+            ORDER BY a.startTime, a.doctor.id
+            """)
+    List<Appointment> findForDay(@Param("date") LocalDate date, @Param("doctorId") Long doctorId,
+                                 @Param("statuses") Collection<AppointmentStatus> statuses);
+
+    @Query("SELECT a.status, COUNT(a) FROM Appointment a WHERE a.appointmentDate = :date GROUP BY a.status")
+    List<Object[]> countByStatusOnDate(@Param("date") LocalDate date);
+
+    long countByAppointmentDateAndAppointmentType(LocalDate date, com.medicare.enums.AppointmentType type);
 }

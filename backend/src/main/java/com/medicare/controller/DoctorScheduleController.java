@@ -43,10 +43,13 @@ public class DoctorScheduleController {
 
     private final ScheduleService scheduleService;
     private final AppointmentService appointmentService;
+    private final com.medicare.service.QueueService queueService;
 
-    public DoctorScheduleController(ScheduleService scheduleService, AppointmentService appointmentService) {
+    public DoctorScheduleController(ScheduleService scheduleService, AppointmentService appointmentService,
+                                    com.medicare.service.QueueService queueService) {
         this.scheduleService = scheduleService;
         this.appointmentService = appointmentService;
+        this.queueService = queueService;
     }
 
     private Long doctorId() {
@@ -90,6 +93,12 @@ public class DoctorScheduleController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         return appointmentService.listForDoctor(CurrentUser.get(), from, to, status, page, size);
+    }
+
+    @GetMapping("/queue")
+    @Operation(summary = "Today's queue for the logged-in doctor")
+    public java.util.List<com.medicare.dto.reception.QueueEntryResponse> queue() {
+        return queueService.doctorQueue(CurrentUser.id());
     }
 
     @GetMapping("/dashboard")

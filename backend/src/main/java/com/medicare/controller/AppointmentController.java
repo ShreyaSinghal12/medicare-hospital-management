@@ -92,6 +92,13 @@ public class AppointmentController {
         return appointmentService.reschedule(CurrentUser.get(), id, request);
     }
 
+    @PatchMapping("/{id}/check-in")
+    @PreAuthorize("hasAnyRole('RECEPTIONIST','ADMIN')")
+    @Operation(summary = "Check in on the appointment day; issues the next queue token for the doctor")
+    public AppointmentResponse checkIn(@PathVariable Long id) {
+        return appointmentService.checkIn(CurrentUser.get(), id);
+    }
+
     @PatchMapping("/{id}/no-show")
     @PreAuthorize("hasAnyRole('DOCTOR','RECEPTIONIST','ADMIN')")
     @Operation(summary = "Record that the patient did not attend (after the start time)")

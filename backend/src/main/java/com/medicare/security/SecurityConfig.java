@@ -85,6 +85,7 @@ public class SecurityConfig {
                         // --- Role areas (coarse); services add record-level checks ---
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/reception/**").hasAnyRole("RECEPTIONIST", "ADMIN")
                         .requestMatchers("/api/patients/me/**", "/api/patients/me").hasRole("PATIENT")
                         // --- Everything else under /api requires a logged-in session ---
                         .requestMatchers("/api/**").authenticated()

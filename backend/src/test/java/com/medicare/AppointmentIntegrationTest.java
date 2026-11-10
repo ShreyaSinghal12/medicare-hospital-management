@@ -364,7 +364,7 @@ class AppointmentIntegrationTest extends IntegrationTestBase {
                     go.await();
                     try {
                         appointmentService.book(actor, new BookAppointmentRequest(doctor.getId(), null, date,
-                                LocalTime.of(15, 45), "Concurrent test", null));
+                                LocalTime.of(15, 45), "Concurrent test", null, null));
                         successes.incrementAndGet();
                     } catch (ConflictException e) {
                         assertThat(e.getCode()).isEqualTo("SLOT_ALREADY_BOOKED");
