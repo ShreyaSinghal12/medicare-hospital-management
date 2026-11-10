@@ -40,13 +40,14 @@ public final class ClinicalMapper {
                 d.getId().equals(viewerDoctorId));
     }
 
-    public static MedicalHistoryResponse.TimelineEntry toTimeline(Consultation c) {
+    public static MedicalHistoryResponse.TimelineEntry toTimeline(Consultation c,
+                                                                  java.util.List<MedicalHistoryResponse.PrescriptionRef> prescriptions) {
         var a = c.getAppointment();
         var d = c.getDoctor();
         return new MedicalHistoryResponse.TimelineEntry(c.getId(), a.getId(), a.getAppointmentDate(), a.getStartTime(),
                 d.getId(), d.getUser().getFullName(), d.getSpecialization(), d.getDepartment().getName(),
                 c.getSymptoms(), c.getDiagnosis(), c.getTreatmentPlan(), c.getFollowUpDate(), c.getFollowUpNotes(),
-                c.getAmendmentCount() > 0);
+                c.getAmendmentCount() > 0, prescriptions);
     }
 
     public static VisitSummary toVisit(Appointment a) {

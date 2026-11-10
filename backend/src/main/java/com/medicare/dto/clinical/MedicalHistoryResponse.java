@@ -12,7 +12,7 @@ public record MedicalHistoryResponse(
         List<ConditionResponse> conditions,
         List<TimelineEntry> timeline) {
 
-    /** One finalized consultation. Prescriptions and lab results are attached in later phases. */
+    /** One finalized consultation with its current prescriptions (lab results are attached in Phase 8). */
     public record TimelineEntry(
             Long consultationId,
             Long appointmentId,
@@ -27,6 +27,11 @@ public record MedicalHistoryResponse(
             String treatmentPlan,
             LocalDate followUpDate,
             String followUpNotes,
-            boolean amended) {
+            boolean amended,
+            List<PrescriptionRef> prescriptions) {
+    }
+
+    /** Current (finalized) prescription issued in that consultation. */
+    public record PrescriptionRef(Long id, String prescriptionNo, int versionNumber, List<String> medicines) {
     }
 }

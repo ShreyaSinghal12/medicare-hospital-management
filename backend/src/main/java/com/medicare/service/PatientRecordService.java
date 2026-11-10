@@ -28,6 +28,7 @@ import com.medicare.repository.DoctorRepository;
 import com.medicare.repository.PatientAllergyRepository;
 import com.medicare.repository.PatientConditionRepository;
 import com.medicare.repository.PatientRepository;
+import com.medicare.repository.PrescriptionRepository;
 import com.medicare.security.AppUserPrincipal;
 
 import org.springframework.data.domain.PageRequest;
@@ -46,12 +47,13 @@ public class PatientRecordService {
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final ClinicalAccessService accessService;
+    private final PrescriptionRepository prescriptionRepository;
 
     public PatientRecordService(PatientRepository patientRepository, PatientAllergyRepository allergyRepository,
                                 PatientConditionRepository conditionRepository,
                                 ConsultationRepository consultationRepository,
                                 AppointmentRepository appointmentRepository, DoctorRepository doctorRepository,
-                                ClinicalAccessService accessService) {
+                                ClinicalAccessService accessService, PrescriptionRepository prescriptionRepository) {
         this.patientRepository = patientRepository;
         this.allergyRepository = allergyRepository;
         this.conditionRepository = conditionRepository;
@@ -59,6 +61,7 @@ public class PatientRecordService {
         this.appointmentRepository = appointmentRepository;
         this.doctorRepository = doctorRepository;
         this.accessService = accessService;
+        this.prescriptionRepository = prescriptionRepository;
     }
 
     // ================================================================ doctor views
@@ -136,10 +139,18 @@ public class PatientRecordService {
     public MedicalHistoryResponse myHistory(AppUserPrincipal actor) {
         Patient patient = patientRepository.findByUserId(actor.id())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found for the current user"));
-        var timeline = consultationRepository
+        var consultations = consultationRepository
                 .findByPatientIdAndStatusOrderByAppointmentAppointmentDateDescAppointmentStartTimeDesc(patient.getId(),
-                        ConsultationStatus.FINALIZED)
-                .stream().map(ClinicalMapper::toTimeline).toList();
+                        ConsultationStatus.FINALIZED);
+        Map<Long, List<MedicalHistoryResponse.PrescriptionRef>> rx = new HashMap<>();
+        if (!consultations.isEmpty()) {
+            prescriptionRepository.findCurrentForConsultations(consultations.stream().map(c -> c.getId()).toList())
+                    .forEach(p -> rx.computeIfAbsent(p.getConsultation().getId(), k -> new java.util.ArrayList<>())
+                            .add(new MedicalHistoryResponse.PrescriptionRef(p.getId(), p.getPrescriptionNo(),
+                                    p.getVersionNumber(), p.getItems().stream().map(i -> i.getMedicineName()).toList())));
+        }
+        var timeline = consultations.stream()
+                .map(c -> ClinicalMapper.toTimeline(c, rx.getOrDefault(c.getId(), List.of()))).toList();
         return new MedicalHistoryResponse(allergies(patient.getId(), true), conditions(patient.getId()), timeline);
     }
 
