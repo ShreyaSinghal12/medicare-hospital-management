@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import useApi from '../../hooks/useApi.js';
 import { getMyAppointmentSummary } from '../../services/appointmentService.js';
 import { getMyMedicalHistory } from '../../services/clinicalService.js';
+import { getMyPrescriptions } from '../../services/prescriptionService.js';
 import { getMyProfile } from '../../services/patientService.js';
 import { formatDateLong, hhmm } from '../../utils/dates.js';
 
@@ -22,6 +23,8 @@ export default function PatientDashboard() {
   const summary = useApi(getMyAppointmentSummary);
   const history = useApi(getMyMedicalHistory);
   const recent = (history.data?.timeline || []).slice(0, 3);
+  const latestRx = useApi(() => getMyPrescriptions({ size: 1 }));
+  const rx = latestRx.data?.content?.[0];
   const s = summary.data;
   const firstName = user.fullName.split(' ')[0];
 
@@ -60,6 +63,16 @@ export default function PatientDashboard() {
                 <p className="mt-2 text-sm font-medium text-brand-800">
                   {formatDateLong(s.next.date)} at {hhmm(s.next.startTime)} · {s.next.referenceNo}
                 </p>
+              </Link>
+            )}
+          </Card>
+          <Card title="Latest prescription" actions={<Link to="/patient/prescriptions" className="text-sm font-medium text-brand-700 hover:underline">All prescriptions</Link>}>
+            {latestRx.loading && <Spinner />}
+            {latestRx.data && !rx && <p className="text-sm text-slate-500">No prescriptions yet.</p>}
+            {rx && (
+              <Link to={`/patient/prescriptions/${rx.id}`} className="block rounded-lg border border-slate-200 p-3 text-sm hover:bg-slate-50">
+                <p className="font-medium text-slate-900">{rx.prescriptionNo} · {rx.doctorName}</p>
+                <p className="text-slate-600">{rx.medicines.join(', ')}</p>
               </Link>
             )}
           </Card>

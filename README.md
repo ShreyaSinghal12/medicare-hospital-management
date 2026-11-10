@@ -230,6 +230,15 @@ medical-management-system/
 | GET | `/api/doctor/patients`, `/api/doctor/patients/{id}/record` | DOCTOR (treatment relationship) | Own patients; full record (audited) |
 | POST / PATCH | `/api/doctor/patients/{id}/allergies[/{aid}]`, `/conditions[/{cid}]` | treating DOCTOR | Record allergies and conditions |
 | GET | `/api/patients/me/medical-history` | PATIENT | Allergies, conditions, finalized consultation timeline |
+| POST | `/api/prescriptions` | author DOCTOR | Create a draft for your consultation (1–20 medicine lines) |
+| PUT / DELETE | `/api/prescriptions/{id}` | author DOCTOR | Update a draft (send `version`; 409 if stale) / discard a draft |
+| POST | `/api/prescriptions/{id}/finalize` | author DOCTOR | Finalize; supersedes the previous version; notifies the patient |
+| POST | `/api/prescriptions/{id}/revisions` | author DOCTOR | Start version n+1 of a finalized prescription (reason required) |
+| GET | `/api/prescriptions/{id}`, `/{id}/versions` | DOCTOR (author/treating), own PATIENT | Prescription and its version history |
+| GET | `/api/prescriptions/{id}/pdf` | DOCTOR (author/treating), own PATIENT | A4 PDF (superseded copies are watermarked) |
+| GET | `/api/consultations/{id}/prescriptions` | DOCTOR | Prescriptions of a consultation |
+| GET | `/api/patients/me/prescriptions` | PATIENT | Search (medicine, doctor, RX no.), `doctorId`, `from`, `to`, `includeSuperseded` |
+| GET | `/api/doctor/prescriptions` | DOCTOR | Prescriptions you issued (`status`, search, dates) |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -279,6 +288,18 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   a JSON snapshot (`consultation_amendments`).
 * Patients see their finalized consultations, active allergies and conditions in *Medical history*, without the
   doctor's internal observations and notes, and can book a recommended follow-up directly.
+
+### Prescriptions
+
+* Only the consulting doctor writes the prescription. Each medicine line (name, strength, dosage, frequency,
+  duration, instructions, quantity) is typed by the doctor; nothing is suggested or pre-filled.
+* Drafts are private to the doctor. A **finalized prescription can never be edited**. *Revise* creates version 2
+  under the same `RX-…` number with a mandatory reason; finalizing it marks version 1 **SUPERSEDED** (kept, and
+  watermarked on its PDF).
+* The patient is notified when a prescription is finalized. The e-mail never lists the medicines.
+* Receptionists and administrators cannot read prescriptions.
+
+![Sample prescription PDF](docs/sample-prescription.png)
 
 ## 9. Common errors and fixes
 

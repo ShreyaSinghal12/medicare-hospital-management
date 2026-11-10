@@ -11,6 +11,10 @@ import StaffAdminPage from '../pages/admin/StaffAdminPage.jsx';
 import UserManagementPage from '../pages/admin/UserManagementPage.jsx';
 import AvailabilityPage from '../pages/doctor/AvailabilityPage.jsx';
 import ConsultationPage from '../pages/doctor/ConsultationPage.jsx';
+import NewPrescriptionPage from '../pages/doctor/NewPrescriptionPage.jsx';
+import PrescriptionWorkspacePage from '../pages/doctor/PrescriptionWorkspacePage.jsx';
+import PatientPrescriptionPage from '../pages/prescriptions/PatientPrescriptionPage.jsx';
+import PrescriptionListPage from '../pages/prescriptions/PrescriptionListPage.jsx';
 import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage.jsx';
 import MyPatientsPage from '../pages/doctor/MyPatientsPage.jsx';
 import PatientRecordPage from '../pages/doctor/PatientRecordPage.jsx';
@@ -84,6 +88,8 @@ export default function AppRoutes() {
           <Route path="patient/book/:doctorId" element={<BookAppointmentPage />} />
           <Route path="patient/appointments" element={<MyAppointmentsPage />} />
           <Route path="patient/history" element={<MedicalHistoryPage />} />
+          <Route path="patient/prescriptions" element={<PrescriptionListPage mode="patient" />} />
+          <Route path="patient/prescriptions/:id" element={<PatientPrescriptionPage />} />
           <Route path="patient/appointments/:id" element={<AppointmentDetailPage />} />
           <Route path="patient/appointments/:id/reschedule" element={<ReschedulePage />} />
         </Route>
@@ -97,6 +103,9 @@ export default function AppRoutes() {
           <Route path="doctor/patients" element={<MyPatientsPage />} />
           <Route path="doctor/patients/:patientId" element={<PatientRecordPage />} />
           <Route path="doctor/consultations/:id" element={<ConsultationPage />} />
+          <Route path="doctor/consultations/:consultationId/prescriptions/new" element={<NewPrescriptionPage />} />
+          <Route path="doctor/prescriptions" element={<PrescriptionListPage mode="doctor" />} />
+          <Route path="doctor/prescriptions/:id" element={<PrescriptionWorkspacePage />} />
           <Route path="doctor/profile" element={<DoctorOwnProfilePage />} />
         </Route>
       </Route>

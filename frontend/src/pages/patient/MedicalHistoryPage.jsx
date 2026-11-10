@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { CalendarPlus, ClipboardList } from 'lucide-react';
 import AllergiesConditionsPanel from '../../components/clinical/AllergiesConditionsPanel.jsx';
 import Button from '../../components/ui/Button.jsx';
@@ -39,6 +40,18 @@ export default function MedicalHistoryPage() {
                       <div key={k}><dt className="font-medium text-slate-700">{k}</dt><dd className="whitespace-pre-line text-slate-600">{v}</dd></div>
                     ))}
                   </dl>
+                  {e.prescriptions?.length > 0 && (
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {e.prescriptions.map((p) => (
+                        <li key={p.id}>
+                          <Link to={`/patient/prescriptions/${p.id}`} className="font-medium text-brand-700 hover:underline">
+                            Prescription {p.prescriptionNo}{p.versionNumber > 1 ? ` (v${p.versionNumber})` : ''}
+                          </Link>
+                          <span className="text-slate-500"> · {p.medicines.join(', ')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {e.followUpDate && (
                     <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
                       <span className="text-slate-700">Follow-up recommended on <strong>{formatDateLong(e.followUpDate)}</strong>{e.followUpNotes ? ` — ${e.followUpNotes}` : ''}</span>

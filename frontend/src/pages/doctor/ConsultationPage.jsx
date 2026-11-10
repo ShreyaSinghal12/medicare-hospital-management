@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, FileClock, Lock, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import AllergiesConditionsPanel from '../../components/clinical/AllergiesConditionsPanel.jsx';
+import ConsultationPrescriptionCard from '../../components/prescriptions/ConsultationPrescriptionCard.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
 import ConfirmDialog from '../../components/ui/ConfirmDialog.jsx';
@@ -172,7 +173,8 @@ export default function ConsultationPage() {
             </Card>
           )}
         </div>
-        <div>
+        <div className="space-y-6">
+          <ConsultationPrescriptionCard consultationId={c.id} canWrite={c.canEdit || c.canAmend} />
           {record.data ? (
             <AllergiesConditionsPanel patientId={c.patientId} allergies={record.data.allergies} conditions={record.data.conditions}
               editable onChanged={record.reload} />

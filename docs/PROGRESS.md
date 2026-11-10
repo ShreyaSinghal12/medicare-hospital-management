@@ -9,7 +9,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 3 | Doctor directory (search/filter/profile), admin doctor CRUD, departments, staff accounts with set-password links, admin patient search/corrections/duplicate review, doctor self-profile | ✅ | 53 backend tests (36 integration on MySQL + 17 unit), 29 Vitest tests, 11-step Playwright run on the real stack |
 | 4 | Weekly schedules, leave approvals, rule-based slot generation, next-available, concurrency-safe booking, cancel (window), atomic reschedule, no-show, status history, patient booking flow, doctor week calendar, admin leave/schedule pages | ✅ | 86 backend tests (incl. 10-thread simultaneous booking, repeated 5×), 36 Vitest tests, 8-step Playwright run incl. two browsers racing for one slot |
 | 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist, admin and lab |
-| 6 | Prescriptions (draft/finalise/version, PDF) | ⬜ | |
+| 6 | Prescriptions: multi-line drafts, finalize (immutable), revisions superseding earlier versions, discard, patient search/filters, version history, PDF with superseded watermark, notifications, timeline/dashboard integration | ✅ | 102 backend tests, 48 Vitest tests, 7-step Playwright run incl. PDF download and 403 for receptionist/admin |
 | 7 | Reception: walk-ins, check-in, queue tokens | ⬜ | |
 | 8 | Laboratory (four-role model): admin test catalog; doctors order tests, update order status, upload PDF reports and finalize them; patients download finalized reports; secure file handling | ⬜ | |
 | 9 | Medicine inventory (admin): catalog, batches, expiry, stock-in/out ledger, low-stock and expiry alerts, dispensing records against finalized prescriptions (no negative stock, no expired batches) | ⬜ | |
@@ -42,7 +42,7 @@ A feature is ticked only when **all** of these hold:
 | 5–8 | Select slot, book, concurrent booking rejected, dashboard shows booking | 4 | ✅ |
 | 9 | Receptionist checks patient in | 7 | ⬜ (doctor-side implicit check-in exists) |
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
-| 14–15 | Prescription finalised, patient downloads PDF | 6 | ⬜ |
+| 14–15 | Prescription finalised, patient downloads PDF | 6 | ✅ |
 | 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ⬜ |
 | 19 | Administrator records dispensing against the finalized prescription | 9 | ⬜ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
@@ -104,3 +104,14 @@ A feature is ticked only when **all** of these hold:
   Phase 9 (inventory) is admin-managed, including dispensing records.
 * Tests verify that only the four roles exist, that unknown roles are rejected by the API, and that no
   laboratory or pharmacy routes exist in the frontend.
+
+## Phase 6 notes
+
+* No schema change was needed; the tables come from `V3`.
+* **Fix found by the tests:** changing only the medicine lines of a draft did not bump the prescription's `@Version`,
+  so a stale browser tab could overwrite newer edits. Draft updates now take `PESSIMISTIC_FORCE_INCREMENT`, which
+  increments immediately and returns the new version to the client.
+* **UI correction made during the build:** the first version of "Write prescription" created a draft with
+  placeholder text. It was replaced by an empty form that creates nothing until the doctor saves, because the system
+  must not pre-fill clinical content.
+* `prescription_items.medicine_id` stays empty until Phase 9 links dispensing to the inventory catalog.

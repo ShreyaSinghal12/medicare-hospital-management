@@ -31,6 +31,9 @@ vi.mock('../services/appointmentService.js', () => ({
 vi.mock('../services/clinicalService.js', () => ({
   getMyMedicalHistory: vi.fn().mockResolvedValue({ allergies: [], conditions: [], timeline: [] }),
 }));
+vi.mock('../services/prescriptionService.js', () => ({
+  getMyPrescriptions: vi.fn().mockResolvedValue({ content: [], page: 0, totalPages: 0, totalElements: 0 }),
+}));
 vi.mock('../services/patientService.js', () => ({
   getMyProfile: vi.fn().mockResolvedValue({ patientCode: 'PAT-000001', age: 30, bloodGroup: 'O+' }),
 }));
