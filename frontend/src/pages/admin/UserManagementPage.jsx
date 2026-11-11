@@ -101,7 +101,7 @@ export default function UserManagementPage() {
             <EmptyState icon={Users} title="No users found" message="Try a different search or filter." />
           )}
           {rows.length > 0 && (
-            <div className="-mx-5 overflow-x-auto">
+            <div className="-mx-5 overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-y border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>

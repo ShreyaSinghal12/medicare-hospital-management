@@ -15,7 +15,7 @@ export default function ChartCard({ title, subtitle, summary, columns, rows, chi
           </figure>
           <details className="mt-3 text-sm">
             <summary className="cursor-pointer text-slate-500 hover:text-slate-700">Show data</summary>
-            <div className="mt-2 max-h-56 overflow-auto">
+            <div className="mt-2 max-h-56 overflow-auto" tabIndex={0} role="region" aria-label="Scrollable table">
               <table className="w-full text-left text-xs">
                 <thead className="text-slate-500"><tr>{columns.map((c) => <th key={c} scope="col" className="py-1 pr-3 font-semibold">{c}</th>)}</tr></thead>
                 <tbody className="divide-y divide-slate-100">

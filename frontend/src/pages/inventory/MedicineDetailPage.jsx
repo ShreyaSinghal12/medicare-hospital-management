@@ -182,7 +182,7 @@ export default function MedicineDetailPage() {
 
       <Card title="Batches" subtitle={`Earliest expiry first. "Expiring" means within ${data.expiryWarningDays} days.`}>
         {data.batches.length === 0 ? <p className="text-sm text-slate-500">No stock received yet.</p> : (
-          <div className="relative overflow-x-auto">
+          <div className="relative overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
             <table className="w-full min-w-[40rem] text-left text-sm">
               <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                 <tr>

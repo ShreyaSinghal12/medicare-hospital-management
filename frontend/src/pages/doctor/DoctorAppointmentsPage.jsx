@@ -31,7 +31,7 @@ function WeekCalendar({ weekStart, appointments }) {
   const days = Array.from({ length: 7 }, (_, i) => addDaysIso(weekStart, i));
   const today = todayIsoLocal();
   return (
-    <div className="-mx-5 overflow-x-auto px-5">
+    <div className="-mx-5 overflow-x-auto px-5" tabIndex={0} role="region" aria-label="Scrollable table">
       <div className="grid min-w-[56rem] grid-cols-7 gap-2">
         {days.map((d) => {
           const items = appointments.filter((a) => a.date === d && a.status !== 'CANCELLED');

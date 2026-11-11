@@ -18,7 +18,7 @@ export default function PrescriptionView({ rx, actions }) {
           This version was replaced by a newer one. Follow the current version.
         </p>
       )}
-      <div className="-mx-5 overflow-x-auto">
+      <div className="-mx-5 overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
         <table className="min-w-full text-sm">
           <thead className="border-y border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
             <tr>

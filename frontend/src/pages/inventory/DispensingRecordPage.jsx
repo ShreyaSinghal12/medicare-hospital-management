@@ -31,7 +31,7 @@ export default function DispensingRecordPage() {
           <div><dt className="inline text-slate-500">Prescribed by: </dt><dd className="inline">{d.doctorName}</dd></div>
           <div><dt className="inline text-slate-500">Dispensed: </dt><dd className="inline">{formatDateTime(d.dispensedAt)} by {d.dispensedBy}</dd></div>
         </dl>
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
           <table className="w-full min-w-[32rem] text-left text-sm">
             <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
               <tr>

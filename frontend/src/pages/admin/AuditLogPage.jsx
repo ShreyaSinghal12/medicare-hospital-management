@@ -48,7 +48,7 @@ export default function AuditLogPage() {
           {error && <ErrorState error={error} onRetry={reload} />}
           {data && rows.length === 0 && <EmptyState icon={ScrollText} title="No matching entries" />}
           {rows.length > 0 && (
-            <div className="relative overflow-x-auto">
+            <div className="relative overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
               <table className="w-full min-w-[52rem] text-left text-xs">
                 <thead className="border-b border-slate-200 uppercase tracking-wide text-slate-500">
                   <tr>

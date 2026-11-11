@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
       globals: true,
       setupFiles: './src/test/setup.js',
       css: false,
+      include: ['src/**/*.test.{js,jsx}'], // Playwright specs in e2e/ run with `npm run e2e`
     },
   };
 });

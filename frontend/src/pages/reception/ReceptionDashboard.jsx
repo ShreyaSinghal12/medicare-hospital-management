@@ -38,7 +38,7 @@ export default function ReceptionDashboard() {
           {loading && !data && <Spinner />}
           {data && data.doctors.length === 0 && <EmptyState title="No appointments today" />}
           {data && data.doctors.length > 0 && (
-            <div className="-mx-5 overflow-x-auto">
+            <div className="-mx-5 overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
               <table className="min-w-full text-sm">
                 <thead className="border-y border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
                   <tr>

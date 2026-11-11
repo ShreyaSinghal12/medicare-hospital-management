@@ -4,7 +4,7 @@ import { formatDateTime } from '../../utils/format.js';
 /** Stock ledger rows (newest first). */
 export default function LedgerTable({ rows, showMedicine = false }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
       <table className="w-full min-w-[40rem] text-left text-sm">
         <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
           <tr>

@@ -59,7 +59,7 @@ export default function ReportsPage() {
           <Card title={report.title} subtitle={`${report.from} to ${report.to} · ${report.totalRows} row(s)${report.truncated ? ' · preview shows the first 100' : ''}`}
             actions={<div className="flex flex-wrap gap-2">{link('CSV', Download)}{link('PDF', FileText)}</div>}>
             {report.rows.length === 0 ? <EmptyState title="No records in this period" /> : (
-              <div className="relative max-h-[28rem] overflow-auto">
+              <div className="relative max-h-[28rem] overflow-auto" tabIndex={0} role="region" aria-label="Scrollable table">
                 <table className="w-full min-w-[40rem] text-left text-xs">
                   <thead className="sticky top-0 bg-white text-slate-500">
                     <tr>{report.columns.map((c) => <th key={c} scope="col" className="border-b border-slate-200 py-2 pr-3 font-semibold">{c}</th>)}</tr>

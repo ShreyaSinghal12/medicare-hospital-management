@@ -149,7 +149,7 @@ export default function AdminDashboardPage() {
           <div className="mt-6">
             <Card title="Doctor workload" subtitle="Top 10 by appointments in the period (excluding cancelled)">
               {d.doctorWorkload.length === 0 ? <p className="text-sm text-slate-500">No appointments in this period.</p> : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
                   <table className="w-full min-w-[32rem] text-left text-sm">
                     <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
                       <tr>

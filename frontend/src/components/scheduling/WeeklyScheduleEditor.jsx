@@ -71,7 +71,7 @@ export default function WeeklyScheduleEditor({ schedule, onSave }) {
       <p className="mb-3 text-sm text-slate-600">
         Consultation length: <strong>{schedule.slotDurationMinutes} minutes</strong>. Changing hours never cancels bookings; appointments that no longer fit are flagged for rescheduling.
       </p>
-      <div className="-mx-5 overflow-x-auto">
+      <div className="-mx-5 overflow-x-auto" tabIndex={0} role="region" aria-label="Scrollable table">
         <table className="min-w-full text-sm">
           <thead className="border-y border-slate-200 bg-slate-50 text-left text-xs uppercase text-slate-500">
             <tr>
