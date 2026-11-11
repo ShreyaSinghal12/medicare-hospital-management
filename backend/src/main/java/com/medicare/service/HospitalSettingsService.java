@@ -58,4 +58,40 @@ public class HospitalSettingsService {
         s.setUpdatedByUserId(actorUserId);
         return settingsRepository.saveAndFlush(s);
     }
+
+    /**
+     * Updates all editable settings (not the time zone) and returns the names of the fields that changed, for the
+     * audit log.
+     */
+    @Transactional
+    public java.util.List<String> update(com.medicare.dto.admin.HospitalSettingsRequest r, Long actorUserId) {
+        HospitalSettings s = getSettings();
+        java.util.List<String> changed = new java.util.ArrayList<>();
+        String address = blankToNull(r.address());
+        String phone = blankToNull(r.phone());
+        String email = blankToNull(r.email());
+        String policy = blankToNull(r.cancellationPolicy());
+        if (!java.util.Objects.equals(s.getHospitalName(), r.hospitalName().trim())) { changed.add("hospitalName"); s.setHospitalName(r.hospitalName().trim()); }
+        if (!java.util.Objects.equals(s.getAddress(), address)) { changed.add("address"); s.setAddress(address); }
+        if (!java.util.Objects.equals(s.getPhone(), phone)) { changed.add("phone"); s.setPhone(phone); }
+        if (!java.util.Objects.equals(s.getEmail(), email)) { changed.add("email"); s.setEmail(email); }
+        if (s.getDefaultSlotMinutes() != r.defaultSlotMinutes()) { changed.add("defaultSlotMinutes"); s.setDefaultSlotMinutes(r.defaultSlotMinutes()); }
+        if (s.getBookingWindowDays() != r.bookingWindowDays()) { changed.add("bookingWindowDays"); s.setBookingWindowDays(r.bookingWindowDays()); }
+        if (s.getCancellationWindowHours() != r.cancellationWindowHours()) { changed.add("cancellationWindowHours"); s.setCancellationWindowHours(r.cancellationWindowHours()); }
+        if (!java.util.Objects.equals(s.getCancellationPolicy(), policy)) { changed.add("cancellationPolicy"); s.setCancellationPolicy(policy); }
+        if (!s.getInvoicePrefix().equals(r.invoicePrefix())) { changed.add("invoicePrefix"); s.setInvoicePrefix(r.invoicePrefix()); }
+        if (s.getTaxRatePercent().compareTo(r.taxRatePercent()) != 0) { changed.add("taxRatePercent"); s.setTaxRatePercent(r.taxRatePercent()); }
+        if (s.isEmailRemindersEnabled() != r.emailRemindersEnabled()) { changed.add("emailRemindersEnabled"); s.setEmailRemindersEnabled(r.emailRemindersEnabled()); }
+        if (s.getReminderHoursBefore() != r.reminderHoursBefore()) { changed.add("reminderHoursBefore"); s.setReminderHoursBefore(r.reminderHoursBefore()); }
+        if (s.getExpiryWarningDays() != r.expiryWarningDays()) { changed.add("expiryWarningDays"); s.setExpiryWarningDays(r.expiryWarningDays()); }
+        if (!changed.isEmpty()) {
+            s.setUpdatedByUserId(actorUserId);
+            settingsRepository.saveAndFlush(s);
+        }
+        return changed;
+    }
+
+    private static String blankToNull(String v) {
+        return v == null || v.isBlank() ? null : v.trim();
+    }
 }
