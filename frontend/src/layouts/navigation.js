@@ -1,5 +1,5 @@
 import {
-  Bell, Building2, FlaskConical, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  Bell, Boxes, Building2, ClipboardCheck, FlaskConical, History, PackageSearch, TriangleAlert, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
   NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
@@ -46,6 +46,11 @@ export const NAVIGATION = {
     { to: '/admin/leave', label: 'Leave requests', icon: CalendarOff },
     { to: '/admin/departments', label: 'Departments', icon: Building2 },
     { to: '/admin/lab-tests', label: 'Lab tests', icon: FlaskConical },
+    { to: '/admin/inventory', label: 'Medicines', icon: Boxes, end: true },
+    { to: '/admin/inventory/alerts', label: 'Stock alerts', icon: TriangleAlert },
+    { to: '/admin/inventory/ledger', label: 'Stock history', icon: History },
+    { to: '/admin/dispensing/new', label: 'Dispense', icon: PackageSearch },
+    { to: '/admin/dispensing', label: 'Dispensing records', icon: ClipboardCheck, end: true },
     { to: '/admin/staff', label: 'Staff accounts', icon: UserCog },
     { to: '/admin/patients', label: 'Patients', icon: UserRound },
     { to: '/admin/users', label: 'Users & access', icon: Users },

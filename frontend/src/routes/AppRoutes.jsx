@@ -44,6 +44,13 @@ import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
 import NotificationsPage from '../pages/common/NotificationsPage.jsx';
 import StaffHomePage from '../pages/common/StaffHomePage.jsx';
 import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
+import DispensePage from '../pages/inventory/DispensePage.jsx';
+import DispensingListPage from '../pages/inventory/DispensingListPage.jsx';
+import DispensingRecordPage from '../pages/inventory/DispensingRecordPage.jsx';
+import InventoryAlertsPage from '../pages/inventory/InventoryAlertsPage.jsx';
+import MedicineDetailPage from '../pages/inventory/MedicineDetailPage.jsx';
+import MedicinesPage from '../pages/inventory/MedicinesPage.jsx';
+import StockLedgerPage from '../pages/inventory/StockLedgerPage.jsx';
 import DoctorLabOrderPage from '../pages/lab/DoctorLabOrderPage.jsx';
 import LabOrderListPage from '../pages/lab/LabOrderListPage.jsx';
 import PatientLabReportPage from '../pages/lab/PatientLabReportPage.jsx';
@@ -152,6 +159,13 @@ export default function AppRoutes() {
           <Route path="admin/staff" element={<StaffAdminPage />} />
           <Route path="admin/patients" element={<PatientsAdminPage />} />
           <Route path="admin/lab-tests" element={<LabCatalogPage />} />
+          <Route path="admin/inventory" element={<MedicinesPage />} />
+          <Route path="admin/inventory/medicines/:id" element={<MedicineDetailPage />} />
+          <Route path="admin/inventory/alerts" element={<InventoryAlertsPage />} />
+          <Route path="admin/inventory/ledger" element={<StockLedgerPage />} />
+          <Route path="admin/dispensing" element={<DispensingListPage />} />
+          <Route path="admin/dispensing/new" element={<DispensePage />} />
+          <Route path="admin/dispensing/:id" element={<DispensingRecordPage />} />
         </Route>
       </Route>
 

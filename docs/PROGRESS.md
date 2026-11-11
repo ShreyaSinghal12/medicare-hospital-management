@@ -12,7 +12,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 6 | Prescriptions: multi-line drafts, finalize (immutable), revisions superseding earlier versions, discard, patient search/filters, version history, PDF with superseded watermark, notifications, timeline/dashboard integration | ✅ | 102 backend tests, 48 Vitest tests, 7-step Playwright run incl. PDF download and 403 for receptionist/admin |
 | 7 | Reception: walk-in registration with activation e-mail, patient directory and contact updates, front-desk booking, day list, check-in with per-doctor tokens, queue board with skip/put back, automatic queue status, printable confirmation, doctor queue card | ✅ | 111 backend tests (incl. parallel check-ins), 55 Vitest tests, 10-step Playwright run on the real stack |
 | 8 | Laboratory (four-role model): admin test catalog; doctors order tests from consultations, update status, type results, upload/replace/remove PDF reports and finalize them; patients see and download finalized reports; treating-doctor record view; secure file handling with audit | ✅ | 122 backend tests (incl. upload-safety and access tests), 62 Vitest tests, 9-step Playwright run on the real stack |
-| 9 | Medicine inventory (admin): catalog, batches, expiry, stock-in/out ledger, low-stock and expiry alerts, dispensing records against finalized prescriptions (no negative stock, no expired batches) | ⬜ | |
+| 9 | Medicine inventory (admin): catalog, batches with expiry and supplier, stock in, adjustments, returns, expired write-off, append-only stock history, low-stock/expiry alerts with a daily admin notification, dispensing against finalized prescriptions (matching medicine and strength, no expired batches, no over-dispensing, no negative stock), printable dispensing record | ✅ | 127 backend tests (incl. parallel dispensing), 68 Vitest tests, 8-step Playwright run on the real stack |
 | 10 | Billing & payments | ⬜ | |
 | 11 | Notifications, e-mail, reminders, next-slot suggestions | ⬜ | |
 | 12 | Analytics, admin, settings, reports, audit viewer, exports | ⬜ | |
@@ -44,7 +44,7 @@ A feature is ticked only when **all** of these hold:
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ✅ |
 | 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ✅ |
-| 19 | Administrator records dispensing against the finalized prescription | 9 | ⬜ |
+| 19 | Administrator records dispensing against the finalized prescription | 9 | ✅ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
 | 24–25 | Admin views statistics and reports | 12 | ⬜ |
@@ -142,3 +142,22 @@ A feature is ticked only when **all** of these hold:
 * **UI fix found in the browser test:** on a phone the order page scrolled sideways because the results table
   widened its grid column. The columns now use `min-w-0` so the table scrolls inside its card.
 * Lab charges (`price_at_order`) are used for invoicing in Phase 10.
+
+## Phase 9 notes
+
+* `V11__inventory_settings.sql` adds `medicine_batches.supplier` and `hospital_settings.expiry_warning_days`
+  (default 60; editable in the settings screen planned for Phase 12).
+* Prescription lines stay as the doctor wrote them; the dispensing items record which catalog medicine and batch
+  were used. `prescription_items.medicine_id` is not filled in, so finalized prescriptions are never changed.
+* Dispensing is tied to one prescription version. If the doctor revises a partly dispensed prescription, the new
+  version starts with nothing dispensed. The administrator can see the earlier dispensing records, but quantities are not
+  carried over.
+* The demo seeder adds five fictional medicines, set up so that every alert type shows.
+* **Test fix:** `FoundationIntegrationTest` now reads the newest migration number from the classpath instead of a
+  fixed value that had to be edited in each phase.
+* One test run failed once with an unexplained 409 when creating a second medicine. It did not happen again in 5
+  later runs. The test helper now includes the response body in its failure message, so the cause will show if it
+  happens again.
+* **UI fix found in the browser test:** on a phone the medicine page scrolled sideways. The table's hidden
+  "Actions" header label is absolutely positioned and escaped its scroll box; the scroll box is now `relative`.
+* Medicine charges (`unit_price`) are added to invoices in Phase 10.

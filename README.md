@@ -262,6 +262,15 @@ medical-management-system/
 | GET | `/api/consultations/{id}/lab-orders`, `/api/doctor/lab-orders` | DOCTOR | Orders of a consultation / orders you placed (`status`, `search`) |
 | GET | `/api/doctor/patients/{id}/lab-orders` | treating DOCTOR | All lab orders of your patient (audited) |
 | GET | `/api/patients/me/lab-orders` | PATIENT | Own lab orders (`status`, `search`) |
+| GET / POST | `/api/admin/inventory/medicines` | ADMIN | Medicines with usable/expired stock, next expiry, low-stock flag (`search`, `category`, `includeInactive`) / add |
+| GET / PUT / PATCH | `/api/admin/inventory/medicines/{id}`, `/{id}/status` | ADMIN | Medicine with batches / edit / activate or deactivate |
+| POST | `/api/admin/inventory/medicines/{id}/batches` | ADMIN | Receive stock as a new batch (future expiry, supplier, reference) |
+| POST | `/api/admin/inventory/batches/{id}/adjustments` | ADMIN | `ADJUSTMENT_IN`, `ADJUSTMENT_OUT` or `STOCK_OUT` with a reason (never below zero) |
+| POST | `/api/admin/inventory/batches/{id}/write-off` | ADMIN | Write off the remaining stock of an expired batch |
+| GET | `/api/admin/inventory/transactions` | ADMIN | Stock history (`medicineId`, `type`) |
+| GET | `/api/admin/inventory/alerts` | ADMIN | Low stock, expiring within the warning window, expired stock |
+| GET | `/api/admin/dispensing/prescriptions/{rxNo}` | ADMIN | Finalized prescription's medicine lines with matching medicines and usable batches (audited) |
+| POST / GET | `/api/admin/dispensing`, `/api/admin/dispensing/{id}` | ADMIN | Record a dispensing / list (`search`) / view a record |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -320,7 +329,9 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   under the same `RX-…` number with a mandatory reason; finalizing it marks version 1 **SUPERSEDED** (kept, and
   watermarked on its PDF).
 * The patient is notified when a prescription is finalized. The e-mail never lists the medicines.
-* Receptionists and administrators cannot read prescriptions.
+* Receptionists cannot read prescriptions. Administrators see only what dispensing needs: they look up a finalized
+  prescription by its number and see the patient, the doctor and each medicine line with its quantity. Diagnosis,
+  dosage instructions and notes are not shown, and every lookup is audited.
 
 ![Sample prescription PDF](docs/sample-prescription.png)
 
@@ -342,6 +353,27 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   `%%EOF` marker; PDFs with JavaScript, launch actions, embedded files or rich media are rejected. Files are saved
   under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
   never used as a path, and the SHA-256 stored at upload is checked again on every download.
+
+### Medicine inventory and dispensing (administrators)
+
+* Medicines are deactivated, never deleted. Stock arrives as **batches** with a batch number, expiry date (must
+  be in the future), quantity, optional purchase price and supplier.
+* Every stock change (receipt, dispensing, adjustment, return to supplier, expired write-off) adds a row to the
+  append-only stock history with the balance after it. Batch rows are locked during a change, and stock can never go
+  below zero (checked by the service and by a database constraint).
+* **Usable stock** excludes expired batches. **Alerts**: usable stock at or below the reorder level, batches
+  expiring within `expiry_warning_days` (default 60, in `hospital_settings`), and expired batches still holding
+  stock. Every morning at 08:00 hospital time each administrator gets one in-app summary.
+* **Dispensing** works only against the current FINALIZED version of a prescription, looked up by its RX number:
+  * Only catalog medicines whose name (or generic name) and strength match the prescribed line are offered.
+    Comparison ignores case, spaces and punctuation. Giving a different medicine or strength needs a revised
+    prescription from the doctor.
+  * Only non-expired batches can be used; they are listed earliest expiry first, and the administrator picks the batch.
+  * The total dispensed per line can't exceed the prescribed quantity. A line without a stated quantity can be
+    dispensed once.
+  * The prescription row and every batch involved are locked (batches in id order), so simultaneous dispensings
+    can't oversell (tested with parallel requests).
+  * Each dispensing gets a `DSP-yyyyMMdd-######` number, can be printed for the patient, and is audited.
 
 ### Reception and queue
 
