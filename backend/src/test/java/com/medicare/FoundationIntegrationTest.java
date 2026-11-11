@@ -37,7 +37,7 @@ class FoundationIntegrationTest {
                 .andExpect(jsonPath("$.application").value("medicare-backend"))
                 .andExpect(jsonPath("$.database.status").value("UP"))
                 .andExpect(jsonPath("$.database.product").value("MySQL"))
-                .andExpect(jsonPath("$.database.schemaVersion").value("9"))
+                .andExpect(jsonPath("$.database.schemaVersion").value("10"))
                 .andExpect(jsonPath("$.database.tableCount", greaterThanOrEqualTo(35)));
     }
 
