@@ -15,7 +15,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 9 | Medicine inventory (admin): catalog, batches with expiry and supplier, stock in, adjustments, returns, expired write-off, append-only stock history, low-stock/expiry alerts with a daily admin notification, dispensing against finalized prescriptions (matching medicine and strength, no expired batches, no over-dispensing, no negative stock), printable dispensing record | ✅ | 127 backend tests (incl. parallel dispensing), 68 Vitest tests, 8-step Playwright run on the real stack |
 | 10 | Billing (receptionists): invoices from unbilled consultations, lab tests and dispensed medicines at recorded prices, extra items, discount with reason, tax; payments (cash / simulated UPI, card, bank transfer with reference only), refunds as credits, cancellation releasing charges; invoice PDF; patient invoices and notifications; admin billing summary | ✅ | 133 backend tests (incl. simultaneous payments), 73 Vitest tests, 8-step Playwright run on the real stack |
 | 11 | Notifications and reminders: per-category e-mail preferences (security always on), scheduled appointment and follow-up reminders (once-only claim, quiet hours, inactive/late bookings skipped), admin reminder settings, run-now and log, next-free-slot hints on cancellation and reschedule messages | ✅ | 139 backend tests, 75 Vitest tests, 8-step Playwright run on the real stack |
-| 12 | Analytics, admin, settings, reports, audit viewer, exports | ⬜ | |
+| 12 | Administration: dashboard with charts (appointments, workload, revenue, lab, stock, outstanding), hospital settings with audited changes, reports (appointments, payments, invoices, lab workload, stock, audit) as preview/CSV/PDF, audit log viewer | ✅ | 146 backend tests, 80 Vitest tests, 5-step Playwright run on the real stack |
 | 13 | UI polish & accessibility | ⬜ | |
 | 14 | Testing, deployment & documentation package (SRS, diagrams, viva Q&A) | ⬜ | |
 
@@ -47,8 +47,8 @@ A feature is ticked only when **all** of these hold:
 | 19 | Administrator records dispensing against the finalized prescription | 9 | ✅ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ✅ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | ✅ booking, cancellation, reschedule, check-in, prescription, lab report, invoice, payment, reminders |
-| 24–25 | Admin views statistics and reports | 12 | ⬜ |
-| 26 | Unauthorized access blocked | 2–12 | 🟡 role + own-record checks done for Phase 2 endpoints |
+| 24–25 | Admin views statistics and reports | 12 | ✅ |
+| 26 | Unauthorized access blocked | 2–12 | ✅ role and record checks tested in every phase; a combined role × endpoint test follows in Phase 14 |
 
 ## Phase 2 notes
 
@@ -187,3 +187,14 @@ A feature is ticked only when **all** of these hold:
   window is skipped by design.
 * Seen during the browser test, planned for Phase 13: the administrator menu now has 22 entries and needs grouping,
   and times are still shown in the browser's time zone.
+
+## Phase 12 notes
+
+* No migration was needed.
+* The placeholder staff home page was removed; administrators now land on the dashboard.
+* Chart colours follow the data-visualisation checklist: every chart has one series in the validated brand teal,
+  labels and values in text colours, and a data table under each chart.
+* **Fixes found in the browser test:** the money axis showed "₹2k" twice (1,650 and 2,200 both rounded to 2k), so
+  the axis now keeps one decimal below ₹10k (unit-tested). The appointments line was smoothed, which suggested
+  values between days, so it now uses straight segments. Chart animation is off, so screenshots and users who prefer
+  reduced motion see the final chart straight away.

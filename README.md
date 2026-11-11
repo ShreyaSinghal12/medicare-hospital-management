@@ -283,6 +283,11 @@ medical-management-system/
 | GET / PUT | `/api/admin/settings/reminders` | ADMIN | Reminder lead time (1–168 h) and whether reminders are e-mailed |
 | POST | `/api/admin/reminders/run` | ADMIN | Send due reminders now (each reminder is still sent only once) |
 | GET | `/api/admin/reminders` | ADMIN | Log of sent reminders |
+| GET | `/api/admin/dashboard` | ADMIN | Statistics for `from`–`to` (default last 30 days, max 366): appointments by status/day/department, doctor workload, patients, revenue, lab orders, stock alerts |
+| GET / PUT | `/api/admin/settings` | ADMIN | Hospital settings (time zone read-only); changes audited with field names |
+| GET | `/api/admin/reports/{type}` | ADMIN | Preview (first 100 rows): `APPOINTMENTS`, `PAYMENTS`, `INVOICES`, `LAB_WORKLOAD`, `INVENTORY`, `AUDIT` |
+| GET | `/api/admin/reports/{type}/export?format=CSV\|PDF` | ADMIN | Download (max 366 days / 10,000 rows; audited) |
+| GET | `/api/admin/audit` | ADMIN | Audit log search (`actor`, `action`, `entityType`, `entityId`, `outcome`, `from`, `to`; default last 7 days) |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -365,6 +370,21 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   `%%EOF` marker; PDFs with JavaScript, launch actions, embedded files or rich media are rejected. Files are saved
   under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
   never used as a path, and the SHA-256 stored at upload is checked again on every download.
+
+### Administration: dashboard, settings, reports, audit log
+
+* The **dashboard** shows counts and amounts only: appointments by status, day and department, doctor workload, new
+  and active patients, money collected per hospital day, lab orders by status, stock alerts and outstanding
+  invoices. Each chart has a "Show data" table, so no figure depends on reading the chart alone.
+* **Hospital settings:** every value is validated and every change is recorded in `audit_logs` with the fields that
+  changed. The **time zone is fixed at installation**, because changing it would shift every stored appointment time.
+* **Reports** (preview, CSV, PDF) contain operational data only: no diagnoses, visit reasons, prescriptions, test
+  names or results.
+  * CSV files are UTF-8 with a BOM and quote fields correctly. A cell starting with `= + - @` is prefixed with `'`
+    so a spreadsheet won't run it as a formula.
+  * Limits: 366 days and 10,000 rows. Every export is audited.
+* **Audit log:** a read-only search by user, action, record, outcome and dates. The application has no way to
+  edit or delete entries.
 
 ### Notifications and reminders
 

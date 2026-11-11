@@ -42,9 +42,12 @@ import RegisterPage from '../pages/auth/RegisterPage.jsx';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage.jsx';
 import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
 import NotificationsPage from '../pages/common/NotificationsPage.jsx';
-import StaffHomePage from '../pages/common/StaffHomePage.jsx';
 import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
 import RemindersPage from '../pages/admin/RemindersPage.jsx';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage.jsx';
+import AuditLogPage from '../pages/admin/AuditLogPage.jsx';
+import HospitalSettingsPage from '../pages/admin/HospitalSettingsPage.jsx';
+import ReportsPage from '../pages/admin/ReportsPage.jsx';
 import BillingSummaryPage from '../pages/billing/BillingSummaryPage.jsx';
 import InvoiceListPage from '../pages/billing/InvoiceListPage.jsx';
 import InvoicePage from '../pages/billing/InvoicePage.jsx';
@@ -158,7 +161,10 @@ export default function AppRoutes() {
 
       <Route element={<ProtectedRoute roles={['ADMIN']} />}>
         <Route element={<DashboardLayout />}>
-          <Route path="admin" element={<StaffHomePage title="Administration" />} />
+          <Route path="admin" element={<AdminDashboardPage />} />
+          <Route path="admin/settings" element={<HospitalSettingsPage />} />
+          <Route path="admin/reports" element={<ReportsPage />} />
+          <Route path="admin/audit" element={<AuditLogPage />} />
           <Route path="admin/users" element={<UserManagementPage />} />
           <Route path="admin/doctors" element={<DoctorsAdminPage />} />
           <Route path="admin/doctors/new" element={<DoctorFormPage />} />

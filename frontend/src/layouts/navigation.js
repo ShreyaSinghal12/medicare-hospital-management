@@ -1,5 +1,5 @@
 import {
-  Banknote, Bell, BellRing, Boxes, Receipt, ReceiptText, Building2, ClipboardCheck, FlaskConical, History, PackageSearch, TriangleAlert, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  Banknote, Bell, BellRing, Boxes, FileSpreadsheet, ScrollText, SlidersHorizontal, Receipt, ReceiptText, Building2, ClipboardCheck, FlaskConical, History, PackageSearch, TriangleAlert, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
   NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
@@ -60,6 +60,9 @@ export const NAVIGATION = {
     { to: '/admin/patients', label: 'Patients', icon: UserRound },
     { to: '/admin/users', label: 'Users & access', icon: Users },
     { to: '/admin/reminders', label: 'Reminders', icon: BellRing },
+    { to: '/admin/reports', label: 'Reports', icon: FileSpreadsheet },
+    { to: '/admin/audit', label: 'Audit log', icon: ScrollText },
+    { to: '/admin/settings', label: 'Hospital settings', icon: SlidersHorizontal },
     { to: '/notifications', label: 'Notifications', icon: Bell },
     { to: '/account', label: 'Account settings', icon: Settings },
   ],
