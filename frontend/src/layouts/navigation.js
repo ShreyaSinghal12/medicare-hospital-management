@@ -1,5 +1,5 @@
 import {
-  Bell, Boxes, Building2, ClipboardCheck, FlaskConical, History, PackageSearch, TriangleAlert, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  Banknote, Bell, Boxes, Receipt, ReceiptText, Building2, ClipboardCheck, FlaskConical, History, PackageSearch, TriangleAlert, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
   NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
@@ -14,6 +14,7 @@ export const NAVIGATION = {
     { to: '/patient/history', label: 'Medical history', icon: NotebookText },
     { to: '/patient/prescriptions', label: 'Prescriptions', icon: Pill },
     { to: '/patient/lab-reports', label: 'Lab reports', icon: FlaskConical },
+    { to: '/patient/invoices', label: 'Invoices', icon: Receipt },
     { to: '/patient/doctors', label: 'Find a doctor', icon: Search },
     { to: '/patient/profile', label: 'My profile', icon: UserRound },
     { to: '/notifications', label: 'Notifications', icon: Bell },
@@ -37,6 +38,8 @@ export const NAVIGATION = {
     { to: '/reception/book', label: 'Book appointment', icon: CalendarPlus },
     { to: '/reception/patients', label: 'Patients', icon: Users, end: true },
     { to: '/reception/patients/new', label: 'Register walk-in', icon: UserPlus },
+    { to: '/reception/billing', label: 'Invoices', icon: Receipt, end: true },
+    { to: '/reception/billing/new', label: 'New invoice', icon: ReceiptText },
     { to: '/notifications', label: 'Notifications', icon: Bell },
     { to: '/account', label: 'Account settings', icon: Settings },
   ],
@@ -46,6 +49,8 @@ export const NAVIGATION = {
     { to: '/admin/leave', label: 'Leave requests', icon: CalendarOff },
     { to: '/admin/departments', label: 'Departments', icon: Building2 },
     { to: '/admin/lab-tests', label: 'Lab tests', icon: FlaskConical },
+    { to: '/admin/billing', label: 'Billing', icon: Banknote },
+    { to: '/admin/invoices', label: 'Invoices', icon: Receipt },
     { to: '/admin/inventory', label: 'Medicines', icon: Boxes, end: true },
     { to: '/admin/inventory/alerts', label: 'Stock alerts', icon: TriangleAlert },
     { to: '/admin/inventory/ledger', label: 'Stock history', icon: History },

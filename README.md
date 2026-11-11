@@ -271,6 +271,14 @@ medical-management-system/
 | GET | `/api/admin/inventory/alerts` | ADMIN | Low stock, expiring within the warning window, expired stock |
 | GET | `/api/admin/dispensing/prescriptions/{rxNo}` | ADMIN | Finalized prescription's medicine lines with matching medicines and usable batches (audited) |
 | POST / GET | `/api/admin/dispensing`, `/api/admin/dispensing/{id}` | ADMIN | Record a dispensing / list (`search`) / view a record |
+| GET | `/api/billing/patients/{id}/billable` | RECEPTIONIST | Services not yet billed, with recorded prices; patient's outstanding balance |
+| POST | `/api/billing/invoices` | RECEPTIONIST | Create an invoice from charge references, extra items, optional discount (reason required) |
+| GET | `/api/billing/invoices`, `/{id}`, `/{id}/pdf` | RECEPTIONIST, ADMIN; own PATIENT (detail, PDF) | Search (`search`, `status`, `patientId`, `from`, `to`) / detail / PDF |
+| POST | `/api/billing/invoices/{id}/payments` | RECEPTIONIST | Record a payment (`CASH`, `UPI_SIMULATED`, `CARD_SIMULATED`, `BANK_TRANSFER_SIMULATED`; reference only) |
+| POST | `/api/billing/invoices/{id}/refunds` | RECEPTIONIST | Record a refund (reason in `notes`) |
+| POST | `/api/billing/invoices/{id}/cancel` | RECEPTIONIST | Cancel an unpaid invoice (reason); its charges can be billed again |
+| GET | `/api/patients/me/invoices` | PATIENT | Own invoices (`status`) |
+| GET | `/api/admin/billing/summary` | ADMIN | Invoiced, collected, refunded and outstanding amounts (`from`, `to`; default this month) |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -353,6 +361,28 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   `%%EOF` marker; PDFs with JavaScript, launch actions, embedded files or rich media are rejected. Files are saved
   under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
   never used as a path, and the SHA-256 stored at upload is checked again on every download.
+
+### Billing and payments (receptionists)
+
+* **What can be billed:** consultations (once the patient is checked in), lab tests of non-cancelled orders, and
+  dispensed medicines, plus extra items typed by the receptionist.
+  * Prices are the ones recorded at booking, ordering or dispensing, so later fee or price changes don't alter a
+    bill. The browser sends only which charges to bill; the server looks up every price.
+  * Each charge can be on only one active invoice (`invoice_items.billed_reference` is unique). Cancelling an unpaid
+    invoice releases its charges.
+* **Totals:** subtotal − discount (a reason is required) + tax at `hospital_settings.tax_rate_percent`. All money
+  is calculated in exact decimals.
+* **Payments** never exceed the balance due. The invoice row is locked while money is recorded; simultaneous
+  payments were tested. Status moves UNPAID → PARTIALLY_PAID → PAID.
+* **Refunds** need a reason and can't exceed what was received. A refund is a credit, for example a returned
+  medicine: it does not reopen the balance. When everything received has been refunded, the invoice becomes
+  REFUNDED. Payments and refunds are separate rows that are never edited or deleted.
+* **No card data:** no payment gateway is connected, so non-cash methods are labelled *simulated* and only a
+  reference is stored (UPI transaction ID, card terminal slip number). A reference with 13 or more digits in a row
+  is rejected as a possible card number, in the browser and on the server.
+* Patients see their own invoices and payments and download the PDF. They are notified when an invoice is issued
+  and when money is recorded; messages contain amounts only. Administrators can read invoices and the billing
+  summary but cannot record money. Doctors have no access to billing.
 
 ### Medicine inventory and dispensing (administrators)
 

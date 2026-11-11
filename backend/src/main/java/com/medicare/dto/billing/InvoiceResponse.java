@@ -22,6 +22,7 @@ public record InvoiceResponse(
         BigDecimal taxAmount,
         BigDecimal totalAmount,
         BigDecimal amountPaid,
+        BigDecimal refundedAmount,
         BigDecimal balanceDue,
         String notes,
         String issuedBy,

@@ -224,13 +224,21 @@ class BillingIntegrationTest extends IntegrationTestBase {
 
         money("refunds", id, "{\"method\":\"CASH\",\"amount\":100}").andExpect(jsonPath("$.code").value("REASON_REQUIRED"));
         money("refunds", id, "{\"method\":\"CASH\",\"amount\":900,\"notes\":\"Too much\"}").andExpect(jsonPath("$.code").value("REFUND_EXCEEDS_PAID"));
+        // a refund is a credit: it does not reopen the balance
         money("refunds", id, "{\"method\":\"CASH\",\"amount\":75,\"notes\":\"Lab test not done (fictional)\"}")
-                .andExpect(jsonPath("$.status").value("PARTIALLY_PAID"))
-                .andExpect(jsonPath("$.amountPaid").value(800.0))
+                .andExpect(jsonPath("$.status").value("PAID"))
+                .andExpect(jsonPath("$.amountPaid").value(875.0))
+                .andExpect(jsonPath("$.refundedAmount").value(75.0))
+                .andExpect(jsonPath("$.balanceDue").value(0.0))
+                .andExpect(jsonPath("$.canPay").value(false))
                 .andExpect(jsonPath("$.payments[2].paymentNo", matchesPattern("RFD-\\d{8}-\\d{6}")));
+        money("refunds", id, "{\"method\":\"CASH\",\"amount\":801,\"notes\":\"Too much\"}").andExpect(jsonPath("$.code").value("REFUND_EXCEEDS_PAID"));
         money("refunds", id, "{\"method\":\"CASH\",\"amount\":800,\"notes\":\"Visit disputed (fictional)\"}")
                 .andExpect(jsonPath("$.status").value("REFUNDED"))
-                .andExpect(jsonPath("$.amountPaid").value(0.0));
+                .andExpect(jsonPath("$.refundedAmount").value(875.0))
+                .andExpect(jsonPath("$.canRefund").value(false));
+        money("refunds", id, "{\"method\":\"CASH\",\"amount\":1,\"notes\":\"Again\"}").andExpect(jsonPath("$.code").value("NOTHING_TO_REFUND"));
+        money("payments", id, "{\"method\":\"CASH\",\"amount\":1}").andExpect(jsonPath("$.code").value("INVOICE_NOT_PAYABLE"));
 
         // cancelling an unpaid invoice releases its charges
         long second = createInvoice("{\"patientId\":" + patient.getId() + ",\"otherItems\":[{\"description\":\"Registration\",\"quantity\":1,\"unitPrice\":20}]}");

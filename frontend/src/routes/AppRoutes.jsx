@@ -44,6 +44,10 @@ import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
 import NotificationsPage from '../pages/common/NotificationsPage.jsx';
 import StaffHomePage from '../pages/common/StaffHomePage.jsx';
 import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
+import BillingSummaryPage from '../pages/billing/BillingSummaryPage.jsx';
+import InvoiceListPage from '../pages/billing/InvoiceListPage.jsx';
+import InvoicePage from '../pages/billing/InvoicePage.jsx';
+import NewInvoicePage from '../pages/billing/NewInvoicePage.jsx';
 import DispensePage from '../pages/inventory/DispensePage.jsx';
 import DispensingListPage from '../pages/inventory/DispensingListPage.jsx';
 import DispensingRecordPage from '../pages/inventory/DispensingRecordPage.jsx';
@@ -109,6 +113,8 @@ export default function AppRoutes() {
           <Route path="patient/history" element={<MedicalHistoryPage />} />
           <Route path="patient/prescriptions" element={<PrescriptionListPage mode="patient" />} />
           <Route path="patient/prescriptions/:id" element={<PatientPrescriptionPage />} />
+          <Route path="patient/invoices" element={<InvoiceListPage mode="patient" />} />
+          <Route path="patient/invoices/:id" element={<InvoicePage mode="patient" />} />
           <Route path="patient/lab-reports" element={<LabOrderListPage mode="patient" />} />
           <Route path="patient/lab-reports/:id" element={<PatientLabReportPage />} />
           <Route path="patient/appointments/:id" element={<AppointmentDetailPage />} />
@@ -143,6 +149,9 @@ export default function AppRoutes() {
           <Route path="reception/patients" element={<PatientDirectoryPage />} />
           <Route path="reception/patients/new" element={<RegisterWalkInPage />} />
           <Route path="reception/patients/:id" element={<ReceptionPatientPage />} />
+          <Route path="reception/billing" element={<InvoiceListPage mode="reception" />} />
+          <Route path="reception/billing/new" element={<NewInvoicePage />} />
+          <Route path="reception/billing/:id" element={<InvoicePage mode="reception" />} />
         </Route>
       </Route>
 
@@ -159,6 +168,9 @@ export default function AppRoutes() {
           <Route path="admin/staff" element={<StaffAdminPage />} />
           <Route path="admin/patients" element={<PatientsAdminPage />} />
           <Route path="admin/lab-tests" element={<LabCatalogPage />} />
+          <Route path="admin/billing" element={<BillingSummaryPage />} />
+          <Route path="admin/invoices" element={<InvoiceListPage mode="admin" />} />
+          <Route path="admin/invoices/:id" element={<InvoicePage mode="admin" />} />
           <Route path="admin/inventory" element={<MedicinesPage />} />
           <Route path="admin/inventory/medicines/:id" element={<MedicineDetailPage />} />
           <Route path="admin/inventory/alerts" element={<InventoryAlertsPage />} />

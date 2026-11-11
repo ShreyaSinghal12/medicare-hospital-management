@@ -27,8 +27,10 @@ import jakarta.persistence.Version;
 import org.hibernate.annotations.BatchSize;
 
 /**
- * A patient invoice. Amounts are fixed when it is issued; afterwards only {@code amountPaid} (net of refunds)
- * and the status change. {@code amountPaid} can never exceed {@code totalAmount} (also a database check).
+ * A patient invoice. Amounts are fixed when it is issued; afterwards only the money received, the money refunded
+ * and the status change. {@code amountPaid} (all payments) never exceeds the total and {@code refundedAmount}
+ * never exceeds {@code amountPaid} (also database checks). A refund is a credit for something not provided or
+ * returned: it does not make the patient owe the amount again.
  */
 @Entity
 @Table(name = "invoices")
@@ -62,6 +64,9 @@ public class Invoice {
 
     @Column(name = "amount_paid", nullable = false, precision = 12, scale = 2)
     private BigDecimal amountPaid = BigDecimal.ZERO;
+
+    @Column(name = "refunded_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal refundedAmount = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -121,15 +126,21 @@ public class Invoice {
         return totalAmount.subtract(amountPaid);
     }
 
-    /** Applies a payment (+) or refund (−) to the paid amount and recomputes the status. */
-    public void applyMoney(BigDecimal signedAmount, boolean isRefund) {
-        amountPaid = amountPaid.add(signedAmount);
-        if (amountPaid.signum() == 0) {
-            status = isRefund ? InvoiceStatus.REFUNDED : InvoiceStatus.UNPAID;
-        } else if (amountPaid.compareTo(totalAmount) >= 0) {
-            status = InvoiceStatus.PAID;
-        } else {
-            status = InvoiceStatus.PARTIALLY_PAID;
+    /** What can still be refunded (received minus already refunded). */
+    public BigDecimal refundable() {
+        return amountPaid.subtract(refundedAmount);
+    }
+
+    public void applyPayment(BigDecimal amount) {
+        amountPaid = amountPaid.add(amount);
+        status = amountPaid.compareTo(totalAmount) >= 0 ? InvoiceStatus.PAID : InvoiceStatus.PARTIALLY_PAID;
+    }
+
+    /** Records a refund; the invoice is REFUNDED once everything received has been given back. */
+    public void applyRefund(BigDecimal amount) {
+        refundedAmount = refundedAmount.add(amount);
+        if (refundedAmount.compareTo(amountPaid) == 0) {
+            status = InvoiceStatus.REFUNDED;
         }
     }
 
@@ -156,6 +167,7 @@ public class Invoice {
     public BigDecimal getTaxAmount() { return taxAmount; }
     public BigDecimal getTotalAmount() { return totalAmount; }
     public BigDecimal getAmountPaid() { return amountPaid; }
+    public BigDecimal getRefundedAmount() { return refundedAmount; }
     public InvoiceStatus getStatus() { return status; }
     public String getNotes() { return notes; }
     public User getIssuedBy() { return issuedBy; }

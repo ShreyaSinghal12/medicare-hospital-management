@@ -99,7 +99,10 @@ public class InvoicePdfGenerator {
         }
         row(totals, "Tax (" + inv.getTaxRatePercent().stripTrailingZeros().toPlainString() + "%)", money(inv.getTaxAmount()), body);
         row(totals, "Total", money(inv.getTotalAmount()), bold);
-        row(totals, "Paid (net of refunds)", money(inv.getAmountPaid()), body);
+        row(totals, "Paid", money(inv.getAmountPaid()), body);
+        if (inv.getRefundedAmount().signum() > 0) {
+            row(totals, "Refunded", "- " + money(inv.getRefundedAmount()), body);
+        }
         row(totals, "Balance due", money(inv.balanceDue()), bold);
         doc.add(totals);
 

@@ -13,7 +13,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 7 | Reception: walk-in registration with activation e-mail, patient directory and contact updates, front-desk booking, day list, check-in with per-doctor tokens, queue board with skip/put back, automatic queue status, printable confirmation, doctor queue card | ✅ | 111 backend tests (incl. parallel check-ins), 55 Vitest tests, 10-step Playwright run on the real stack |
 | 8 | Laboratory (four-role model): admin test catalog; doctors order tests from consultations, update status, type results, upload/replace/remove PDF reports and finalize them; patients see and download finalized reports; treating-doctor record view; secure file handling with audit | ✅ | 122 backend tests (incl. upload-safety and access tests), 62 Vitest tests, 9-step Playwright run on the real stack |
 | 9 | Medicine inventory (admin): catalog, batches with expiry and supplier, stock in, adjustments, returns, expired write-off, append-only stock history, low-stock/expiry alerts with a daily admin notification, dispensing against finalized prescriptions (matching medicine and strength, no expired batches, no over-dispensing, no negative stock), printable dispensing record | ✅ | 127 backend tests (incl. parallel dispensing), 68 Vitest tests, 8-step Playwright run on the real stack |
-| 10 | Billing & payments | ⬜ | |
+| 10 | Billing (receptionists): invoices from unbilled consultations, lab tests and dispensed medicines at recorded prices, extra items, discount with reason, tax; payments (cash / simulated UPI, card, bank transfer with reference only), refunds as credits, cancellation releasing charges; invoice PDF; patient invoices and notifications; admin billing summary | ✅ | 133 backend tests (incl. simultaneous payments), 73 Vitest tests, 8-step Playwright run on the real stack |
 | 11 | Notifications, e-mail, reminders, next-slot suggestions | ⬜ | |
 | 12 | Analytics, admin, settings, reports, audit viewer, exports | ⬜ | |
 | 13 | UI polish & accessibility | ⬜ | |
@@ -45,7 +45,7 @@ A feature is ticked only when **all** of these hold:
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ✅ |
 | 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ✅ |
 | 19 | Administrator records dispensing against the finalized prescription | 9 | ✅ |
-| 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
+| 20–22 | Invoice, payment, patient views invoice | 10 | ✅ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
 | 24–25 | Admin views statistics and reports | 12 | ⬜ |
 | 26 | Unauthorized access blocked | 2–12 | 🟡 role + own-record checks done for Phase 2 endpoints |
@@ -161,3 +161,18 @@ A feature is ticked only when **all** of these hold:
 * **UI fix found in the browser test:** on a phone the medicine page scrolled sideways. The table's hidden
   "Actions" header label is absolutely positioned and escaped its scroll box; the scroll box is now `relative`.
 * Medicine charges (`unit_price`) are added to invoices in Phase 10.
+
+## Phase 10 notes
+
+* `V12__billing_references.sql` records the consultation fee at booking (`appointments.consultation_fee`) and the
+  unit price at dispensing (`dispensing_items.unit_price`). Records made earlier fall back to the current fee or price.
+  It also adds the unique `invoice_items.billed_reference`.
+* **Design fix found in the browser test (V13):** the first version treated a refund as reversing a payment, so a
+  ₹50 refund for a returned medicine left the invoice showing ₹50 due again. `V13__invoice_refunds.sql` adds
+  `invoices.refunded_amount`. `amount_paid` is now the total received, and existing rows were recomputed from the
+  payments table. A refund no longer changes the balance due.
+* **UI fix found in the browser test:** the payment dialog kept the previous entry when reopened, because the form
+  stayed mounted with its first defaults. It now mounts fresh each time it opens; a regression test was added.
+* Known limitation: a payment recorded by mistake can't be voided. It can only be refunded, which counts as a
+  credit.
+* The PDF writes amounts as "Rs." because the built-in PDF font has no ₹ symbol; the web pages show ₹.

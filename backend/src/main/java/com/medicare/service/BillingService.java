@@ -67,8 +67,9 @@ import org.springframework.transaction.annotation.Transactional;
  *       of non-cancelled orders and dispensed medicines, at the price recorded when booked/ordered/dispensed.
  *       The client only names the charges; prices always come from the server.</li>
  *   <li>Each charge is billed once (unique {@code billed_reference}); cancelling an unpaid invoice releases it.</li>
- *   <li>Payments never exceed the balance, refunds never exceed what was paid, and the invoice row is locked
- *       while money is recorded. Payments and refunds are never edited or deleted.</li>
+ *   <li>Payments never exceed the balance, refunds never exceed what was received, and the invoice row is locked
+ *       while money is recorded. Payments and refunds are never edited or deleted. A refund is a credit (money
+ *       returned for something not provided): it does not reopen the balance.</li>
  *   <li>No card data is stored: a reference that looks like a card number is rejected.</li>
  * </ul>
  */
@@ -203,7 +204,7 @@ public class BillingService {
         }
         String reference = checkReference(req.method(), req.transactionReference());
         Payment p = record(actor, invoice, PaymentType.PAYMENT, req.method(), amount, reference, blankToNull(req.notes()));
-        invoice.applyMoney(amount, false);
+        invoice.applyPayment(amount);
         invoiceRepository.saveAndFlush(invoice);
         notificationService.notify(invoice.getPatient().getUser().getId(), NotificationType.PAYMENT_RECORDED, "Payment received",
                 "We received " + money(amount) + " for invoice " + invoice.getInvoiceNo() + ". Balance due: "
@@ -215,12 +216,12 @@ public class BillingService {
     @Transactional
     public InvoiceResponse refund(AppUserPrincipal actor, Long id, PaymentRequest req) {
         Invoice invoice = lock(id);
-        if (invoice.getAmountPaid().signum() == 0) {
-            throw new BusinessRuleException("NOTHING_TO_REFUND", "Nothing has been paid on this invoice");
+        if (invoice.getStatus() == InvoiceStatus.CANCELLED || invoice.refundable().signum() == 0) {
+            throw new BusinessRuleException("NOTHING_TO_REFUND", "Nothing paid on this invoice is left to refund");
         }
         BigDecimal amount = req.amount();
-        if (amount.compareTo(invoice.getAmountPaid()) > 0) {
-            throw new BusinessRuleException("REFUND_EXCEEDS_PAID", "At most " + money(invoice.getAmountPaid()) + " can be refunded");
+        if (amount.compareTo(invoice.refundable()) > 0) {
+            throw new BusinessRuleException("REFUND_EXCEEDS_PAID", "At most " + money(invoice.refundable()) + " can be refunded");
         }
         String reason = blankToNull(req.notes());
         if (reason == null || reason.length() < 3) {
@@ -228,7 +229,7 @@ public class BillingService {
         }
         String reference = checkReference(req.method(), req.transactionReference());
         Payment p = record(actor, invoice, PaymentType.REFUND, req.method(), amount, reference, reason);
-        invoice.applyMoney(amount.negate(), true);
+        invoice.applyRefund(amount);
         invoiceRepository.saveAndFlush(invoice);
         notificationService.notify(invoice.getPatient().getUser().getId(), NotificationType.PAYMENT_RECORDED, "Refund issued",
                 money(amount) + " has been refunded for invoice " + invoice.getInvoiceNo() + ".",
@@ -408,13 +409,14 @@ public class BillingService {
         }
         return new InvoiceResponse(i.getId(), i.getInvoiceNo(), i.getStatus(), i.getPatient().getId(),
                 i.getPatient().getUser().getFullName(), i.getPatient().getPatientCode(), i.getSubtotal(), i.getDiscountAmount(),
-                i.getTaxRatePercent(), i.getTaxAmount(), i.getTotalAmount(), i.getAmountPaid(), i.balanceDue(), i.getNotes(),
+                i.getTaxRatePercent(), i.getTaxAmount(), i.getTotalAmount(), i.getAmountPaid(), i.getRefundedAmount(),
+                i.balanceDue(), i.getNotes(),
                 i.getIssuedBy().getFullName(), i.getIssuedAt(), i.getCancelledAt(), i.getCancellationReason(),
                 i.getItems().stream().map(it -> new InvoiceResponse.Item(it.getId(), it.getType(), it.getDescription(),
                         it.getQuantity(), it.getUnitPrice(), it.getLineTotal())).toList(),
                 payments,
                 desk && PAYABLE.contains(i.getStatus()) && i.balanceDue().signum() > 0,
-                desk && i.getAmountPaid().signum() > 0,
+                desk && i.getStatus() != InvoiceStatus.CANCELLED && i.refundable().signum() > 0,
                 desk && i.getStatus() == InvoiceStatus.UNPAID && i.getAmountPaid().signum() == 0);
     }
 

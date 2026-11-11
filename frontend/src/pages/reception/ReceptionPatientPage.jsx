@@ -59,7 +59,12 @@ export default function ReceptionPatientPage() {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Patient directory
       </Link>
       <PageHeader title={p.fullName} description={`${p.patientCode} · ${p.age} years`}
-        actions={<Button to={`/reception/book?patientId=${p.id}`}>Book appointment</Button>} />
+        actions={(
+          <div className="flex flex-wrap gap-2">
+            <Button to={`/reception/billing/new?patientId=${p.id}`} variant="secondary">Create invoice</Button>
+            <Button to={`/reception/book?patientId=${p.id}`}>Book appointment</Button>
+          </div>
+        )} />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Contact" actions={<Button size="sm" variant="secondary" onClick={() => setEditing(true)}><Pencil className="h-4 w-4" aria-hidden="true" /> Edit</Button>}>
           <dl className="space-y-2 text-sm">
