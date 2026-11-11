@@ -104,6 +104,10 @@ public class Appointment {
     @Version
     private long version;
 
+    /** The doctor's fee when the appointment was booked (null for bookings made before this was recorded). */
+    @Column(name = "consultation_fee", precision = 10, scale = 2)
+    private java.math.BigDecimal consultationFee;
+
     protected Appointment() {
         // for JPA
     }
@@ -120,6 +124,7 @@ public class Appointment {
         this.appointmentType = type;
         this.reason = reason;
         this.bookedByUserId = bookedByUserId;
+        this.consultationFee = doctor.getConsultationFee();
     }
 
     /** Applies a status change, enforcing the allowed transitions of {@link AppointmentStatus}. */
@@ -162,6 +167,7 @@ public class Appointment {
     }
 
     public Long getId() { return id; }
+    public java.math.BigDecimal getConsultationFee() { return consultationFee; }
     public String getReferenceNo() { return referenceNo; }
     public Patient getPatient() { return patient; }
     public Doctor getDoctor() { return doctor; }

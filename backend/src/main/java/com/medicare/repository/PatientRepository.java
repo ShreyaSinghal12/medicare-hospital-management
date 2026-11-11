@@ -65,4 +65,9 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p.id AS id, u.fullName AS fullName, p.dateOfBirth AS dateOfBirth, u.phone AS phone "
             + "FROM Patient p JOIN p.user u")
     List<DuplicateCandidate> findDuplicateCandidates();
+
+    /** Locks the patient row so that two invoices for the same patient are created one after another. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Patient p WHERE p.id = :id")
+    java.util.Optional<Patient> lockById(@org.springframework.data.repository.query.Param("id") Long id);
 }

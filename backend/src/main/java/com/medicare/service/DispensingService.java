@@ -238,7 +238,7 @@ public class DispensingService {
                 r.getItems().stream().map(i -> new DispensingResponse.Item(
                         i.getPrescriptionItem().getMedicineName(), i.getMedicine().getName(), i.getMedicine().getStrength(),
                         i.getMedicine().getUnit(), i.getBatch().getBatchNumber(), i.getBatch().getExpiryDate(), i.getQuantity(),
-                        i.getMedicine().getUnitPrice())).toList());
+                        i.getUnitPrice() != null ? i.getUnitPrice() : i.getMedicine().getUnitPrice())).toList());
     }
 
     private static String blankToNull(String v) {

@@ -38,6 +38,10 @@ public class DispensingItem {
     @Column(nullable = false, updatable = false)
     private int quantity;
 
+    /** The medicine's unit price at the time of dispensing (null for records made before this was recorded). */
+    @Column(name = "unit_price", precision = 12, scale = 2, updatable = false)
+    private java.math.BigDecimal unitPrice;
+
     protected DispensingItem() {
         // for JPA
     }
@@ -48,6 +52,7 @@ public class DispensingItem {
         this.medicine = batch.getMedicine();
         this.batch = batch;
         this.quantity = quantity;
+        this.unitPrice = batch.getMedicine().getUnitPrice();
     }
 
     public Long getId() { return id; }
@@ -56,4 +61,5 @@ public class DispensingItem {
     public Medicine getMedicine() { return medicine; }
     public MedicineBatch getBatch() { return batch; }
     public int getQuantity() { return quantity; }
+    public java.math.BigDecimal getUnitPrice() { return unitPrice; }
 }
