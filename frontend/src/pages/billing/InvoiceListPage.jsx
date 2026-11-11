@@ -43,7 +43,7 @@ export default function InvoiceListPage({ mode }) {
         <div className={`grid gap-3 ${patient ? 'max-w-xs' : 'sm:grid-cols-2 lg:grid-cols-[1fr_12rem_10rem_10rem]'}`}>
           {!patient && (
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+              <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
               <TextField label="Search" placeholder="INV number, patient name or ID" value={input} className="pl-9" onChange={reset(setInput)} />
             </div>
           )}

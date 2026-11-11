@@ -33,14 +33,14 @@ export default function PatientLabReportPage() {
               <Card title="Results" subtitle={`Released ${formatDateTime(o.completedAt)}`}
                 actions={o.report && (
                   <a href={labReportUrl(o.id)} download
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700">
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-800">
                     <Download className="h-4 w-4" aria-hidden="true" /> Download report (PDF)
                   </a>
                 )}>
                 <LabResultsTable items={o.items} />
               </Card>
               <p className="flex items-start gap-2 text-sm text-slate-600">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" aria-hidden="true" />
                 Reference ranges are general information from the laboratory. MediCare does not interpret results; please discuss them with your doctor.
               </p>
             </div>

@@ -84,7 +84,7 @@ export default function ReceptionBookPage() {
             hint="Visible to the doctor only; reception will not see it again after booking."
             onChange={(e) => { setReason(e.target.value); setReasonError(null); }} />
           <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={walkIn} onChange={(e) => setWalkIn(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+            <input type="checkbox" checked={walkIn} onChange={(e) => setWalkIn(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-700" />
             Walk-in (patient is at the hospital now; applies to today's bookings)
           </label>
           <Button className="mt-4" onClick={submit} loading={busy} disabled={!current || !slot}>

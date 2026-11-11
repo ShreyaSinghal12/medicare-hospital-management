@@ -40,7 +40,7 @@ export default function PatientRecordPage() {
                 <li key={c.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
                   <div className="min-w-0">
                     <p className="font-medium text-slate-900">{formatDateShort(c.date)} · {c.doctorName} <span className="text-sm font-normal text-slate-500">({c.specialization})</span></p>
-                    <p className="text-sm text-slate-600">{c.diagnosis || <em className="text-slate-400">No diagnosis yet</em>}</p>
+                    <p className="text-sm text-slate-600">{c.diagnosis || <em className="text-slate-500">No diagnosis yet</em>}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusBadge tone={c.status === 'FINALIZED' ? 'green' : 'amber'}>{c.status.toLowerCase()}</StatusBadge>

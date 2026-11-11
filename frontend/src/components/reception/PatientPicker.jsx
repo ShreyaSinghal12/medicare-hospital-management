@@ -15,7 +15,7 @@ export default function PatientPicker({ onPick }) {
   return (
     <div>
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+        <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
         <TextField label="Find patient" placeholder="Name, phone, e-mail or patient ID (min. 2 characters)" value={input}
           className="pl-9" onChange={(e) => setInput(e.target.value)} />
       </div>

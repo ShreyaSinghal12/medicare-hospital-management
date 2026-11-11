@@ -100,7 +100,7 @@ export default function AppointmentDetailPage() {
                   <span className="absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand-500" aria-hidden="true" />
                   <p className="text-sm font-medium text-slate-900">{ACTION_LABEL[h.action] || h.action}</p>
                   {h.details && <p className="text-sm text-slate-600">{h.details}</p>}
-                  <p className="text-xs text-slate-400">{formatDateTime(h.changedAt)}</p>
+                  <p className="text-xs text-slate-500">{formatDateTime(h.changedAt)}</p>
                 </li>
               ))}
             </ol>

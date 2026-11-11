@@ -1,77 +1,81 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import Spinner from '../components/ui/Spinner.jsx';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
 import PublicLayout from '../layouts/PublicLayout.jsx';
-import DepartmentsAdminPage from '../pages/admin/DepartmentsAdminPage.jsx';
-import DoctorFormPage from '../pages/admin/DoctorFormPage.jsx';
-import DoctorSchedulePage from '../pages/admin/DoctorSchedulePage.jsx';
-import LeaveApprovalsPage from '../pages/admin/LeaveApprovalsPage.jsx';
-import DoctorsAdminPage from '../pages/admin/DoctorsAdminPage.jsx';
-import PatientsAdminPage from '../pages/admin/PatientsAdminPage.jsx';
-import StaffAdminPage from '../pages/admin/StaffAdminPage.jsx';
-import UserManagementPage from '../pages/admin/UserManagementPage.jsx';
-import AvailabilityPage from '../pages/doctor/AvailabilityPage.jsx';
-import ConsultationPage from '../pages/doctor/ConsultationPage.jsx';
-import DayAppointmentsPage from '../pages/reception/DayAppointmentsPage.jsx';
-import PatientDirectoryPage from '../pages/reception/PatientDirectoryPage.jsx';
-import PrintConfirmationPage from '../pages/reception/PrintConfirmationPage.jsx';
-import QueuePage from '../pages/reception/QueuePage.jsx';
-import ReceptionBookPage from '../pages/reception/ReceptionBookPage.jsx';
-import ReceptionDashboard from '../pages/reception/ReceptionDashboard.jsx';
-import ReceptionPatientPage from '../pages/reception/ReceptionPatientPage.jsx';
-import RegisterWalkInPage from '../pages/reception/RegisterWalkInPage.jsx';
-import NewPrescriptionPage from '../pages/doctor/NewPrescriptionPage.jsx';
-import PrescriptionWorkspacePage from '../pages/doctor/PrescriptionWorkspacePage.jsx';
-import PatientPrescriptionPage from '../pages/prescriptions/PatientPrescriptionPage.jsx';
-import PrescriptionListPage from '../pages/prescriptions/PrescriptionListPage.jsx';
-import DoctorAppointmentsPage from '../pages/doctor/DoctorAppointmentsPage.jsx';
-import MyPatientsPage from '../pages/doctor/MyPatientsPage.jsx';
-import PatientRecordPage from '../pages/doctor/PatientRecordPage.jsx';
-import MedicalHistoryPage from '../pages/patient/MedicalHistoryPage.jsx';
-import DoctorDashboard from '../pages/doctor/DoctorDashboard.jsx';
-import DoctorOwnProfilePage from '../pages/doctor/DoctorOwnProfilePage.jsx';
-import AppointmentDetailPage from '../pages/patient/AppointmentDetailPage.jsx';
-import BookAppointmentPage from '../pages/patient/BookAppointmentPage.jsx';
-import MyAppointmentsPage from '../pages/patient/MyAppointmentsPage.jsx';
-import ReschedulePage from '../pages/patient/ReschedulePage.jsx';
 import { FindDoctorPage, PatientDoctorProfilePage } from '../pages/patient/FindDoctorPage.jsx';
-import DoctorProfilePage from '../pages/public/DoctorProfilePage.jsx';
-import DoctorsPage from '../pages/public/DoctorsPage.jsx';
-import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage.jsx';
 import LoginPage from '../pages/auth/LoginPage.jsx';
-import RegisterPage from '../pages/auth/RegisterPage.jsx';
-import ResetPasswordPage from '../pages/auth/ResetPasswordPage.jsx';
-import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
-import NotificationsPage from '../pages/common/NotificationsPage.jsx';
-import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
-import RemindersPage from '../pages/admin/RemindersPage.jsx';
-import AdminDashboardPage from '../pages/admin/AdminDashboardPage.jsx';
-import AuditLogPage from '../pages/admin/AuditLogPage.jsx';
-import HospitalSettingsPage from '../pages/admin/HospitalSettingsPage.jsx';
-import ReportsPage from '../pages/admin/ReportsPage.jsx';
-import BillingSummaryPage from '../pages/billing/BillingSummaryPage.jsx';
-import InvoiceListPage from '../pages/billing/InvoiceListPage.jsx';
-import InvoicePage from '../pages/billing/InvoicePage.jsx';
-import NewInvoicePage from '../pages/billing/NewInvoicePage.jsx';
-import DispensePage from '../pages/inventory/DispensePage.jsx';
-import DispensingListPage from '../pages/inventory/DispensingListPage.jsx';
-import DispensingRecordPage from '../pages/inventory/DispensingRecordPage.jsx';
-import InventoryAlertsPage from '../pages/inventory/InventoryAlertsPage.jsx';
-import MedicineDetailPage from '../pages/inventory/MedicineDetailPage.jsx';
-import MedicinesPage from '../pages/inventory/MedicinesPage.jsx';
-import StockLedgerPage from '../pages/inventory/StockLedgerPage.jsx';
-import DoctorLabOrderPage from '../pages/lab/DoctorLabOrderPage.jsx';
-import LabOrderListPage from '../pages/lab/LabOrderListPage.jsx';
-import PatientLabReportPage from '../pages/lab/PatientLabReportPage.jsx';
-import PatientDashboard from '../pages/patient/PatientDashboard.jsx';
-import PatientProfilePage from '../pages/patient/PatientProfilePage.jsx';
-import AboutPage from '../pages/public/AboutPage.jsx';
-import DepartmentsPage from '../pages/public/DepartmentsPage.jsx';
 import LandingPage from '../pages/public/LandingPage.jsx';
 import NotFoundPage from '../pages/public/NotFoundPage.jsx';
-import SystemStatusPage from '../pages/public/SystemStatusPage.jsx';
 import UnauthorizedPage from '../pages/public/UnauthorizedPage.jsx';
 import GuestRoute from './GuestRoute.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
+
+// Pages load on first visit (code splitting); the landing, login and error pages stay in the main bundle.
+const DepartmentsAdminPage = lazy(() => import('../pages/admin/DepartmentsAdminPage.jsx'));
+const DoctorFormPage = lazy(() => import('../pages/admin/DoctorFormPage.jsx'));
+const DoctorSchedulePage = lazy(() => import('../pages/admin/DoctorSchedulePage.jsx'));
+const LeaveApprovalsPage = lazy(() => import('../pages/admin/LeaveApprovalsPage.jsx'));
+const DoctorsAdminPage = lazy(() => import('../pages/admin/DoctorsAdminPage.jsx'));
+const PatientsAdminPage = lazy(() => import('../pages/admin/PatientsAdminPage.jsx'));
+const StaffAdminPage = lazy(() => import('../pages/admin/StaffAdminPage.jsx'));
+const UserManagementPage = lazy(() => import('../pages/admin/UserManagementPage.jsx'));
+const AvailabilityPage = lazy(() => import('../pages/doctor/AvailabilityPage.jsx'));
+const ConsultationPage = lazy(() => import('../pages/doctor/ConsultationPage.jsx'));
+const DayAppointmentsPage = lazy(() => import('../pages/reception/DayAppointmentsPage.jsx'));
+const PatientDirectoryPage = lazy(() => import('../pages/reception/PatientDirectoryPage.jsx'));
+const PrintConfirmationPage = lazy(() => import('../pages/reception/PrintConfirmationPage.jsx'));
+const QueuePage = lazy(() => import('../pages/reception/QueuePage.jsx'));
+const ReceptionBookPage = lazy(() => import('../pages/reception/ReceptionBookPage.jsx'));
+const ReceptionDashboard = lazy(() => import('../pages/reception/ReceptionDashboard.jsx'));
+const ReceptionPatientPage = lazy(() => import('../pages/reception/ReceptionPatientPage.jsx'));
+const RegisterWalkInPage = lazy(() => import('../pages/reception/RegisterWalkInPage.jsx'));
+const NewPrescriptionPage = lazy(() => import('../pages/doctor/NewPrescriptionPage.jsx'));
+const PrescriptionWorkspacePage = lazy(() => import('../pages/doctor/PrescriptionWorkspacePage.jsx'));
+const PatientPrescriptionPage = lazy(() => import('../pages/prescriptions/PatientPrescriptionPage.jsx'));
+const PrescriptionListPage = lazy(() => import('../pages/prescriptions/PrescriptionListPage.jsx'));
+const DoctorAppointmentsPage = lazy(() => import('../pages/doctor/DoctorAppointmentsPage.jsx'));
+const MyPatientsPage = lazy(() => import('../pages/doctor/MyPatientsPage.jsx'));
+const PatientRecordPage = lazy(() => import('../pages/doctor/PatientRecordPage.jsx'));
+const MedicalHistoryPage = lazy(() => import('../pages/patient/MedicalHistoryPage.jsx'));
+const DoctorDashboard = lazy(() => import('../pages/doctor/DoctorDashboard.jsx'));
+const DoctorOwnProfilePage = lazy(() => import('../pages/doctor/DoctorOwnProfilePage.jsx'));
+const AppointmentDetailPage = lazy(() => import('../pages/patient/AppointmentDetailPage.jsx'));
+const BookAppointmentPage = lazy(() => import('../pages/patient/BookAppointmentPage.jsx'));
+const MyAppointmentsPage = lazy(() => import('../pages/patient/MyAppointmentsPage.jsx'));
+const ReschedulePage = lazy(() => import('../pages/patient/ReschedulePage.jsx'));
+const DoctorProfilePage = lazy(() => import('../pages/public/DoctorProfilePage.jsx'));
+const DoctorsPage = lazy(() => import('../pages/public/DoctorsPage.jsx'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage.jsx'));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage.jsx'));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage.jsx'));
+const AccountSettingsPage = lazy(() => import('../pages/common/AccountSettingsPage.jsx'));
+const NotificationsPage = lazy(() => import('../pages/common/NotificationsPage.jsx'));
+const LabCatalogPage = lazy(() => import('../pages/admin/LabCatalogPage.jsx'));
+const RemindersPage = lazy(() => import('../pages/admin/RemindersPage.jsx'));
+const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage.jsx'));
+const AuditLogPage = lazy(() => import('../pages/admin/AuditLogPage.jsx'));
+const HospitalSettingsPage = lazy(() => import('../pages/admin/HospitalSettingsPage.jsx'));
+const ReportsPage = lazy(() => import('../pages/admin/ReportsPage.jsx'));
+const BillingSummaryPage = lazy(() => import('../pages/billing/BillingSummaryPage.jsx'));
+const InvoiceListPage = lazy(() => import('../pages/billing/InvoiceListPage.jsx'));
+const InvoicePage = lazy(() => import('../pages/billing/InvoicePage.jsx'));
+const NewInvoicePage = lazy(() => import('../pages/billing/NewInvoicePage.jsx'));
+const DispensePage = lazy(() => import('../pages/inventory/DispensePage.jsx'));
+const DispensingListPage = lazy(() => import('../pages/inventory/DispensingListPage.jsx'));
+const DispensingRecordPage = lazy(() => import('../pages/inventory/DispensingRecordPage.jsx'));
+const InventoryAlertsPage = lazy(() => import('../pages/inventory/InventoryAlertsPage.jsx'));
+const MedicineDetailPage = lazy(() => import('../pages/inventory/MedicineDetailPage.jsx'));
+const MedicinesPage = lazy(() => import('../pages/inventory/MedicinesPage.jsx'));
+const StockLedgerPage = lazy(() => import('../pages/inventory/StockLedgerPage.jsx'));
+const DoctorLabOrderPage = lazy(() => import('../pages/lab/DoctorLabOrderPage.jsx'));
+const LabOrderListPage = lazy(() => import('../pages/lab/LabOrderListPage.jsx'));
+const PatientLabReportPage = lazy(() => import('../pages/lab/PatientLabReportPage.jsx'));
+const PatientDashboard = lazy(() => import('../pages/patient/PatientDashboard.jsx'));
+const PatientProfilePage = lazy(() => import('../pages/patient/PatientProfilePage.jsx'));
+const AboutPage = lazy(() => import('../pages/public/AboutPage.jsx'));
+const DepartmentsPage = lazy(() => import('../pages/public/DepartmentsPage.jsx'));
+const SystemStatusPage = lazy(() => import('../pages/public/SystemStatusPage.jsx'));
 
 /**
  * Application routes.
@@ -80,6 +84,7 @@ import ProtectedRoute from './ProtectedRoute.jsx';
  */
 export default function AppRoutes() {
   return (
+    <Suspense fallback={<Spinner label="Loading page…" />}>
     <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<LandingPage />} />
@@ -191,5 +196,6 @@ export default function AppRoutes() {
 
 
     </Routes>
+    </Suspense>
   );
 }

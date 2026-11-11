@@ -81,7 +81,7 @@ export default function StaffAdminPage() {
         <Tabs label="Staff role" value={role} onChange={(r) => { setRole(r); setPage(0); }}
           tabs={STAFF_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))} />
         <div className="relative max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
           <TextField label="Search" placeholder="Name, e-mail or phone" value={searchInput}
             onChange={(e) => { setSearchInput(e.target.value); setPage(0); }} className="pl-9" />
         </div>
@@ -96,7 +96,7 @@ export default function StaffAdminPage() {
                   <div className="min-w-0">
                     <p className="font-medium text-slate-900">{s.fullName}</p>
                     <p className="text-sm text-slate-500">{s.email} · {s.phone}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">
                       {s.employeeCode || ROLE_LABEL[s.role]}
                       {' · '}Last login {formatDateTime(s.lastLoginAt)}
                     </p>

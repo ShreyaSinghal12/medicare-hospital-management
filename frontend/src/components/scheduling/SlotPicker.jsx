@@ -76,7 +76,7 @@ export default function SlotPicker({ doctorId, value, onChange, initialDate, ref
               <button key={d} type="button" aria-pressed={selected} aria-label={formatDateLong(d)}
                 onClick={() => setDate(d)}
                 className={`flex flex-col items-center rounded-lg border px-1 py-2 text-xs transition-colors ${
-                  selected ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-brand-300'
+                  selected ? 'border-brand-600 bg-brand-700 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-brand-300'
                 }`}>
                 <span className="font-medium">{dt.toLocaleDateString(undefined, { weekday: 'short' })}</span>
                 <span className="text-base font-semibold">{dt.getDate()}</span>
@@ -109,7 +109,7 @@ export default function SlotPicker({ doctorId, value, onChange, initialDate, ref
                     aria-label={`${start}${available ? '' : ` (${s.status.toLowerCase()})`}`}
                     onClick={() => onChange({ date, startTime: start, endTime: hhmm(s.endTime) })}
                     className={`rounded-lg border px-2 py-2 text-sm font-medium transition-colors ${
-                      selected ? 'border-brand-600 bg-brand-600 text-white'
+                      selected ? 'border-brand-600 bg-brand-700 text-white'
                         : available ? 'border-brand-200 bg-white text-brand-800 hover:bg-brand-50'
                           : 'cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300 line-through'
                     }`}>

@@ -147,7 +147,7 @@ export default function RegisterPage() {
         <label className="flex items-start gap-2 text-sm text-slate-600">
           <input
             type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
             aria-invalid={!!errors.consent}
             {...register('consent', { required: 'Please confirm to continue' })}
           />

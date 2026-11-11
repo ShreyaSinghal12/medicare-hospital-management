@@ -5,6 +5,7 @@ import SystemStatusCard from '../../components/SystemStatusCard.jsx';
 import Button from '../../components/ui/Button.jsx';
 import useApi from '../../hooks/useApi.js';
 import { getHospitalInfo } from '../../services/systemService.js';
+import PageHeading from '../../components/ui/PageHeading.jsx';
 
 const FEATURES = [
   { icon: CalendarCheck, title: 'Smart scheduling', text: 'Slots generated from doctor schedules, with conflict-free booking even under simultaneous requests.' },
@@ -28,9 +29,9 @@ export default function LandingPage() {
             <p className="text-sm font-semibold uppercase tracking-wide text-brand-700">
               {info?.hospitalName || 'MediCare'}
             </p>
-            <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            <PageHeading title={'Welcome'} className="mt-2 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               Smart, connected care for your clinic.
-            </h1>
+            </PageHeading>
             <p className="mt-4 text-lg text-slate-600">
               MediCare brings appointments, consultations, prescriptions, laboratory, pharmacy and billing
               into one secure web application for patients, doctors and hospital staff.
@@ -48,7 +49,7 @@ export default function LandingPage() {
                   {d.name}
                 </li>
               ))}
-              {!info && <li className="col-span-2 text-sm text-slate-400">Loading departments…</li>}
+              {!info && <li className="col-span-2 text-sm text-slate-500">Loading departments…</li>}
             </ul>
           </div>
         </div>
@@ -59,7 +60,7 @@ export default function LandingPage() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ icon: Icon, title, text }) => (
             <div key={title} className="rounded-xl border border-slate-200 bg-white p-5">
-              <Icon className="h-6 w-6 text-brand-600" aria-hidden="true" />
+              <Icon className="h-6 w-6 text-brand-700" aria-hidden="true" />
               <h3 className="mt-3 font-semibold text-slate-900">{title}</h3>
               <p className="mt-1 text-sm text-slate-600">{text}</p>
             </div>

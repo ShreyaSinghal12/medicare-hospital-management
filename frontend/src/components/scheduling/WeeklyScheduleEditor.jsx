@@ -91,7 +91,7 @@ export default function WeeklyScheduleEditor({ schedule, onSave }) {
                   <th scope="row" className="px-5 py-2 text-left font-medium text-slate-800">{day}</th>
                   <td className="px-2 py-2">
                     <input type="checkbox" checked={r.working} aria-label={`${day} working`}
-                      onChange={(e) => update(i, { working: e.target.checked })} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                      onChange={(e) => update(i, { working: e.target.checked })} className="h-4 w-4 rounded border-slate-300 text-brand-700" />
                   </td>
                   {['startTime', 'endTime', 'breakStart', 'breakEnd'].map((f) => (
                     <td key={f} className="px-2 py-2 last:pr-5">

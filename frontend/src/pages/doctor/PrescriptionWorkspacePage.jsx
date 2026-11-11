@@ -127,7 +127,7 @@ export default function PrescriptionWorkspacePage() {
                   Version {v.versionNumber}
                 </Link>
                 <span className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">{formatDateTime(v.finalizedAt || v.createdAt)}</span>
+                  <span className="text-xs text-slate-500">{formatDateTime(v.finalizedAt || v.createdAt)}</span>
                   <PrescriptionStatusBadge status={v.status} />
                 </span>
               </li>

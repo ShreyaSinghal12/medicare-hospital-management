@@ -132,7 +132,7 @@ export default function AllergiesConditionsPanel({ patientId, allergies, conditi
             <li key={c.id} className="flex items-start justify-between gap-2 text-sm">
               <div>
                 <p className="flex items-center gap-1.5 font-medium text-slate-900">
-                  <HeartPulse className="h-4 w-4 text-brand-600" aria-hidden="true" /> {c.conditionName}
+                  <HeartPulse className="h-4 w-4 text-brand-700" aria-hidden="true" /> {c.conditionName}
                   <StatusBadge tone={CONDITION_TONE[c.status]}>{c.status.toLowerCase()}</StatusBadge>
                 </p>
                 {(c.diagnosedOn || c.notes) && <p className="text-slate-500">{[c.diagnosedOn, c.notes].filter(Boolean).join(' · ')}</p>}

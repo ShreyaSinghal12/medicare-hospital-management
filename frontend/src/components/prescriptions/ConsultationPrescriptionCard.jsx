@@ -13,7 +13,7 @@ export default function ConsultationPrescriptionCard({ consultationId, canWrite 
   const active = (data || []).filter((p) => p.status !== 'SUPERSEDED');
 
   return (
-    <Card title="Prescription" actions={<Pill className="h-5 w-5 text-brand-600" aria-hidden="true" />}>
+    <Card title="Prescription" actions={<Pill className="h-5 w-5 text-brand-700" aria-hidden="true" />}>
       {loading && <Spinner />}
       {data && active.length === 0 && (
         canWrite

@@ -109,7 +109,7 @@ export default function NewInvoicePage() {
                   {charges.map((c) => (
                     <li key={key(c)}>
                       <label className="flex cursor-pointer items-start gap-3 py-2 text-sm">
-                        <input type="checkbox" checked={selected.has(key(c))} onChange={() => toggle(c)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600" />
+                        <input type="checkbox" checked={selected.has(key(c))} onChange={() => toggle(c)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700" />
                         <span className="flex-1">
                           <span className="text-slate-900">{c.description}{c.quantity > 1 ? ` × ${c.quantity}` : ''}</span>
                           <span className="block text-xs text-slate-500">{ITEM_TYPES[c.type]} · {c.source} · {formatDateShort(c.serviceDate)}</span>

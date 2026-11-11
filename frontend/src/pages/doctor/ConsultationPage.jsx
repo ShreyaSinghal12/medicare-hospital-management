@@ -157,7 +157,7 @@ export default function ConsultationPage() {
                 {amendments.data.map((a) => (
                   <li key={a.id} className="rounded-lg border border-slate-200 p-3 text-sm">
                     <p className="flex items-center gap-2 font-medium text-slate-900">
-                      <FileClock className="h-4 w-4 text-slate-400" aria-hidden="true" /> {formatDateTime(a.amendedAt)} · {a.amendedBy}
+                      <FileClock className="h-4 w-4 text-slate-500" aria-hidden="true" /> {formatDateTime(a.amendedAt)} · {a.amendedBy}
                     </p>
                     <p className="mt-1 text-slate-600">Reason: {a.reason}</p>
                     <details className="mt-2">

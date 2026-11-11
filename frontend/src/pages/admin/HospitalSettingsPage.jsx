@@ -81,7 +81,7 @@ function SettingsForm({ settings, onSaved }) {
           <TextField label="Reminder lead time (hours)" type="number" required error={errors.reminderHoursBefore?.message}
             {...register('reminderHoursBefore', num(1, 168))} />
           <label className="flex items-center gap-2 self-end pb-2 text-sm text-slate-800 sm:col-span-2">
-            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-600" {...register('emailRemindersEnabled')} />
+            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-700" {...register('emailRemindersEnabled')} />
             Also e-mail reminders
           </label>
         </div>

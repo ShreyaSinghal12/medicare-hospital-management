@@ -56,7 +56,7 @@ export default function MyAppointmentsPage() {
                       {a.doctorName}
                     </Link>
                     <p className="text-sm text-slate-500">{a.specialization} · {formatDateShort(a.date)} {hhmm(a.startTime)}–{hhmm(a.endTime)}</p>
-                    <p className="text-xs text-slate-400">{a.referenceNo}</p>
+                    <p className="text-xs text-slate-500">{a.referenceNo}</p>
                     <div className="mt-1"><AppointmentStatusBadge status={a.status} needsReschedule={a.needsReschedule} /></div>
                   </div>
                 </div>

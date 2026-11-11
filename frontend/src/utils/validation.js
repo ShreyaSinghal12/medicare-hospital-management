@@ -1,3 +1,5 @@
+import { hospitalNow } from './hospitalTime.js';
+
 /** Client-side rules mirroring the backend (the backend remains the source of truth). */
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const PHONE_PATTERN = /^\+?[0-9 ()-]{7,20}$/;
@@ -27,7 +29,7 @@ export const GENDERS = [
   { value: 'PREFER_NOT_TO_SAY', label: 'Prefer not to say' },
 ];
 
+/** Today in the hospital's time zone (used e.g. as the latest allowed date of birth). */
 export function todayIso() {
-  const d = new Date();
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  return hospitalNow().date;
 }

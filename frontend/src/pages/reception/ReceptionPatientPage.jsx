@@ -73,7 +73,7 @@ export default function ReceptionPatientPage() {
               <div key={k}><dt className="text-slate-500">{k}</dt><dd className="font-medium text-slate-900">{v || '—'}</dd></div>
             ))}
           </dl>
-          <p className="mt-3 text-xs text-slate-400">Name or date-of-birth corrections are made by an administrator.</p>
+          <p className="mt-3 text-xs text-slate-500">Name or date-of-birth corrections are made by an administrator.</p>
         </Card>
         <div className="lg:col-span-2">
           <Card title="Appointments">

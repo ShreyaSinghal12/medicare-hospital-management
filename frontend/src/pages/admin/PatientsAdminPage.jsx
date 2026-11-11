@@ -77,7 +77,7 @@ function PatientRow({ p, onEdit }) {
       <div className="min-w-0">
         <p className="font-medium text-slate-900">{p.fullName} <span className="text-sm font-normal text-slate-500">· {p.patientCode}</span></p>
         <p className="text-sm text-slate-500">{p.email} · {p.phone}</p>
-        <p className="text-xs text-slate-400">Born {p.dateOfBirth} ({p.age} yrs)</p>
+        <p className="text-xs text-slate-500">Born {p.dateOfBirth} ({p.age} yrs)</p>
       </div>
       <div className="flex items-center gap-2">
         <StatusBadge tone={p.active ? 'green' : 'slate'}>{p.active ? 'Active' : 'Inactive'}</StatusBadge>
@@ -119,7 +119,7 @@ export default function PatientsAdminPage() {
         {tab === 'directory' && (
           <>
             <div className="relative max-w-md">
-              <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+              <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
               <TextField label="Search" placeholder="Name, e-mail, phone or patient ID" value={searchInput}
                 onChange={(e) => { setSearchInput(e.target.value); setPage(0); }} className="pl-9" />
             </div>

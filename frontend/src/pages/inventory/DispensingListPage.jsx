@@ -25,7 +25,7 @@ export default function DispensingListPage() {
       <PageHeader title="Dispensing records" actions={<Button to="/admin/dispensing/new">Dispense medicines</Button>} />
       <Card>
         <div className="relative max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
           <TextField label="Search" placeholder="DSP or RX number, patient name or ID" value={input} className="pl-9"
             onChange={(e) => { setInput(e.target.value); setPage(0); }} />
         </div>

@@ -101,7 +101,7 @@ export default function PatientDashboard() {
                 [Droplet, 'Blood group', profile.bloodGroup || '—'],
               ].map(([Icon, label, value]) => (
                 <li key={label} className="flex items-center gap-3">
-                  <Icon className="h-4 w-4 text-brand-600" aria-hidden="true" />
+                  <Icon className="h-4 w-4 text-brand-700" aria-hidden="true" />
                   <span className="text-slate-500">{label}</span>
                   <span className="ml-auto font-semibold text-slate-900">{value}</span>
                 </li>

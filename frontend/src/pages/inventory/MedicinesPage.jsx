@@ -38,7 +38,7 @@ export default function MedicinesPage() {
       <Card>
         <div className="grid gap-3 sm:grid-cols-[1fr_12rem_auto] sm:items-end">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
             <TextField label="Search" placeholder="Name, generic name or manufacturer" value={input} className="pl-9"
               onChange={(e) => { setInput(e.target.value); setPage(0); }} />
           </div>
@@ -46,7 +46,7 @@ export default function MedicinesPage() {
             options={MEDICINE_CATEGORIES.map((c) => ({ value: c, label: titleCase(c) }))} />
           <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
             <input type="checkbox" checked={inactive} onChange={(e) => { setInactive(e.target.checked); setPage(0); }}
-              className="h-4 w-4 rounded border-slate-300 text-brand-600" /> Show inactive
+              className="h-4 w-4 rounded border-slate-300 text-brand-700" /> Show inactive
           </label>
         </div>
         <div className="mt-5">

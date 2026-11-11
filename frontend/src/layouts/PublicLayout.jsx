@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { Suspense } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import Spinner from '../components/ui/Spinner.jsx';
+import { PageFocusContext, useNavigationCounter } from '../context/PageFocusContext.jsx';
 import { Menu, Plus, X } from 'lucide-react';
 import Button from '../components/ui/Button.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -22,11 +25,11 @@ function navClass({ isActive }) {
 export function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2" aria-label="MediCare home">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-700 text-white">
         <Plus className="h-5 w-5" strokeWidth={3} aria-hidden="true" />
       </span>
       <span className="text-lg font-bold tracking-tight text-slate-900">
-        Medi<span className="text-brand-600">Care</span>
+        Medi<span className="text-brand-700">Care</span>
       </span>
     </Link>
   );
@@ -48,6 +51,7 @@ function AuthButtons({ onNavigate }) {
 
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
+  const navigationCount = useNavigationCounter();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -99,7 +103,11 @@ export default function PublicLayout() {
       </header>
 
       <main id="main" className="flex-1">
-        <Outlet />
+        <PageFocusContext.Provider value={navigationCount}>
+          <Suspense fallback={<Spinner label="Loading page…" />}>
+            <Outlet />
+          </Suspense>
+        </PageFocusContext.Provider>
       </main>
 
       <footer className="border-t border-slate-200 bg-white">

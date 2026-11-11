@@ -92,7 +92,7 @@ export default function DepartmentsAdminPage() {
                     <StatusBadge tone={d.active ? 'green' : 'slate'}>{d.active ? 'Active' : 'Inactive'}</StatusBadge>
                   </div>
                   <p className="text-sm text-slate-500">{d.description || 'No description'}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{d.activeDoctorCount} active doctor(s)</p>
+                  <p className="mt-0.5 text-xs text-slate-500">{d.activeDoctorCount} active doctor(s)</p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="secondary" size="sm" onClick={() => setEditing(d)} aria-label={`Edit ${d.name}`}>

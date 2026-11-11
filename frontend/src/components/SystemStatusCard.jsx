@@ -44,7 +44,7 @@ export default function SystemStatusCard() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Server className="h-4 w-4 text-brand-600" aria-hidden="true" /> Java backend
+              <Server className="h-4 w-4 text-brand-700" aria-hidden="true" /> Java backend
               <StatusBadge tone="green">UP</StatusBadge>
             </h3>
             <dl className="divide-y divide-slate-100">
@@ -56,7 +56,7 @@ export default function SystemStatusCard() {
           </div>
           <div>
             <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Database className="h-4 w-4 text-brand-600" aria-hidden="true" /> MySQL database
+              <Database className="h-4 w-4 text-brand-700" aria-hidden="true" /> MySQL database
               <StatusBadge tone={data.database?.status === 'UP' ? 'green' : 'red'}>
                 {data.database?.status ?? 'UNKNOWN'}
               </StatusBadge>

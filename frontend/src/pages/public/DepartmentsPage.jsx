@@ -5,6 +5,7 @@ import ErrorState from '../../components/ui/ErrorState.jsx';
 import Spinner from '../../components/ui/Spinner.jsx';
 import useApi from '../../hooks/useApi.js';
 import { getPublicDepartments } from '../../services/doctorService.js';
+import PageHeading from '../../components/ui/PageHeading.jsx';
 
 export default function DepartmentsPage() {
   const { data, loading, error, reload } = useApi(getPublicDepartments);
@@ -12,7 +13,7 @@ export default function DepartmentsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-slate-900">Departments</h1>
+      <PageHeading title={'Departments'} className="text-3xl font-bold text-slate-900">Departments</PageHeading>
       <p className="mt-2 text-slate-600">Specialist care available at our hospital.</p>
 
       <div className="mt-8">
@@ -25,7 +26,7 @@ export default function DepartmentsPage() {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {departments.map((d) => (
               <li key={d.id} className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <Building2 className="h-6 w-6 text-brand-600" aria-hidden="true" />
+                <Building2 className="h-6 w-6 text-brand-700" aria-hidden="true" />
                 <h2 className="mt-3 font-semibold text-slate-900">{d.name}</h2>
                 <p className="mt-1 flex-1 text-sm text-slate-600">{d.description}</p>
                 <div className="mt-4 flex items-center justify-between text-sm">

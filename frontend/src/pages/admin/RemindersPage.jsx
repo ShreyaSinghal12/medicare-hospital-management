@@ -38,7 +38,7 @@ function SettingsForm({ settings, onSaved }) {
           {...register('reminderHoursBefore', { required: 'Required', min: { value: 1, message: 'At least 1 hour' }, max: { value: 168, message: 'At most 168 hours (7 days)' } })} />
       </div>
       <label className="flex items-start gap-3 text-sm text-slate-800">
-        <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600" {...register('emailRemindersEnabled')} />
+        <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700" {...register('emailRemindersEnabled')} />
         <span>Also e-mail reminders<span className="block text-xs text-slate-500">Patients can still switch reminder e-mails off for themselves. In-app reminders are always sent.</span></span>
       </label>
       <Button type="submit" loading={isSubmitting} disabled={!isDirty}>Save settings</Button>

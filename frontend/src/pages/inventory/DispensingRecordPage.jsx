@@ -7,6 +7,7 @@ import useApi from '../../hooks/useApi.js';
 import { getDispensing } from '../../services/inventoryService.js';
 import { formatDateShort } from '../../utils/dates.js';
 import { formatCurrency, formatDateTime } from '../../utils/format.js';
+import PageHeading from '../../components/ui/PageHeading.jsx';
 
 /** A dispensing record, printable as a slip for the patient. */
 export default function DispensingRecordPage() {
@@ -23,7 +24,7 @@ export default function DispensingRecordPage() {
         <Button onClick={() => window.print()}><Printer className="h-4 w-4" aria-hidden="true" /> Print</Button>
       </div>
       <article className="mx-auto max-w-2xl rounded-xl border border-slate-300 bg-white p-6 print:border-0 print:p-0">
-        <h1 className="text-lg font-semibold text-slate-900">Dispensing record {d.dispensingNo}</h1>
+        <PageHeading title={`Dispensing record ${d.dispensingNo}`} className="text-lg font-semibold text-slate-900">Dispensing record {d.dispensingNo}</PageHeading>
         <dl className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
           <div><dt className="inline text-slate-500">Patient: </dt><dd className="inline">{d.patientName} ({d.patientCode})</dd></div>
           <div><dt className="inline text-slate-500">Prescription: </dt><dd className="inline">{d.prescriptionNo}</dd></div>

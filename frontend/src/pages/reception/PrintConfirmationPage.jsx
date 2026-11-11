@@ -8,6 +8,7 @@ import { getAppointment } from '../../services/appointmentService.js';
 import { getHospitalInfo } from '../../services/systemService.js';
 import { formatDateLong, hhmm } from '../../utils/dates.js';
 import { formatCurrency } from '../../utils/format.js';
+import PageHeading from '../../components/ui/PageHeading.jsx';
 
 /** Printable appointment confirmation slip (no clinical information). */
 export default function PrintConfirmationPage() {
@@ -25,7 +26,7 @@ export default function PrintConfirmationPage() {
         <Button onClick={() => window.print()}><Printer className="h-4 w-4" aria-hidden="true" /> Print</Button>
       </div>
       <article className="mx-auto max-w-lg rounded-xl border border-slate-300 bg-white p-8 print:border-0 print:p-0">
-        <h1 className="text-xl font-bold text-brand-700">{hospital.data?.hospitalName || 'MediCare'}</h1>
+        <PageHeading title={'Appointment confirmation'} className="text-xl font-bold text-brand-700">{hospital.data?.hospitalName || 'MediCare'}</PageHeading>
         <p className="text-xs text-slate-500">{hospital.data?.address} · {hospital.data?.phone}</p>
         <h2 className="mt-6 text-lg font-semibold text-slate-900">Appointment confirmation</h2>
         <dl className="mt-4 grid grid-cols-[9rem_1fr] gap-y-2 text-sm">

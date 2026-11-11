@@ -1,4 +1,5 @@
 /** Date helpers working with ISO "YYYY-MM-DD" strings (no time-zone shifting). */
+import { hospitalNow } from './hospitalTime.js';
 
 export const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -14,8 +15,9 @@ export function parseIsoDate(iso) {
   return new Date(y, m - 1, d);
 }
 
+/** Today's date in the hospital's time zone. */
 export function todayIsoLocal() {
-  return toIsoDate(new Date());
+  return hospitalNow().date;
 }
 
 export function addDaysIso(iso, days) {

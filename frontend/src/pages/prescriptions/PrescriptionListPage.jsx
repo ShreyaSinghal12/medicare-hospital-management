@@ -47,7 +47,7 @@ export default function PrescriptionListPage({ mode }) {
       <Card>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_10rem_10rem_12rem]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
             <TextField label="Search" placeholder={patient ? 'Medicine, doctor or RX number' : 'Medicine, patient or RX number'}
               value={input} className="pl-9" onChange={resetPage(setInput)} />
           </div>
@@ -63,7 +63,7 @@ export default function PrescriptionListPage({ mode }) {
         </div>
         {patient && (
           <label className="mt-3 flex items-center gap-2 text-sm text-slate-600">
-            <input type="checkbox" checked={showOld} onChange={resetPage(setShowOld)} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+            <input type="checkbox" checked={showOld} onChange={resetPage(setShowOld)} className="h-4 w-4 rounded border-slate-300 text-brand-700" />
             Include superseded versions
           </label>
         )}

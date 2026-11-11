@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
             {PRESETS.map(([n, text]) => (
               <button key={n} type="button" aria-pressed={preset === n}
                 onClick={() => { setTo(today); setFrom(addDaysIso(today, -(n - 1))); }}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${preset === n ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${preset === n ? 'bg-brand-700 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
                 {text}
               </button>
             ))}
@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
                             <td className="py-2 pr-3 text-slate-600">{w.department}</td>
                             <td className="py-2 pr-3">
                               <div className="flex items-center justify-end gap-2">
-                                <span className="h-2 rounded-full bg-brand-600" style={{ width: `${Math.max(4, (w.total / max) * 96)}px` }} aria-hidden="true" />
+                                <span className="h-2 rounded-full bg-brand-700" style={{ width: `${Math.max(4, (w.total / max) * 96)}px` }} aria-hidden="true" />
                                 <span className="w-8 text-right">{w.total}</span>
                               </div>
                             </td>

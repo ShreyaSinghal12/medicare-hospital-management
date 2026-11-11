@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, X } from 'lucide-react';
+import { Suspense, useEffect, useState } from 'react';
+import { matchPath, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, LogOut, Menu, X } from 'lucide-react';
 import { toast } from 'sonner';
 import NotificationBell from '../components/NotificationBell.jsx';
+import Spinner from '../components/ui/Spinner.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { PageFocusContext, useNavigationCounter } from '../context/PageFocusContext.jsx';
+import { hospitalTimeZone } from '../utils/hospitalTime.js';
 import { ROLE_LABEL } from '../utils/roles.js';
 import { NAVIGATION } from './navigation.js';
 import { Logo } from './PublicLayout.jsx';
@@ -18,16 +21,55 @@ function initials(name = '') {
     .join('');
 }
 
-/** Authenticated shell: responsive sidebar (role-specific links) + top bar. */
+const COLLAPSED_KEY = 'medicare.nav.collapsed';
+
+function readCollapsed() {
+  try {
+    return JSON.parse(localStorage.getItem(COLLAPSED_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function NavItem({ to, label, icon: Icon, end }) {
+  return (
+    <li>
+      <NavLink to={to} end={end}
+        className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
+          isActive ? 'bg-brand-50 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {label}
+      </NavLink>
+    </li>
+  );
+}
+
+/** Authenticated shell: responsive sidebar with grouped, role-specific links + top bar. */
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const items = NAVIGATION[user.role] || [];
-
+  const sections = NAVIGATION[user.role] || [];
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const navigationCount = useNavigationCounter();
   useEffect(() => setSidebarOpen(false), [location.pathname]);
+
+  function toggleSection(title) {
+    setCollapsed((c) => {
+      const next = c.includes(title) ? c.filter((t) => t !== title) : [...c, title];
+      try {
+        localStorage.setItem(COLLAPSED_KEY, JSON.stringify(next));
+      } catch {
+        // storage unavailable: the choice lasts for this page only
+      }
+      return next;
+    });
+  }
+
+  const holdsCurrentPage = (section) => section.items.some((i) => matchPath({ path: i.to, end: !!i.end }, location.pathname)
+    || (!i.end && location.pathname.startsWith(`${i.to}/`)));
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -47,27 +89,27 @@ export default function DashboardLayout() {
       <div className="flex h-16 items-center border-b border-slate-200 px-5">
         <Logo />
       </div>
-      <p className="px-5 pt-5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+      <p className="px-5 pt-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
         {ROLE_LABEL[user.role]}
       </p>
-      <ul className="mt-2 flex-1 space-y-1 px-3">
-        {items.map(({ to, label, icon: Icon, end }) => (
-          <li key={to}>
-            <NavLink
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'bg-brand-50 text-brand-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                }`
-              }
-            >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {label}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-2 flex-1 overflow-y-auto px-3 pb-3">
+        {sections.map((section, i) => {
+          const open = !section.title || !collapsed.includes(section.title) || holdsCurrentPage(section);
+          const listId = `nav-section-${i}`;
+          return (
+            <div key={section.title || i} className={i > 0 ? 'mt-3' : ''}>
+              {section.title && (
+                <button type="button" aria-expanded={open} aria-controls={listId} onClick={() => toggleSection(section.title)}
+                  className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-slate-700">
+                  {section.title}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? '' : '-rotate-90'}`} aria-hidden="true" />
+                </button>
+              )}
+              {open && <ul id={listId} className="mt-1 space-y-1">{section.items.map((item) => <NavItem key={item.to} {...item} />)}</ul>}
+            </div>
+          );
+        })}
+      </div>
       <div className="border-t border-slate-200 p-3">
         <button
           type="button"
@@ -84,11 +126,11 @@ export default function DashboardLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       <a href="#dashboard-main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">
-        Skip to content
+        Skip to main content
       </a>
 
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white lg:block" aria-label="Sidebar">
         {sidebar}
       </aside>
 
@@ -124,7 +166,7 @@ export default function DashboardLayout() {
           <NotificationBell />
           <div className="flex items-center gap-3">
             <span
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white"
               aria-hidden="true"
             >
               {initials(user.fullName)}
@@ -136,7 +178,12 @@ export default function DashboardLayout() {
           </div>
         </header>
         <main id="dashboard-main" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
-          <Outlet />
+          <PageFocusContext.Provider value={navigationCount}>
+            <Suspense fallback={<Spinner label="Loading page…" />}>
+              <Outlet />
+            </Suspense>
+          </PageFocusContext.Provider>
+          <p className="mt-10 text-center text-xs text-slate-500">Dates and times are shown in hospital time ({hospitalTimeZone()}).</p>
         </main>
       </div>
     </div>

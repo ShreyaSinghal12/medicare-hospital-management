@@ -25,7 +25,7 @@ export default function PatientDirectoryPage() {
         actions={<Button to="/reception/patients/new"><UserPlus className="h-4 w-4" aria-hidden="true" /> Register walk-in</Button>} />
       <Card>
         <div className="relative max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
           <TextField label="Search" placeholder="Name, phone, e-mail or patient ID" value={input} className="pl-9"
             onChange={(e) => { setInput(e.target.value); setPage(0); }} />
         </div>

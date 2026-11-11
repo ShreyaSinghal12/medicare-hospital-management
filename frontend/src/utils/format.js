@@ -1,11 +1,13 @@
-/** Formats an ISO timestamp for display in the user's locale. */
-export function formatDateTime(iso, timeZone) {
+import { hospitalTimeZone } from './hospitalTime.js';
+
+/** Formats an ISO timestamp in the user's locale, in the hospital's time zone unless another zone is given. */
+export function formatDateTime(iso, timeZone = hospitalTimeZone()) {
   if (!iso) return '—';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '—';
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
-    timeStyle: 'medium',
+    timeStyle: 'short',
     ...(timeZone ? { timeZone } : {}),
   }).format(date);
 }

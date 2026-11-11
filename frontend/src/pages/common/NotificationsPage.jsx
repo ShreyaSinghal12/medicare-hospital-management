@@ -81,7 +81,7 @@ export default function NotificationsPage() {
                 setPage(0);
               }}
               className={`rounded-full px-3 py-1 text-sm font-medium ${
-                unreadOnly === f.value ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                unreadOnly === f.value ? 'bg-brand-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {f.label}
@@ -104,7 +104,7 @@ export default function NotificationsPage() {
                     {!n.read && <StatusBadge tone="blue">New</StatusBadge>}
                   </div>
                   <p className="mt-0.5 text-sm text-slate-600">{n.message}</p>
-                  <p className="mt-1 text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
+                  <p className="mt-1 text-xs text-slate-500">{formatDateTime(n.createdAt)}</p>
                   {n.link && (
                     <Link to={n.link} className="mt-1 inline-block text-sm font-medium text-brand-700 hover:underline">
                       Open

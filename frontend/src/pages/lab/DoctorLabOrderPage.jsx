@@ -162,7 +162,7 @@ export default function DoctorLabOrderPage() {
             )}
           </Card>
 
-          <Card title="Report (PDF)" actions={<FileText className="h-5 w-5 text-brand-600" aria-hidden="true" />}>
+          <Card title="Report (PDF)" actions={<FileText className="h-5 w-5 text-brand-700" aria-hidden="true" />}>
             {order.report ? (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 p-3 text-sm">
                 <div>

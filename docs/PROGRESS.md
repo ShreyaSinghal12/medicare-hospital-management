@@ -16,7 +16,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 10 | Billing (receptionists): invoices from unbilled consultations, lab tests and dispensed medicines at recorded prices, extra items, discount with reason, tax; payments (cash / simulated UPI, card, bank transfer with reference only), refunds as credits, cancellation releasing charges; invoice PDF; patient invoices and notifications; admin billing summary | ✅ | 133 backend tests (incl. simultaneous payments), 73 Vitest tests, 8-step Playwright run on the real stack |
 | 11 | Notifications and reminders: per-category e-mail preferences (security always on), scheduled appointment and follow-up reminders (once-only claim, quiet hours, inactive/late bookings skipped), admin reminder settings, run-now and log, next-free-slot hints on cancellation and reschedule messages | ✅ | 139 backend tests, 75 Vitest tests, 8-step Playwright run on the real stack |
 | 12 | Administration: dashboard with charts (appointments, workload, revenue, lab, stock, outstanding), hospital settings with audited changes, reports (appointments, payments, invoices, lab workload, stock, audit) as preview/CSV/PDF, audit log viewer | ✅ | 146 backend tests, 80 Vitest tests, 5-step Playwright run on the real stack |
-| 13 | UI polish & accessibility | ⬜ | |
+| 13 | UI polish and accessibility: hospital time zone across the frontend, grouped collapsible navigation, route-level code splitting (main bundle 680 → 360 kB), focus on page heading and document titles after navigation, contrast fixes, valid list/heading markup | ✅ | 85 Vitest tests; axe-core scan of 52 pages + 6 interactive states with 0 violations; keyboard checks; Playwright check with the device in UTC−11 |
 | 14 | Testing, deployment & documentation package (SRS, diagrams, viva Q&A) | ⬜ | |
 
 ## Feature-completion checklist (Definition of Done)
@@ -198,3 +198,16 @@ A feature is ticked only when **all** of these hold:
   the axis now keeps one decimal below ₹10k (unit-tested). The appointments line was smoothed, which suggested
   values between days, so it now uses straight segments. Chart animation is off, so screenshots and users who prefer
   reduced motion see the final chart straight away.
+
+## Phase 13 notes
+
+* No backend changes.
+* **Accessibility findings from the axe-core scan, all fixed:**
+  * contrast: white on brand-600 and grey slate-400 text were below 4.5:1 on all 52 pages;
+  * heading order: the doctor week calendar skipped from h1 to h3;
+  * the doctor profile's definition list had invalid markup.
+* The scanner ran from the scratch folder (axe-core 4.10.3 injected into Playwright). Phase 14 turns these scripts
+  into the project's Playwright test suite.
+* The placeholder staff home page was removed in Phase 12; there is now one `PageHeading` used for every h1.
+* The time-zone check opened the reception pages with the device set to UTC−11 (still the day before): "today"
+  and all timestamps followed hospital time.

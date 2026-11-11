@@ -18,13 +18,11 @@ import useApi from '../../hooks/useApi.js';
 import { markNoShow } from '../../services/appointmentService.js';
 import { searchDoctors } from '../../services/doctorService.js';
 import { checkIn, getDayAppointments } from '../../services/receptionService.js';
-import { addDaysIso, formatDateLong, hhmm, parseIsoDate, todayIsoLocal } from '../../utils/dates.js';
+import { addDaysIso, formatDateLong, hhmm, todayIsoLocal } from '../../utils/dates.js';
+import { hasStarted } from '../../utils/hospitalTime.js';
 
 function started(a) {
-  const d = parseIsoDate(a.date);
-  const [h, m] = a.startTime.split(':').map(Number);
-  d.setHours(h, m);
-  return d < new Date();
+  return hasStarted(a.date, a.startTime);
 }
 
 /** Daily calendar for the front desk with check-in, reschedule, cancel, no-show and print. */

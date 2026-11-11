@@ -59,7 +59,7 @@ export default function OrderLabTestsDialog({ consultationId, open, onClose }) {
       {catalog.data && (
         <div className="space-y-4">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
             <TextField label="Filter tests" placeholder="Name or code" value={filter} className="pl-9" onChange={(e) => setFilter(e.target.value)} />
           </div>
           <fieldset>
@@ -70,7 +70,7 @@ export default function OrderLabTestsDialog({ consultationId, open, onClose }) {
                 <li key={t.id}>
                   <label className="flex cursor-pointer items-start gap-3 p-3 text-sm hover:bg-slate-50">
                     <input type="checkbox" checked={selected.includes(t.id)} onChange={() => toggle(t.id)}
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600" />
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700" />
                     <span className="flex-1">
                       <span className="font-medium text-slate-900">{t.name}</span> <span className="text-slate-500">· {t.code}</span>
                       <span className="block text-xs text-slate-500">{t.sampleType || 'No sample'} · about {t.turnaroundHours} h</span>

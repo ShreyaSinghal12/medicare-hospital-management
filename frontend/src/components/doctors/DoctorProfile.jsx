@@ -12,6 +12,7 @@ import { formatCurrency } from '../../utils/format.js';
 import Card from '../ui/Card.jsx';
 import ErrorState from '../ui/ErrorState.jsx';
 import Spinner from '../ui/Spinner.jsx';
+import PageHeading from '../ui/PageHeading.jsx';
 
 /** Doctor profile with weekly hours and a live slot picker that leads into booking. */
 export default function DoctorProfile({ backTo, backLabel = 'Back to doctors' }) {
@@ -42,7 +43,7 @@ export default function DoctorProfile({ backTo, backLabel = 'Back to doctors' })
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Card>
-                <h1 className="text-2xl font-bold text-slate-900">{doctor.fullName}</h1>
+                <PageHeading title={doctor.fullName} className="text-2xl font-bold text-slate-900">{doctor.fullName}</PageHeading>
                 <p className="mt-1 font-medium text-brand-700">{doctor.specialization}</p>
                 <dl className="mt-6 grid gap-4 sm:grid-cols-2">
                   {[
@@ -51,12 +52,11 @@ export default function DoctorProfile({ backTo, backLabel = 'Back to doctors' })
                     { icon: Award, label: 'Experience', value: `${doctor.experienceYears} years` },
                     { icon: Clock, label: 'Consultation length', value: `${doctor.slotDurationMinutes} minutes` },
                   ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="flex gap-3">
-                      <Icon className="mt-0.5 h-5 w-5 text-brand-600" aria-hidden="true" />
-                      <div>
-                        <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
-                        <dd className="text-sm text-slate-900">{value}</dd>
-                      </div>
+                    <div key={label}>
+                      <dt className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+                        <Icon className="h-5 w-5 text-brand-700" aria-hidden="true" /> {label}
+                      </dt>
+                      <dd className="pl-7 text-sm text-slate-900">{value}</dd>
                     </div>
                   ))}
                 </dl>

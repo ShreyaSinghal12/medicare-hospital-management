@@ -15,7 +15,7 @@ export default function ConsultationLabCard({ consultationId, canOrder }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Card title="Lab tests" actions={<FlaskConical className="h-5 w-5 text-brand-600" aria-hidden="true" />}>
+    <Card title="Lab tests" actions={<FlaskConical className="h-5 w-5 text-brand-700" aria-hidden="true" />}>
       {loading && <Spinner />}
       {data && data.length === 0 && <p className="mb-3 text-sm text-slate-500">No tests ordered.</p>}
       <ul className="mb-3 space-y-2">

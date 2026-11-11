@@ -52,7 +52,7 @@ export default function DoctorDirectory({ profileBase }) {
     <div>
       <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_14rem_14rem]">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
           <TextField label="Search doctors" placeholder="Name or specialty" value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)} className="pl-9" />
         </div>

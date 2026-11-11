@@ -17,16 +17,14 @@ import useApi from '../../hooks/useApi.js';
 import { markNoShow } from '../../services/appointmentService.js';
 import { getDoctorAppointments } from '../../services/scheduleService.js';
 import {
-  addDaysIso, formatDateShort, hhmm, parseIsoDate, startOfWeekIso, todayIsoLocal,
+  addDaysIso, formatDateShort, hhmm, startOfWeekIso, todayIsoLocal,
 } from '../../utils/dates.js';
+import { hasStarted } from '../../utils/hospitalTime.js';
 
 const STATUSES = ['SCHEDULED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
 
 function canMarkNoShow(a) {
-  const start = parseIsoDate(a.date);
-  const [h, m] = a.startTime.split(':').map(Number);
-  start.setHours(h, m);
-  return (a.status === 'SCHEDULED' || a.status === 'CHECKED_IN') && start < new Date();
+  return (a.status === 'SCHEDULED' || a.status === 'CHECKED_IN') && hasStarted(a.date, a.startTime);
 }
 
 function WeekCalendar({ weekStart, appointments }) {
@@ -40,7 +38,7 @@ function WeekCalendar({ weekStart, appointments }) {
           return (
             <section key={d} aria-label={formatDateShort(d)}
               className={`min-h-40 rounded-lg border p-2 ${d === today ? 'border-brand-300 bg-brand-50/40' : 'border-slate-200 bg-white'}`}>
-              <h3 className="mb-2 text-xs font-semibold text-slate-600">{formatDateShort(d)}</h3>
+              <h2 className="mb-2 text-xs font-semibold text-slate-600">{formatDateShort(d)}</h2>
               {items.length === 0 && <p className="text-xs text-slate-300">—</p>}
               <ul className="space-y-1.5">
                 {items.map((a) => (

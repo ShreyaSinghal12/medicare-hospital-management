@@ -57,15 +57,15 @@ export default function NotificationPreferencesCard() {
       {prefs && (
         <>
           <label className="flex items-center gap-3 text-sm font-medium text-slate-900">
-            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-600" checked={prefs.emailEnabled}
+            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-brand-700" checked={prefs.emailEnabled}
               onChange={(e) => setPrefs({ ...prefs, emailEnabled: e.target.checked })} />
             Send me e-mails
           </label>
           <fieldset className="mt-3 space-y-2 border-l-2 border-slate-100 pl-4" disabled={!prefs.emailEnabled}>
             <legend className="sr-only">E-mail categories</legend>
             {Object.entries(CATEGORY_LABELS).map(([key, [label, hint]]) => (
-              <label key={key} className={`flex items-start gap-3 text-sm ${prefs.emailEnabled ? 'text-slate-800' : 'text-slate-400'}`}>
-                <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600"
+              <label key={key} className={`flex items-start gap-3 text-sm ${prefs.emailEnabled ? 'text-slate-800' : 'text-slate-500'}`}>
+                <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-700"
                   checked={prefs.emailEnabled && prefs.categories[key] !== false}
                   onChange={(e) => setPrefs({ ...prefs, categories: { ...prefs.categories, [key]: e.target.checked } })} />
                 <span>{label}<span className="block text-xs text-slate-500">{hint}</span></span>
@@ -73,7 +73,7 @@ export default function NotificationPreferencesCard() {
             ))}
           </fieldset>
           <p className="mt-3 flex items-start gap-2 text-xs text-slate-500">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+            <ShieldCheck className="h-4 w-4 shrink-0 text-brand-700" aria-hidden="true" />
             Security e-mails (password reset, password changes, account activation) are always sent.
           </p>
           <Button className="mt-4" onClick={save} loading={busy} disabled={JSON.stringify(prefs) === saved}>Save preferences</Button>

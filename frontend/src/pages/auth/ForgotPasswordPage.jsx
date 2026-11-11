@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
     >
       {sentMessage ? (
         <div role="status" className="flex flex-col items-center text-center">
-          <MailCheck className="h-12 w-12 text-brand-600" aria-hidden="true" />
+          <MailCheck className="h-12 w-12 text-brand-700" aria-hidden="true" />
           <p className="mt-3 text-sm text-slate-700">{sentMessage}</p>
           <p className="mt-2 text-xs text-slate-500">The link expires after a short time and can be used only once.</p>
         </div>

@@ -73,7 +73,7 @@ export default function UserManagementPage() {
       <Card>
         <div className="grid gap-3 sm:grid-cols-[1fr_12rem_10rem]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-400" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3 top-[2.15rem] z-10 h-4 w-4 text-slate-500" aria-hidden="true" />
             <TextField
               label="Search"
               placeholder="Name, e-mail or phone"
@@ -135,7 +135,7 @@ export default function UserManagementPage() {
                             </Button>
                           )}
                           {u.id === me.id ? (
-                            <span className="self-center text-xs text-slate-400">This is you</span>
+                            <span className="self-center text-xs text-slate-500">This is you</span>
                           ) : (
                             <Button
                               variant={u.active ? 'secondary' : 'primary'}

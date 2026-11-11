@@ -33,7 +33,7 @@ export default function RecentNotifications() {
                   {n.title} {!n.read && <span className="sr-only">(unread)</span>}
                 </p>
                 <p className="text-sm text-slate-600">{n.message}</p>
-                <p className="mt-0.5 text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{formatDateTime(n.createdAt)}</p>
               </div>
             </li>
           ))}

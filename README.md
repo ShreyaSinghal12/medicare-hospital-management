@@ -371,6 +371,24 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
   never used as a path, and the SHA-256 stored at upload is checked again on every download.
 
+### User interface and accessibility
+
+* **Hospital time everywhere:** the app loads the hospital's time zone at startup. "Today", every timestamp and
+  every "has this appointment started?" check use it, whatever the device's clock says. A note under each page says
+  so.
+* **Navigation:** role menus are grouped into sections. Titled sections can be collapsed (remembered per browser);
+  the section holding the current page always stays open, and the sidebar scrolls on its own.
+* **Code splitting:** each page's code is loaded the first time it is opened. The main bundle is about 360 kB (it was
+  680 kB), and the chart library loads only with the admin dashboard.
+* **Accessibility (WCAG 2.1 AA):**
+  * a "Skip to main content" link;
+  * after every navigation, focus moves to the page heading and the browser tab title is updated;
+  * text contrast is at least 4.5:1 (primary buttons and teal text use brand-700, muted text slate-500);
+  * dialogs close with Escape, and form errors are announced;
+  * every chart has a data table.
+  * An automated **axe-core** scan of 52 pages across all roles, plus 6 interactive states (dialogs, mobile menu),
+    reports no violations.
+
 ### Administration: dashboard, settings, reports, audit log
 
 * The **dashboard** shows counts and amounts only: appointments by status, day and department, doctor workload, new
