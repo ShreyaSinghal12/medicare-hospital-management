@@ -30,6 +30,15 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
 
     boolean existsByPrescriptionNoAndStatus(String prescriptionNo, PrescriptionStatus status);
 
+    /** The current (finalized) version with this number, with its items and people, for dispensing. */
+    @EntityGraph(attributePaths = {"patient", "patient.user", "doctor", "doctor.user", "items"})
+    Optional<Prescription> findFirstByPrescriptionNoIgnoreCaseAndStatus(String prescriptionNo, PrescriptionStatus status);
+
+    /** Locks the prescription row so two dispensings of the same prescription run one after another. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Prescription p WHERE p.id = :id")
+    Optional<Prescription> lockById(@Param("id") Long id);
+
     /**
      * Search over prescriptions of a patient or a doctor (one of the ids is given). Text matches the
      * prescription number, the doctor/patient name or any medicine name.

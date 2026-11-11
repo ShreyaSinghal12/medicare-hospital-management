@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRoleAndActiveTrue(Role role);
 
+    java.util.List<User> findByRoleAndActiveTrue(Role role);
+
     /** Admin search: optional free text (name/email/phone), optional role, optional active flag. */
     @Query("""
             SELECT u FROM User u

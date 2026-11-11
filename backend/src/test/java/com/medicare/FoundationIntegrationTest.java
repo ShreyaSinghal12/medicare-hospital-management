@@ -37,7 +37,7 @@ class FoundationIntegrationTest {
                 .andExpect(jsonPath("$.application").value("medicare-backend"))
                 .andExpect(jsonPath("$.database.status").value("UP"))
                 .andExpect(jsonPath("$.database.product").value("MySQL"))
-                .andExpect(jsonPath("$.database.schemaVersion").value("10"))
+                .andExpect(jsonPath("$.database.schemaVersion").value(latestMigrationVersion()))
                 .andExpect(jsonPath("$.database.tableCount", greaterThanOrEqualTo(35)));
     }
 
@@ -86,5 +86,16 @@ class FoundationIntegrationTest {
                 .andExpect(header().string("X-Frame-Options", "DENY"))
                 .andExpect(header().string("X-Content-Type-Options", "nosniff"))
                 .andExpect(header().exists("Content-Security-Policy"));
+    }
+
+    /** Highest V<n>__ migration on the classpath, so this test does not need editing for each new migration. */
+    static String latestMigrationVersion() throws java.io.IOException {
+        var resources = new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                .getResources("classpath:db/migration/V*__*.sql");
+        int max = 0;
+        for (var r : resources) {
+            max = Math.max(max, Integer.parseInt(r.getFilename().replaceAll("^V(\\d+)__.*", "$1")));
+        }
+        return String.valueOf(max);
     }
 }

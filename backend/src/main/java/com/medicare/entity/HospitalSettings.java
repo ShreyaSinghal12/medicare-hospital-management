@@ -60,6 +60,9 @@ public class HospitalSettings {
     @Column(name = "reminder_hours_before", nullable = false)
     private int reminderHoursBefore;
 
+    @Column(name = "expiry_warning_days", nullable = false)
+    private int expiryWarningDays = 60;
+
     @Column(name = "updated_at", insertable = false, updatable = false)
     private Instant updatedAt;
 
@@ -71,6 +74,8 @@ public class HospitalSettings {
     }
 
     public Long getId() { return id; }
+    public int getExpiryWarningDays() { return expiryWarningDays; }
+    public void setExpiryWarningDays(int expiryWarningDays) { this.expiryWarningDays = expiryWarningDays; }
     public String getHospitalName() { return hospitalName; }
     public void setHospitalName(String hospitalName) { this.hospitalName = hospitalName; }
     public String getAddress() { return address; }

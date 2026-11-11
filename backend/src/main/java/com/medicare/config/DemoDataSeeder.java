@@ -58,12 +58,25 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final Environment environment;
     private final String demoPassword;
 
+    private final com.medicare.repository.MedicineRepository medicineRepository;
+    private final com.medicare.repository.MedicineBatchRepository batchRepository;
+    private final com.medicare.repository.InventoryTransactionRepository transactionRepository;
+    private final com.medicare.service.HospitalClock clock;
+
     public DemoDataSeeder(UserRepository userRepository, PatientRepository patientRepository,
                           DoctorRepository doctorRepository, ReceptionistRepository receptionistRepository,
                           DepartmentRepository departmentRepository,
                           DoctorAvailabilityRepository availabilityRepository, SequenceService sequenceService,
                           PasswordEncoder passwordEncoder, Environment environment,
-                          @Value("${medicare.demo.password:}") String demoPassword) {
+                          @Value("${medicare.demo.password:}") String demoPassword,
+                          com.medicare.repository.MedicineRepository medicineRepository,
+                          com.medicare.repository.MedicineBatchRepository batchRepository,
+                          com.medicare.repository.InventoryTransactionRepository transactionRepository,
+                          com.medicare.service.HospitalClock clock) {
+        this.medicineRepository = medicineRepository;
+        this.batchRepository = batchRepository;
+        this.transactionRepository = transactionRepository;
+        this.clock = clock;
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
@@ -117,8 +130,50 @@ public class DemoDataSeeder implements ApplicationRunner {
                 "Raj Sharma", "+91 90000 10012", hash);
 
         int schedules = seedSchedules();
-        log.info("Demo data: {} account(s) created, {} doctor schedule(s) added (existing data left unchanged)",
-                created, schedules);
+        int medicines = seedInventory();
+        log.info("Demo data: {} account(s) created, {} doctor schedule(s) and {} medicine(s) added (existing data left unchanged)",
+                created, schedules, medicines);
+    }
+
+    /**
+     * Fictional medicines with batches chosen so that every inventory alert is visible: one medicine below its
+     * reorder level, one batch expiring soon and one expired batch. Runs only on an empty catalog.
+     */
+    private int seedInventory() {
+        if (medicineRepository.count() > 0) {
+            return 0;
+        }
+        User admin = userRepository.findByEmailIgnoreCase("admin@medicare.example").orElse(null);
+        if (admin == null) {
+            return 0;
+        }
+        LocalDate today = clock.today();
+        Object[][] data = {
+                // name, generic, category, strength, unit, price, reorder, {batch, days to expiry, qty}...
+                {"Paracetamol", "Paracetamol", "TABLET", "500 mg", "tablet", "2.00", 50,
+                        new Object[][]{{"DEMO-PCM-01", 30, 40}, {"DEMO-PCM-02", 400, 200}}},
+                {"Cetirizine", "Cetirizine", "TABLET", "10 mg", "tablet", "3.50", 30, new Object[][]{{"DEMO-CTZ-01", 300, 20}}},
+                {"Amoxicillin", "Amoxicillin", "CAPSULE", "250 mg", "capsule", "6.00", 40,
+                        new Object[][]{{"DEMO-AMX-00", -10, 15}, {"DEMO-AMX-01", 200, 120}}},
+                {"Salbutamol Inhaler", "Salbutamol", "INHALER", "100 mcg", "inhaler", "180.00", 5, new Object[][]{{"DEMO-SAL-01", 500, 12}}},
+                {"Dextromethorphan Syrup", "Dextromethorphan", "SYRUP", "10 mg/5 mL", "bottle", "95.00", 10,
+                        new Object[][]{{"DEMO-DXM-01", 250, 25}}},
+        };
+        for (Object[] row : data) {
+            var m = new com.medicare.entity.Medicine((String) row[0]);
+            m.update((String) row[0], (String) row[1], "Demo Pharma Ltd (fictional)",
+                    com.medicare.enums.MedicineCategory.valueOf((String) row[2]), (String) row[3], (String) row[4],
+                    new java.math.BigDecimal((String) row[5]), (Integer) row[6]);
+            medicineRepository.save(m);
+            for (Object[] b : (Object[][]) row[7]) {
+                var batch = batchRepository.save(new com.medicare.entity.MedicineBatch(m, (String) b[0],
+                        today.plusDays((Integer) b[1]), (Integer) b[2], null, "Demo Supplier (fictional)"));
+                transactionRepository.save(new com.medicare.entity.InventoryTransaction(batch,
+                        com.medicare.enums.InventoryTxnType.STOCK_IN, (Integer) b[2], (Integer) b[2], null, "DEMO-SEED",
+                        "Demo opening stock", admin));
+            }
+        }
+        return data.length;
     }
 
     /** Mon–Sat 09:00–17:00 with a 13:00–14:00 break for every demo doctor that has no schedule yet. */
