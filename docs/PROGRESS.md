@@ -11,7 +11,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 5 | Treatment-relationship access + audit, consultation start/draft/finalize/amend with version check, allergies & conditions, doctor patient list/record, patient medical-history timeline with follow-up booking | ✅ | 94 backend tests, 40 Vitest tests, 6-step Playwright run incl. denial for another doctor, receptionist and admin |
 | 6 | Prescriptions: multi-line drafts, finalize (immutable), revisions superseding earlier versions, discard, patient search/filters, version history, PDF with superseded watermark, notifications, timeline/dashboard integration | ✅ | 102 backend tests, 48 Vitest tests, 7-step Playwright run incl. PDF download and 403 for receptionist/admin |
 | 7 | Reception: walk-in registration with activation e-mail, patient directory and contact updates, front-desk booking, day list, check-in with per-doctor tokens, queue board with skip/put back, automatic queue status, printable confirmation, doctor queue card | ✅ | 111 backend tests (incl. parallel check-ins), 55 Vitest tests, 10-step Playwright run on the real stack |
-| 8 | Laboratory (four-role model): admin test catalog; doctors order tests, update order status, upload PDF reports and finalize them; patients download finalized reports; secure file handling | ⬜ | |
+| 8 | Laboratory (four-role model): admin test catalog; doctors order tests from consultations, update status, type results, upload/replace/remove PDF reports and finalize them; patients see and download finalized reports; treating-doctor record view; secure file handling with audit | ✅ | 122 backend tests (incl. upload-safety and access tests), 62 Vitest tests, 9-step Playwright run on the real stack |
 | 9 | Medicine inventory (admin): catalog, batches, expiry, stock-in/out ledger, low-stock and expiry alerts, dispensing records against finalized prescriptions (no negative stock, no expired batches) | ⬜ | |
 | 10 | Billing & payments | ⬜ | |
 | 11 | Notifications, e-mail, reminders, next-slot suggestions | ⬜ | |
@@ -43,7 +43,7 @@ A feature is ticked only when **all** of these hold:
 | 9 | Receptionist checks patient in | 7 | ✅ |
 | 10–13 | Doctor sees appointment, opens record, records consultation | 5 | ✅ |
 | 14–15 | Prescription finalised, patient downloads PDF | 6 | ✅ |
-| 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ⬜ |
+| 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ✅ |
 | 19 | Administrator records dispensing against the finalized prescription | 9 | ⬜ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ⬜ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
@@ -128,3 +128,17 @@ A feature is ticked only when **all** of these hold:
 * Known limitation: the frontend works out "today" and shows check-in times in the browser's time zone. This is
   right when the desk computer is in the hospital's zone (Asia/Kolkata). Phase 13 will use the hospital
   time zone from `/api/public/hospital-info` everywhere.
+
+## Phase 8 notes
+
+* `V10__lab_results.sql` adds the catalog unit and reference range, per-test result value and comment (with a
+  copy of unit and range taken at order time), and a unique key giving one report per order. It also drops the unused
+  `lab_reports.result_summary` column.
+* Orders always belong to a consultation, so the ordering doctor always has a treatment relationship.
+* Each change locks the order row (`SELECT … FOR UPDATE`) and checks the version the client sent. Changes that only
+  touch results or the report still increase the order's version.
+* A new file is deleted again if the database transaction rolls back, and a replaced or removed file is deleted
+  only after the commit. Failed uploads therefore leave no files behind (tested).
+* **UI fix found in the browser test:** on a phone the order page scrolled sideways because the results table
+  widened its grid column. The columns now use `min-w-0` so the table scrolls inside its card.
+* Lab charges (`price_at_order`) are used for invoicing in Phase 10.

@@ -7,6 +7,11 @@ import {
 } from '../../services/clinicalService.js';
 import ConsultationPage from './ConsultationPage.jsx';
 
+vi.mock('../../services/labService.js', () => ({
+  getConsultationLabOrders: vi.fn().mockResolvedValue([]),
+  getLabCatalog: vi.fn().mockResolvedValue([]),
+  createLabOrder: vi.fn(),
+}));
 vi.mock('../../services/prescriptionService.js', () => ({
   getConsultationPrescriptions: vi.fn().mockResolvedValue([]),
 }));

@@ -1,5 +1,5 @@
 import {
-  Bell, Building2, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
+  Bell, Building2, FlaskConical, CalendarCheck, CalendarPlus, ListOrdered, UserPlus, CalendarClock, CalendarOff, ClipboardList, IdCard, LayoutDashboard,
   NotebookText, Pill, Search, Settings, Stethoscope, UserCog, UserRound, Users,
 } from 'lucide-react';
 
@@ -13,6 +13,7 @@ export const NAVIGATION = {
     { to: '/patient/appointments', label: 'My appointments', icon: CalendarCheck },
     { to: '/patient/history', label: 'Medical history', icon: NotebookText },
     { to: '/patient/prescriptions', label: 'Prescriptions', icon: Pill },
+    { to: '/patient/lab-reports', label: 'Lab reports', icon: FlaskConical },
     { to: '/patient/doctors', label: 'Find a doctor', icon: Search },
     { to: '/patient/profile', label: 'My profile', icon: UserRound },
     { to: '/notifications', label: 'Notifications', icon: Bell },
@@ -23,6 +24,7 @@ export const NAVIGATION = {
     { to: '/doctor/appointments', label: 'Appointments', icon: CalendarCheck },
     { to: '/doctor/patients', label: 'My patients', icon: Users },
     { to: '/doctor/prescriptions', label: 'Prescriptions', icon: Pill },
+    { to: '/doctor/lab-orders', label: 'Lab orders', icon: FlaskConical },
     { to: '/doctor/availability', label: 'Availability', icon: CalendarClock },
     { to: '/doctor/profile', label: 'My profile', icon: IdCard },
     { to: '/notifications', label: 'Notifications', icon: Bell },
@@ -43,6 +45,7 @@ export const NAVIGATION = {
     { to: '/admin/doctors', label: 'Doctors', icon: Stethoscope },
     { to: '/admin/leave', label: 'Leave requests', icon: CalendarOff },
     { to: '/admin/departments', label: 'Departments', icon: Building2 },
+    { to: '/admin/lab-tests', label: 'Lab tests', icon: FlaskConical },
     { to: '/admin/staff', label: 'Staff accounts', icon: UserCog },
     { to: '/admin/patients', label: 'Patients', icon: UserRound },
     { to: '/admin/users', label: 'Users & access', icon: Users },

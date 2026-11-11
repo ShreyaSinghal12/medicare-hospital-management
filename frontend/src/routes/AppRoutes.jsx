@@ -43,6 +43,10 @@ import ResetPasswordPage from '../pages/auth/ResetPasswordPage.jsx';
 import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
 import NotificationsPage from '../pages/common/NotificationsPage.jsx';
 import StaffHomePage from '../pages/common/StaffHomePage.jsx';
+import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
+import DoctorLabOrderPage from '../pages/lab/DoctorLabOrderPage.jsx';
+import LabOrderListPage from '../pages/lab/LabOrderListPage.jsx';
+import PatientLabReportPage from '../pages/lab/PatientLabReportPage.jsx';
 import PatientDashboard from '../pages/patient/PatientDashboard.jsx';
 import PatientProfilePage from '../pages/patient/PatientProfilePage.jsx';
 import AboutPage from '../pages/public/AboutPage.jsx';
@@ -98,6 +102,8 @@ export default function AppRoutes() {
           <Route path="patient/history" element={<MedicalHistoryPage />} />
           <Route path="patient/prescriptions" element={<PrescriptionListPage mode="patient" />} />
           <Route path="patient/prescriptions/:id" element={<PatientPrescriptionPage />} />
+          <Route path="patient/lab-reports" element={<LabOrderListPage mode="patient" />} />
+          <Route path="patient/lab-reports/:id" element={<PatientLabReportPage />} />
           <Route path="patient/appointments/:id" element={<AppointmentDetailPage />} />
           <Route path="patient/appointments/:id/reschedule" element={<ReschedulePage />} />
         </Route>
@@ -114,6 +120,8 @@ export default function AppRoutes() {
           <Route path="doctor/consultations/:consultationId/prescriptions/new" element={<NewPrescriptionPage />} />
           <Route path="doctor/prescriptions" element={<PrescriptionListPage mode="doctor" />} />
           <Route path="doctor/prescriptions/:id" element={<PrescriptionWorkspacePage />} />
+          <Route path="doctor/lab-orders" element={<LabOrderListPage mode="doctor" />} />
+          <Route path="doctor/lab-orders/:id" element={<DoctorLabOrderPage />} />
           <Route path="doctor/profile" element={<DoctorOwnProfilePage />} />
         </Route>
       </Route>
@@ -143,6 +151,7 @@ export default function AppRoutes() {
           <Route path="admin/departments" element={<DepartmentsAdminPage />} />
           <Route path="admin/staff" element={<StaffAdminPage />} />
           <Route path="admin/patients" element={<PatientsAdminPage />} />
+          <Route path="admin/lab-tests" element={<LabCatalogPage />} />
         </Route>
       </Route>
 

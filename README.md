@@ -249,6 +249,19 @@ medical-management-system/
 | GET | `/api/reception/queue` | RECEPTIONIST, ADMIN | Today's queue board (`date`, `doctorId`) |
 | PATCH | `/api/reception/queue/{id}/skip`, `/{id}/requeue` | RECEPTIONIST, ADMIN | Skip a waiting patient / put them back |
 | GET | `/api/doctor/queue` | DOCTOR | Your queue for today |
+| GET / POST | `/api/admin/lab-tests` | ADMIN | Lab test catalog (incl. inactive) / add a test |
+| PUT / PATCH | `/api/admin/lab-tests/{id}`, `/{id}/status` | ADMIN | Edit a test / activate or deactivate |
+| GET | `/api/lab-tests` | DOCTOR, ADMIN | Active tests for ordering |
+| POST | `/api/lab-orders` | DOCTOR (own consultation) | Order 1–20 tests (`priority`, optional clinical notes) |
+| GET | `/api/lab-orders/{id}` | ordering/treating DOCTOR, own PATIENT | Order; patients see results only after finalization |
+| PATCH | `/api/lab-orders/{id}/status` | ordering DOCTOR | `SAMPLE_COLLECTED`, `PROCESSING`, or `CANCELLED` with a reason |
+| PUT | `/api/lab-orders/{id}/results` | ordering DOCTOR | Result values and comments as typed (send `version`; 409 if stale) |
+| POST / DELETE | `/api/lab-orders/{id}/report` | ordering DOCTOR | Upload/replace the PDF (multipart `file`, max 5 MB) / remove it before finalizing |
+| POST | `/api/lab-orders/{id}/finalize` | ordering DOCTOR | Lock results and report, release to the patient, notify them |
+| GET | `/api/lab-orders/{id}/report` | ordering/treating DOCTOR, own PATIENT (finalized) | Download the PDF (audited) |
+| GET | `/api/consultations/{id}/lab-orders`, `/api/doctor/lab-orders` | DOCTOR | Orders of a consultation / orders you placed (`status`, `search`) |
+| GET | `/api/doctor/patients/{id}/lab-orders` | treating DOCTOR | All lab orders of your patient (audited) |
+| GET | `/api/patients/me/lab-orders` | PATIENT | Own lab orders (`status`, `search`) |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -311,6 +324,25 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 
 ![Sample prescription PDF](docs/sample-prescription.png)
 
+### Laboratory
+
+* **Admins** maintain the test catalog: code, name, sample type, price, turnaround, and a unit and reference range
+  shown for information. Tests are deactivated, never deleted. Each order keeps the name, price, unit and range it
+  was ordered with, so later catalog edits don't change history.
+* **Doctors** order tests from their own consultation. The order moves ORDERED → SAMPLE_COLLECTED → PROCESSING →
+  COMPLETED, or is cancelled with a reason. Result values and comments are typed by the doctor. MediCare never
+  flags, interprets or suggests anything.
+* Finalizing needs an uploaded PDF. It makes results and report read-only, releases them to the patient and sends
+  a notification (the message contains no results).
+* **Patients** see their orders and the status. Results and the PDF appear only after finalization; the
+  doctor's clinical notes are never shown to them.
+* Other doctors with a treatment relationship can read completed orders. **Receptionists and administrators get
+  403** for orders and reports, and every denied attempt and every download is written to `audit_logs`.
+* **File safety:** at most 5 MB; the name must end in `.pdf`; the content must start with `%PDF-` and contain an
+  `%%EOF` marker; PDFs with JavaScript, launch actions, embedded files or rich media are rejected. Files are saved
+  under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
+  never used as a path, and the SHA-256 stored at upload is checked again on every download.
+
 ### Reception and queue
 
 * Receptionists register walk-in patients without choosing a password. The patient gets a single-use
@@ -349,4 +381,5 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 Before any real-world use this system would need, at minimum: a professional penetration test, a
 regulatory/privacy compliance review (e.g. HIPAA / DPDP Act / GDPR as applicable), encryption at rest for the
 database and uploaded files, TLS everywhere, centralised log monitoring, backup/disaster-recovery procedures,
-dependency vulnerability scanning in CI, multi-factor authentication for staff, and a formal clinical-safety review.
+dependency vulnerability scanning in CI, antivirus scanning of uploaded files (the PDF check does not look
+inside compressed streams), multi-factor authentication for staff, and a formal clinical-safety review.

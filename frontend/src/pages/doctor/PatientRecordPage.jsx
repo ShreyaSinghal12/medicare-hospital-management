@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge.jsx';
 import AllergiesConditionsPanel from '../../components/clinical/AllergiesConditionsPanel.jsx';
+import PatientLabOrdersCard from '../../components/lab/PatientLabOrdersCard.jsx';
 import Card from '../../components/ui/Card.jsx';
 import ErrorState from '../../components/ui/ErrorState.jsx';
 import PageHeader from '../../components/ui/PageHeader.jsx';
@@ -50,6 +51,7 @@ export default function PatientRecordPage() {
               ))}
             </ul>
           </Card>
+          <PatientLabOrdersCard patientId={p.id} />
           <Card title="Contact & demographics">
             <dl className="grid gap-3 text-sm sm:grid-cols-2">
               {[['Date of birth', p.dateOfBirth], ['Gender', p.gender?.toLowerCase().replaceAll('_', ' ')], ['Phone', p.phone],
