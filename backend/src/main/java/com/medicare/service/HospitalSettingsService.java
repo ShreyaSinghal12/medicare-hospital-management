@@ -48,4 +48,14 @@ public class HospitalSettingsService {
         return new HospitalInfoResponse(s.getHospitalName(), s.getAddress(), s.getPhone(), s.getEmail(),
                 s.getTimeZone(), s.getCancellationPolicy(), departments);
     }
+
+    /** Reminder lead time and whether reminders are also e-mailed (full settings editing comes with the admin settings screen). */
+    @Transactional
+    public HospitalSettings updateReminders(boolean emailRemindersEnabled, int reminderHoursBefore, Long actorUserId) {
+        HospitalSettings s = getSettings();
+        s.setEmailRemindersEnabled(emailRemindersEnabled);
+        s.setReminderHoursBefore(reminderHoursBefore);
+        s.setUpdatedByUserId(actorUserId);
+        return settingsRepository.saveAndFlush(s);
+    }
 }

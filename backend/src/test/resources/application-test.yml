@@ -21,6 +21,8 @@ medicare:
     reset-token-minutes: 30
     account-setup-hours: 72
   upload-dir: ./target/test-uploads
+  reminders:
+    enabled: false   # tests call ReminderService.runDue with a fixed time
 
 logging:
   level:

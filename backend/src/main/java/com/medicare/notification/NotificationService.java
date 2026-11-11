@@ -7,6 +7,7 @@ import com.medicare.dto.common.PageResponse;
 import com.medicare.dto.notification.NotificationResponse;
 import com.medicare.entity.Notification;
 import com.medicare.entity.User;
+import com.medicare.enums.EmailCategory;
 import com.medicare.enums.NotificationType;
 import com.medicare.exception.ResourceNotFoundException;
 import com.medicare.mapper.NotificationMapper;
@@ -32,8 +33,12 @@ public class NotificationService {
     private final EmailService emailService;
     private final String frontendBaseUrl;
 
+    private final NotificationPreferenceService preferenceService;
+
     public NotificationService(NotificationRepository repository, UserRepository userRepository,
-                               EmailService emailService, AppProperties appProperties) {
+                               EmailService emailService, AppProperties appProperties,
+                               NotificationPreferenceService preferenceService) {
+        this.preferenceService = preferenceService;
         this.repository = repository;
         this.userRepository = userRepository;
         this.emailService = emailService;
@@ -41,8 +46,9 @@ public class NotificationService {
     }
 
     /**
-     * Stores a notification for a user. If {@code alsoEmail} is true and the user has
-     * e-mail notifications enabled, a generic e-mail (title + message + link only) is sent.
+     * Stores a notification for a user. If {@code alsoEmail} is true, a generic e-mail (title + message + link only)
+     * is sent: always for security messages, otherwise only when the user's master switch and the category
+     * preference are on. Staff notifications are never e-mailed.
      *
      * @return the stored notification, or {@code null} if the idempotency key was already used
      */
@@ -57,7 +63,10 @@ public class NotificationService {
 
         if (alsoEmail) {
             User user = userRepository.findById(userId).orElse(null);
-            if (user == null || !user.isEmailNotificationsEnabled()) {
+            EmailCategory category = EmailCategory.of(type);
+            boolean wanted = user != null && (category == EmailCategory.SECURITY
+                    || (category.isOptional() && user.isEmailNotificationsEnabled() && preferenceService.isEnabled(userId, category)));
+            if (!wanted) {
                 notification.setEmailStatus(Notification.EmailStatus.SKIPPED);
             } else {
                 String body = message + (link != null ? "\n\nOpen MediCare: " + frontendBaseUrl + link : "")

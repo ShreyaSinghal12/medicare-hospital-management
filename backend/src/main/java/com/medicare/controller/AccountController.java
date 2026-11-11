@@ -33,7 +33,11 @@ public class AccountController {
     private final AuthService authService;
     private final SessionManager sessionManager;
 
-    public AccountController(AccountService accountService, AuthService authService, SessionManager sessionManager) {
+    private final com.medicare.notification.NotificationPreferenceService preferenceService;
+
+    public AccountController(AccountService accountService, AuthService authService, SessionManager sessionManager,
+                             com.medicare.notification.NotificationPreferenceService preferenceService) {
+        this.preferenceService = preferenceService;
         this.accountService = accountService;
         this.authService = authService;
         this.sessionManager = sessionManager;
@@ -58,5 +62,21 @@ public class AccountController {
         AppUserPrincipal refreshed = authService.changePassword(CurrentUser.id(), request);
         sessionManager.refreshPrincipal(refreshed, httpRequest, httpResponse);
         return new MessageResponse("Password changed successfully");
+    }
+
+    @GetMapping("/notification-preferences")
+    @Operation(summary = "Own e-mail preferences (master switch and categories)")
+    public com.medicare.dto.account.NotificationPreferences preferences() {
+        return new com.medicare.dto.account.NotificationPreferences(authService.me(CurrentUser.id()).emailNotificationsEnabled(),
+                preferenceService.get(CurrentUser.id()));
+    }
+
+    @PutMapping("/notification-preferences")
+    @Operation(summary = "Update own e-mail preferences (security e-mails cannot be switched off)")
+    public com.medicare.dto.account.NotificationPreferences updatePreferences(
+            @Valid @RequestBody com.medicare.dto.account.NotificationPreferences request) {
+        accountService.setEmailEnabled(CurrentUser.id(), request.emailEnabled());
+        preferenceService.set(CurrentUser.id(), request.categories());
+        return preferences();
     }
 }

@@ -35,4 +35,13 @@ public class AccountService {
                 "Updated name/phone/e-mail preference");
         return authService.me(userId);
     }
+
+    /** Master switch for optional e-mails. */
+    @org.springframework.transaction.annotation.Transactional
+    public void setEmailEnabled(Long userId, boolean enabled) {
+        com.medicare.entity.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new com.medicare.exception.ResourceNotFoundException("User", userId));
+        user.setEmailNotificationsEnabled(enabled);
+        auditService.record("NOTIFICATION_PREFERENCES_CHANGED", "User", userId, com.medicare.enums.AuditOutcome.SUCCESS, null);
+    }
 }
