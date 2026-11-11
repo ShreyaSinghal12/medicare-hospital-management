@@ -74,7 +74,7 @@ All versions were checked against Maven Central / npm on 2026-11-03 and built to
 | Icons | lucide-react | 1.67.0 |
 | Toasts | sonner | 2.0.8 |
 | FE tests | Vitest 5.1, React Testing Library 16.3, jsdom 30 | — |
-| E2E | Playwright | Phase 14 |
+| E2E | Playwright (+ axe-core 4.10.3) | 1.63.0 |
 
 ## 3. Backend package structure
 

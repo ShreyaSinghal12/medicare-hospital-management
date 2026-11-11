@@ -7,8 +7,19 @@ A college final-year project: a secure, database-driven hospital/clinic manageme
 > diagnoses or recommend treatments or doses; clinical content is entered only by authorised doctors.
 > It is not certified for real clinical use (see *Security limitations* below).
 
-* Architecture, verified tech stack, ER diagram and design decisions: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
-* Phase-by-phase progress and acceptance checklist: [`docs/PROGRESS.md`](docs/PROGRESS.md)
+### Documentation
+
+| Document | Contents |
+|---|---|
+| [`docs/SRS.md`](docs/SRS.md) | Software requirements specification (functional and non-functional requirements) |
+| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | Architecture, verified tech stack, ER diagram, design decisions |
+| [`docs/DIAGRAMS.md`](docs/DIAGRAMS.md) | Use cases, workflow, sequence and state diagrams (Mermaid) |
+| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | How each of the four roles uses the system |
+| [`docs/TESTING.md`](docs/TESTING.md) | How to run every test suite, and the latest results |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Docker Compose + nginx + TLS production deployment and checklist |
+| [`docs/VIVA.md`](docs/VIVA.md) | Viva questions and answers |
+| [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) | Known limitations and what real-world use would need |
+| [`docs/PROGRESS.md`](docs/PROGRESS.md) | Phase-by-phase progress and acceptance checklist |
 
 ---
 
@@ -56,7 +67,7 @@ FLUSH PRIVILEGES;
 ```
 
 You do **not** create any tables by hand. Flyway creates all of them from
-`backend/src/main/resources/db/migration/V1__…V8__*.sql` when the backend starts.
+`backend/src/main/resources/db/migration/V1__…V14__*.sql` when the backend starts.
 
 ## 3. Configure the backend
 
@@ -77,7 +88,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-On first start Flyway logs `Successfully applied 8 migrations`. The API listens on **http://localhost:8080**.
+On first start Flyway logs `Successfully applied 14 migrations`. The API listens on **http://localhost:8080**.
 
 * Health check: http://localhost:8080/api/health
 * Swagger UI: http://localhost:8080/swagger-ui.html
@@ -124,7 +135,7 @@ npm run dev
 ```
 
 Open **http://localhost:5173**. The *System status* card should show **Java backend UP** and
-**MySQL database UP – Schema version V9 – Tables 36**, which proves React → Spring Boot → MySQL is connected.
+**MySQL database UP – Schema version V14 – Tables 37** (36 application tables plus Flyway's history table), which proves React → Spring Boot → MySQL is connected.
 
 ## 6. Run the tests
 
@@ -141,6 +152,27 @@ Frontend component/route tests:
 cd frontend
 npm test
 ```
+
+End-to-end tests (Playwright, real browser against the real stack). Start MySQL and the backend with the demo data
+and a raised login rate limit first, because the suite signs in many times:
+
+```bash
+cd backend
+SPRING_PROFILES_ACTIVE=dev,demo LOGIN_RATE_LIMIT=500 mvn spring-boot:run
+```
+
+```bash
+cd frontend
+npx playwright install chromium
+DEMO_PASSWORD='the value from backend/.env' npm run e2e
+```
+
+Playwright starts Vite itself (or reuses one on port 5173). The suite covers public pages, the full cross-role
+journey, role-based access and an axe-core accessibility scan. Details and the latest results: [`docs/TESTING.md`](docs/TESTING.md).
+
+### Production deployment
+
+Docker Compose with MySQL, the Spring Boot jar and nginx (TLS, security headers): see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## 7. Project structure
 
@@ -492,7 +524,7 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
 | `Could not resolve placeholder 'DB_USERNAME'` | `backend/.env` is missing, or you started the app from a folder other than `backend/`. |
 | `Unknown database 'medicare_db'` | Run the `CREATE DATABASE` statements in section 2. |
 | `Schema-validation: missing table` | Flyway did not run: check that `spring.flyway.enabled` is true and look for Flyway errors in the log. |
-| `Validate failed: Migrations have failed validation` | A migration file was edited after it was applied. Never edit applied migrations; add a new `V9__…` file instead. For a throw-away dev DB you can drop and re-create `medicare_db`. |
+| `Validate failed: Migrations have failed validation` | A migration file was edited after it was applied. Never edit applied migrations; add a new `V15__…` file instead. For a throw-away dev DB you can drop and re-create `medicare_db`. |
 | Port 8080 / 5173 already in use | Stop the other process or set `SERVER_PORT` (backend) / change `server.port` in `vite.config.js`. |
 | Status card says *Backend unreachable* | The backend is not running, or `VITE_BACKEND_URL` points to the wrong port. |
 | `403 CSRF_TOKEN_INVALID` on POST | The page was opened before the backend started. Reload so the app fetches `/api/auth/csrf`. |

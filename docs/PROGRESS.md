@@ -17,7 +17,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 11 | Notifications and reminders: per-category e-mail preferences (security always on), scheduled appointment and follow-up reminders (once-only claim, quiet hours, inactive/late bookings skipped), admin reminder settings, run-now and log, next-free-slot hints on cancellation and reschedule messages | ✅ | 139 backend tests, 75 Vitest tests, 8-step Playwright run on the real stack |
 | 12 | Administration: dashboard with charts (appointments, workload, revenue, lab, stock, outstanding), hospital settings with audited changes, reports (appointments, payments, invoices, lab workload, stock, audit) as preview/CSV/PDF, audit log viewer | ✅ | 146 backend tests, 80 Vitest tests, 5-step Playwright run on the real stack |
 | 13 | UI polish and accessibility: hospital time zone across the frontend, grouped collapsible navigation, route-level code splitting (main bundle 680 → 360 kB), focus on page heading and document titles after navigation, contrast fixes, valid list/heading markup | ✅ | 85 Vitest tests; axe-core scan of 52 pages + 6 interactive states with 0 violations; keyboard checks; Playwright check with the device in UTC−11 |
-| 14 | Testing, deployment & documentation package (SRS, diagrams, viva Q&A) | ⬜ | |
+| 14 | Testing, deployment and documentation: role × endpoint access matrix, URL-level write rules (403 before body validation), Playwright suite (public, full cross-role journey, access, axe-core), production safety check, first-admin bootstrap, Dockerfiles, nginx (TLS, headers), Docker Compose, SRS, diagrams, user guide, testing report, viva Q&A, limitations | ✅ | 150 backend tests (incl. 240-case access matrix), 85 Vitest tests, 10 Playwright tests (journey, access, 34-page axe scan), prod jar behind nginx over HTTPS, 12 Mermaid diagrams parsed; `docker compose up` not run (no daemon) |
 
 ## Feature-completion checklist (Definition of Done)
 
@@ -48,7 +48,7 @@ A feature is ticked only when **all** of these hold:
 | 20–22 | Invoice, payment, patient views invoice | 10 | ✅ |
 | 23 | Notifications received | 2 (infrastructure), 4–11 (events) | ✅ booking, cancellation, reschedule, check-in, prescription, lab report, invoice, payment, reminders |
 | 24–25 | Admin views statistics and reports | 12 | ✅ |
-| 26 | Unauthorized access blocked | 2–12 | ✅ role and record checks tested in every phase; a combined role × endpoint test follows in Phase 14 |
+| 26 | Unauthorized access blocked | 2–12 | ✅ role and record checks in every phase, plus the 240-case access matrix and the Playwright access test (Phase 14) |
 
 ## Phase 2 notes
 
@@ -211,3 +211,12 @@ A feature is ticked only when **all** of these hold:
 * The placeholder staff home page was removed in Phase 12; there is now one `PageHeading` used for every h1.
 * The time-zone check opened the reception pages with the device set to UTC−11 (still the day before): "today"
   and all timestamps followed hospital time.
+
+## Phase 14 notes
+
+* **Access matrix:** `AccessMatrixIntegrationTest` found that write endpoints returned 400 instead of 403 for a wrong role, because the body was validated before method security ran. URL-level rules in `SecurityConfig` now reject the role first.
+* **Production profile:** `ProductionSafetyCheck` stops start-up when it finds an unsafe setting, such as the demo profile, a short database password, non-Secure cookies, non-https links or CORS origins, or Swagger enabled.
+* **First administrator:** created by `AdminBootstrap` from `BOOTSTRAP_ADMIN_EMAIL`. There is no default password; the person receives a single-use set-password link.
+* **XSRF cookie:** now Secure whenever the session cookie is Secure.
+* **Deployment check:** `docker compose up` was not run, because this environment has no Docker daemon. The same nginx configuration was tested in front of the production jar.
+* **Documentation:** [SRS](SRS.md), [diagrams](DIAGRAMS.md), [user guide](USER_GUIDE.md), [testing](TESTING.md), [deployment](DEPLOYMENT.md), [viva Q&A](VIVA.md), [limitations](LIMITATIONS.md).
