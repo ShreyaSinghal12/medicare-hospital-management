@@ -279,6 +279,10 @@ medical-management-system/
 | POST | `/api/billing/invoices/{id}/cancel` | RECEPTIONIST | Cancel an unpaid invoice (reason); its charges can be billed again |
 | GET | `/api/patients/me/invoices` | PATIENT | Own invoices (`status`) |
 | GET | `/api/admin/billing/summary` | ADMIN | Invoiced, collected, refunded and outstanding amounts (`from`, `to`; default this month) |
+| GET / PUT | `/api/account/notification-preferences` | any logged-in user | E-mail master switch and categories (appointments, reminders, results, billing) |
+| GET / PUT | `/api/admin/settings/reminders` | ADMIN | Reminder lead time (1–168 h) and whether reminders are e-mailed |
+| POST | `/api/admin/reminders/run` | ADMIN | Send due reminders now (each reminder is still sent only once) |
+| GET | `/api/admin/reminders` | ADMIN | Log of sent reminders |
 
 All POST/PUT/PATCH/DELETE requests need the `X-XSRF-TOKEN` header (the browser app handles this automatically).
 To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN` cookie value into an
@@ -361,6 +365,27 @@ To test with Postman, first send `GET /api/auth/csrf`, then copy the `XSRF-TOKEN
   `%%EOF` marker; PDFs with JavaScript, launch actions, embedded files or rich media are rejected. Files are saved
   under a random name in `UPLOAD_DIR/lab-reports/` (outside the web root), the user's file name is only shown,
   never used as a path, and the SHA-256 stored at upload is checked again on every download.
+
+### Notifications and reminders
+
+* Every event creates an **in-app notification**; these can't be switched off. E-mails go only to the account's own
+  address and contain no diagnoses, prescriptions or results, just a notice and a link.
+* **E-mail preferences** (*Account settings*): a master switch plus four categories (appointments, reminders,
+  prescriptions and lab reports, billing). Security e-mails (password reset or change, account activation) are
+  always sent; staff operational notices are in-app only.
+* **Reminder job** (every 15 minutes, never between 21:00 and 08:00 hospital time):
+  * *Appointment reminder:* once per appointment time, when a scheduled appointment starts within
+    `reminder_hours_before` (default 24 h). Bookings made inside that window are skipped, because the confirmation
+    was just sent. A rescheduled appointment gets a reminder for its new time.
+  * *Follow-up reminder:* from two days before the follow-up date the doctor entered, unless the patient already
+    has a later visit with that doctor. It includes the doctor's next free time; this is a scheduling hint, never
+    clinical advice.
+  * Each reminder is claimed by inserting a row with a unique key in its own transaction, so it is sent at most once
+    even with several servers. Inactive accounts get nothing.
+* When reception cancels an appointment, or a schedule change flags it as needing a new time, the patient's
+  message includes the doctor's next free time.
+* Administrators can change the lead time, switch reminder e-mails off, send due reminders immediately, and view
+  the reminder log (*Reminders*).
 
 ### Billing and payments (receptionists)
 

@@ -14,7 +14,7 @@ Legend: ✅ done and verified · 🟡 partially done · ⬜ not started
 | 8 | Laboratory (four-role model): admin test catalog; doctors order tests from consultations, update status, type results, upload/replace/remove PDF reports and finalize them; patients see and download finalized reports; treating-doctor record view; secure file handling with audit | ✅ | 122 backend tests (incl. upload-safety and access tests), 62 Vitest tests, 9-step Playwright run on the real stack |
 | 9 | Medicine inventory (admin): catalog, batches with expiry and supplier, stock in, adjustments, returns, expired write-off, append-only stock history, low-stock/expiry alerts with a daily admin notification, dispensing against finalized prescriptions (matching medicine and strength, no expired batches, no over-dispensing, no negative stock), printable dispensing record | ✅ | 127 backend tests (incl. parallel dispensing), 68 Vitest tests, 8-step Playwright run on the real stack |
 | 10 | Billing (receptionists): invoices from unbilled consultations, lab tests and dispensed medicines at recorded prices, extra items, discount with reason, tax; payments (cash / simulated UPI, card, bank transfer with reference only), refunds as credits, cancellation releasing charges; invoice PDF; patient invoices and notifications; admin billing summary | ✅ | 133 backend tests (incl. simultaneous payments), 73 Vitest tests, 8-step Playwright run on the real stack |
-| 11 | Notifications, e-mail, reminders, next-slot suggestions | ⬜ | |
+| 11 | Notifications and reminders: per-category e-mail preferences (security always on), scheduled appointment and follow-up reminders (once-only claim, quiet hours, inactive/late bookings skipped), admin reminder settings, run-now and log, next-free-slot hints on cancellation and reschedule messages | ✅ | 139 backend tests, 75 Vitest tests, 8-step Playwright run on the real stack |
 | 12 | Analytics, admin, settings, reports, audit viewer, exports | ⬜ | |
 | 13 | UI polish & accessibility | ⬜ | |
 | 14 | Testing, deployment & documentation package (SRS, diagrams, viva Q&A) | ⬜ | |
@@ -46,7 +46,7 @@ A feature is ticked only when **all** of these hold:
 | 16–18 | Doctor orders lab test, doctor uploads fictional report, patient downloads | 8 | ✅ |
 | 19 | Administrator records dispensing against the finalized prescription | 9 | ✅ |
 | 20–22 | Invoice, payment, patient views invoice | 10 | ✅ |
-| 23 | Notifications received | 2 (infrastructure), 4–11 (events) | 🟡 registration/account notifications done |
+| 23 | Notifications received | 2 (infrastructure), 4–11 (events) | ✅ booking, cancellation, reschedule, check-in, prescription, lab report, invoice, payment, reminders |
 | 24–25 | Admin views statistics and reports | 12 | ⬜ |
 | 26 | Unauthorized access blocked | 2–12 | 🟡 role + own-record checks done for Phase 2 endpoints |
 
@@ -176,3 +176,14 @@ A feature is ticked only when **all** of these hold:
 * Known limitation: a payment recorded by mistake can't be voided. It can only be refunded, which counts as a
   credit.
 * The PDF writes amounts as "Rs." because the built-in PDF font has no ₹ symbol; the web pages show ₹.
+
+## Phase 11 notes
+
+* `V14__notification_preferences.sql` adds `notification_email_preferences` (a missing row means enabled). The
+  existing `users.email_notifications_enabled` remains the master switch.
+* The scheduler is switched off in tests (`medicare.reminders.enabled=false`); tests call
+  `ReminderService.runDue(time)` with fixed times to check the window, quiet hours and once-only sending.
+* The browser test changed one booking's `created_at` in the database, because a booking made inside the reminder
+  window is skipped by design.
+* Seen during the browser test, planned for Phase 13: the administrator menu now has 22 entries and needs grouping,
+  and times are still shown in the browser's time zone.

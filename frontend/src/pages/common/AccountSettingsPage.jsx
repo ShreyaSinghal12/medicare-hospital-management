@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import NotificationPreferencesCard from '../../components/account/NotificationPreferencesCard.jsx';
 import Button from '../../components/ui/Button.jsx';
 import Card from '../../components/ui/Card.jsx';
 import { TextField } from '../../components/ui/FormField.jsx';
@@ -17,18 +18,15 @@ function AccountForm() {
     register, handleSubmit, setError, reset,
     formState: { errors, isSubmitting, isDirty },
   } = useForm({
-    defaultValues: {
-      fullName: user.fullName,
-      phone: user.phone || '',
-      emailNotificationsEnabled: user.emailNotificationsEnabled,
-    },
+    defaultValues: { fullName: user.fullName, phone: user.phone || '' },
   });
 
   async function onSubmit(values) {
     try {
-      const me = await updateAccount(values);
+      // the e-mail master switch is edited in the notifications card; keep its current value here
+      const me = await updateAccount({ ...values, emailNotificationsEnabled: user.emailNotificationsEnabled });
       setUser(me);
-      reset({ fullName: me.fullName, phone: me.phone || '', emailNotificationsEnabled: me.emailNotificationsEnabled });
+      reset({ fullName: me.fullName, phone: me.phone || '' });
       toast.success('Account updated');
     } catch (err) {
       if (!applyServerFieldErrors(err, setError)) toast.error(err.message);
@@ -54,16 +52,6 @@ function AccountForm() {
             pattern: { value: PHONE_PATTERN, message: 'Enter a valid phone number' },
           })}
         />
-        <label className="flex items-start gap-2 text-sm text-slate-700 sm:col-span-2">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600"
-            {...register('emailNotificationsEnabled')} />
-          <span>
-            Send me e-mail notifications
-            <span className="block text-xs text-slate-500">
-              E-mails never include diagnoses, prescriptions or test results. In-app notifications are always on.
-            </span>
-          </span>
-        </label>
         <div className="sm:col-span-2">
           <Button type="submit" loading={isSubmitting} disabled={!isDirty}>Save changes</Button>
         </div>
@@ -134,6 +122,7 @@ export default function AccountSettingsPage() {
       <PageHeader title="Account settings" description="Manage your contact details, notifications and password." />
       <div className="space-y-6">
         <AccountForm />
+        <NotificationPreferencesCard />
         <PasswordForm />
       </div>
     </>

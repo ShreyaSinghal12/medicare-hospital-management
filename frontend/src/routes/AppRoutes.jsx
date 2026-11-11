@@ -44,6 +44,7 @@ import AccountSettingsPage from '../pages/common/AccountSettingsPage.jsx';
 import NotificationsPage from '../pages/common/NotificationsPage.jsx';
 import StaffHomePage from '../pages/common/StaffHomePage.jsx';
 import LabCatalogPage from '../pages/admin/LabCatalogPage.jsx';
+import RemindersPage from '../pages/admin/RemindersPage.jsx';
 import BillingSummaryPage from '../pages/billing/BillingSummaryPage.jsx';
 import InvoiceListPage from '../pages/billing/InvoiceListPage.jsx';
 import InvoicePage from '../pages/billing/InvoicePage.jsx';
@@ -169,6 +170,7 @@ export default function AppRoutes() {
           <Route path="admin/patients" element={<PatientsAdminPage />} />
           <Route path="admin/lab-tests" element={<LabCatalogPage />} />
           <Route path="admin/billing" element={<BillingSummaryPage />} />
+          <Route path="admin/reminders" element={<RemindersPage />} />
           <Route path="admin/invoices" element={<InvoiceListPage mode="admin" />} />
           <Route path="admin/invoices/:id" element={<InvoicePage mode="admin" />} />
           <Route path="admin/inventory" element={<MedicinesPage />} />
