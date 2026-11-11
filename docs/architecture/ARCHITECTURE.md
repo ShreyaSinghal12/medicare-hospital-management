@@ -32,7 +32,7 @@ flowchart LR
 ```
 
 In development, Vite (port 5173) proxies `/api` to Spring Boot (port 8080), so the browser sees **one origin**.
-In production, the built SPA is served by a web server (e.g. Nginx) that also reverse-proxies `/api`.
+In production, the built SPA is served by nginx, which terminates TLS, adds the security headers and reverse-proxies `/api` (see [DEPLOYMENT.md](../DEPLOYMENT.md)).
 
 ### Authentication decision
 
@@ -97,7 +97,7 @@ com.medicare
 
 ## 4. Database design
 
-35 application tables (+ `flyway_schema_history`), created by migrations `V1`–`V9`.
+36 application tables (+ `flyway_schema_history`), created by migrations `V1`–`V14`. Later migrations add columns rather than editing released ones (e.g. V12 recorded prices, V13 refunds, V14 e-mail preferences).
 
 ### Changes vs. the 33 tables in the brief (with reasons)
 
@@ -108,7 +108,7 @@ com.medicare
 | **+ `appointment_status_history`** | Appointments are updated in place (cancel / reschedule / status change); this table keeps the full, auditable history of each transition. |
 | **+ `consultation_amendments`** | Finalised clinical notes are never silently overwritten: every amendment stores a JSON snapshot of the previous values, the doctor and a reason. |
 | **+ `dispensing_items`** | One prescription line can be dispensed from several batches (FEFO), so dispensing needs line items. |
-| `patients` requires a linked `users` row | Every patient (including walk-ins) gets a login identity; walk-ins activate it later via "forgot password". Avoids duplicating name/email/phone in two tables. |
+| `patients` requires a linked `users` row | Every patient (including walk-ins) gets a login identity; walk-ins receive a single-use "set your password" e-mail. Avoids duplicating name/email/phone in two tables. |
 | `appointment_slots` is a **reservation ledger** | Free slots are *computed* from `doctor_availability` minus leave minus reservations. A row is written only when a slot is booked/blocked, so the table never fills with millions of empty slots. |
 | `appointments.active_doctor_guard` generated column | A second, independent unique key `(doctor, date, start_time)` that ignores cancelled rows, so double-booking is impossible even if service code were wrong. |
 | Prescriptions are versioned rows | `version_number` + `previous_version_id` + `SUPERSEDED` status, so finalised prescriptions are immutable. |
@@ -133,6 +133,7 @@ erDiagram
     users ||--o{ password_reset_tokens : requests
     users ||--o{ notifications : receives
     users ||--o{ audit_logs : performs
+    users ||--o{ notification_email_preferences : "e-mail choices"
     departments ||--o{ doctors : employs
 
     doctors ||--o{ doctor_availability : "weekly hours"
@@ -156,7 +157,7 @@ erDiagram
 
     lab_orders ||--o{ lab_order_items : includes
     lab_test_catalog ||--o{ lab_order_items : "test"
-    lab_orders ||--o{ lab_reports : "report files"
+    lab_orders ||--o| lab_reports : "PDF report"
 
     medicines ||--o{ medicine_batches : stocked
     medicine_batches ||--o{ inventory_transactions : ledger

@@ -23,3 +23,7 @@ frontend/playwright-report/
 .DS_Store
 Thumbs.db
 backend/mail-outbox/
+
+# TLS material for docker compose
+deploy/certs/*.crt
+deploy/certs/*.key

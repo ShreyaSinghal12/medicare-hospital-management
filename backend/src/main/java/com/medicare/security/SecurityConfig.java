@@ -131,12 +131,16 @@ public class SecurityConfig {
                 new HttpSessionSecurityContextRepository());
     }
 
-    /** Readable XSRF-TOKEN cookie (JavaScript must read it to send the header). */
+    /**
+     * Readable XSRF-TOKEN cookie (JavaScript must read it to send the header). It is marked Secure whenever the
+     * session cookie is (always in the prod profile), so it is never sent over plain HTTP in production.
+     */
     @Bean
-    public CsrfTokenRepository csrfTokenRepository() {
+    public CsrfTokenRepository csrfTokenRepository(
+            @org.springframework.beans.factory.annotation.Value("${server.servlet.session.cookie.secure:false}") boolean secureCookies) {
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         repository.setCookiePath("/");
-        repository.setCookieCustomizer(c -> c.sameSite("Lax"));
+        repository.setCookieCustomizer(c -> c.sameSite("Lax").secure(secureCookies));
         return repository;
     }
 
