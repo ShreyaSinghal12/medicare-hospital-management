@@ -87,6 +87,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                         .requestMatchers("/api/reception/**").hasAnyRole("RECEPTIONIST", "ADMIN")
                         .requestMatchers("/api/patients/me/**", "/api/patients/me").hasRole("PATIENT")
+                        // --- Role checks repeated at URL level so a wrong role gets 403 before the request body is
+                        //     validated (method-level @PreAuthorize runs after validation and stays as a second check) ---
+                        .requestMatchers(HttpMethod.POST, "/api/appointments").hasAnyRole("PATIENT", "RECEPTIONIST", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/check-in").hasAnyRole("RECEPTIONIST", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/no-show").hasAnyRole("DOCTOR", "RECEPTIONIST", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/consultations/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/consultations/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/consultations/**").hasAnyRole("DOCTOR", "PATIENT")
+                        .requestMatchers(HttpMethod.GET, "/api/prescriptions/**").hasAnyRole("DOCTOR", "PATIENT")
+                        .requestMatchers("/api/prescriptions/**").hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/lab-orders/**").authenticated()
+                        .requestMatchers("/api/lab-orders/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/lab-tests/**").hasAnyRole("DOCTOR", "ADMIN")
+                        .requestMatchers("/api/billing/patients/**").hasRole("RECEPTIONIST")
+                        .requestMatchers(HttpMethod.GET, "/api/billing/invoices").hasAnyRole("RECEPTIONIST", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/billing/invoices/**").hasAnyRole("RECEPTIONIST", "ADMIN", "PATIENT")
+                        .requestMatchers("/api/billing/**").hasRole("RECEPTIONIST")
                         // --- Everything else under /api requires a logged-in session ---
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().denyAll())
