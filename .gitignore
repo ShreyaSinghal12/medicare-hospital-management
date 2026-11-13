@@ -27,3 +27,4 @@ backend/mail-outbox/
 # TLS material for docker compose
 deploy/certs/*.crt
 deploy/certs/*.key
+medicare-project.bundle
